@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        #i_results { overflow-y:scroll;}
+    </style>
+</head>
+<body>
+   <form id="i_search" action="">
+       <input type="text" id="i_lemma" name="lemma" value=""
+                         placeholder="re* finds all words beginning 're'"/>
+       <select id="i_level" name="level">
+            <option value="*" selected>all levels</option>
+            <option value="el">elementary</option>
+            <option value="in">intermediate</option>
+            <option value="hi">high</option>
+            <option value="m">elem &amp; int</option>
+            <option value="i">int &amp; high</option>
+            <option value="^d">elem &amp; high</option>
+       </select>
+       <select id="i_pos" name="pos">
+           <option value="" selected>all forms</option>
+           <option value="noun">noun</option>
+           <option value="verb">verb</option>
+           <option value="adj">adj</option>
+           <option value="adv">adv</option>
+       </select>
+
+   </form>
+
+   <div id="i_results">Results:</div>
+</body>
+</html>
