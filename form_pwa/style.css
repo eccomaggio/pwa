@@ -1,0 +1,249 @@
+form {
+  max-width: 400px;
+}
+
+form,
+button {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+
+#results_text {
+  margin: 10px 0px 10px 10px;
+  height: 100px;
+  overflow-y: auto;
+}
+
+fieldset {
+  border-radius: 10px;
+  background: #e5ebeb;
+  border: none;
+  margin-top: 10px;
+}
+
+div[id$="inputs"] {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+label {
+  display: none;
+  /*font-size:small;*/
+}
+
+div[id$="label"] {
+  text-align: center;
+  color: red;
+}
+
+.opt {
+  display: none;
+}
+
+.GEPTKids {
+  color: red;
+  font-weight: bold;
+}
+
+.GEPT {
+  color: blue;
+  font-weight: bold;
+}
+
+table {
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+  /*border: 0;*/
+}
+
+td:nth-child(1) {
+  width: 10%;
+}
+
+td {
+  vertical-align: top;
+}
+
+.line {
+  background-image: linear-gradient(to right, red, orange, yellow, green, blue);
+  /*background-image: linear-gradient(var(--line-color), var(--line-color));*/
+  /*background-image: linear-gradient(to right, red 20%, orange 20% 40%, yellow 40% 60%, green 60% 80%, blue 80%);*/
+  background-repeat: no-repeat;
+  background-size: 95% var(--line-height);
+  background-position: 50% 40%;
+}
+
+.line-el {
+  --line-color: #B8C1C1;
+  --line-height: 10px;
+}
+
+input {
+  accent-color: #3F7FBF;
+}
+
+/* ## FOR SLIDER ## */
+
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 12px;
+  width: 12px;
+  left: 4px;
+  bottom: 4px;
+  /*background-color: #3F7FBF;*/
+  background-color: #3F7FBF;
+  border: 0.5px solid;
+  -webkit-transition: .4s;
+  transition: .4s;
+  /*border-radius: 50%;*/
+}
+
+input:checked+.slider {
+  background-color: #FC7435;
+}
+
+input:focus+.slider {
+  box-shadow: 0 0 1px #3F7FBF;
+}
+
+input:checked+.slider:before {
+  /*-webkit-transform: translateX(20px);
+  -ms-transform: translateX(20px);*/
+  transform: translateX(20px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/*input {
+  margin: 0px 0px 0px 20px;
+  transform: scale(1.5);
+  accent-color: #07c5a2;
+}*/
+
+/*
+#container {
+  display: grid;
+  gap: 10px;
+}
+
+@media (max-width: 755px) {
+  #container {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+@media (min-width: 756px) {
+  #container {
+  grid-template-columns: repeat(3, 1fr);
+}
+  #match {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  #level {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  #pos {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  #buttons {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  #results {
+    grid-column: 2 / 4;
+    grid-row: 2;
+  }
+}
+
+body,
+button {
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+
+legend,
+button {
+  font-weight: bold;
+  font-size: large;
+  color: #046251;
+}
+
+fieldset,
+button {
+  border-radius: 30px;
+  background: #c4fdf3;
+  border: none;
+  margin: 0px;
+}
+
+button {
+  width: 48%;
+}
+
+input {
+  margin: 0px 0px 0px 10px;
+  background: red;
+  transform: scale(1.5);
+  accent-color: #07c5a2;
+}
+
+#term_i {
+  background: white;
+  margin: 10px 0px 10px 50px;
+  border: 0
+}
+
+label {
+  margin: 0px 20px 0px 3px;
+}
+
+#result_text {
+  margin: 10px 0px 10px 10px;
+  height: 200px;
+  overflow-y: auto;
+}
+*/
