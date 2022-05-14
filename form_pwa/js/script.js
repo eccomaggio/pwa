@@ -15,6 +15,7 @@ const legends = {
   match: "Match",
   level: "Level",
   //pos: "Part of speech:",
+  theme: "Theme",
   pos: "PoS",
   results: "Results"
 }
@@ -27,6 +28,8 @@ const results_text = document.getElementById("results_text")
 const db_toggle = document.getElementById("term_slider")
 const G_level = document.getElementById("level")
 const K_theme = document.getElementById("theme")
+const theme_select = document.getElementById("theme_select")
+const root_css = document.documentElement;
 
 addListeners()
 finalInit()
@@ -38,6 +41,7 @@ function addListeners(){
   form.addEventListener("submit", logSubmit)
   form.addEventListener("reset", reset_form)
   db_toggle.addEventListener("change", refreshSliderWrapper)
+  theme_select.addEventListener("change", updateLegendWrapper)
   
   for (const el of document.getElementsByTagName("input")) {
     if (el.type != "text") {
@@ -69,15 +73,19 @@ function clearDiffSiblings(e) {
 
 
 
-
+function updateLegendWrapper() {
+  updateLegend("theme")
+}
 
 function updateLegend(parentID) {
   let labelContent = []
+  //console.log(`legend parent: ${parentID}`)
   if (parentID == "term") {
-    labelContent = [` <span class='${currentDb.name}'>${currentDb.name}</span> for:`]
+    labelContent = [` <span class='dbColor'>${currentDb.name}</span> for:`]
   } else {
     for (const el of getInputs(parentID)) {
       if (el.checked) { labelContent.push(el.labels[0].innerText) }
+      else if (el.selected) {labelContent.push(el.innerHTML) }
     }
   }
   const label = document.getElementById(parentID + "_legend")
@@ -90,7 +98,10 @@ function updateLegend(parentID) {
 
 
 function getInputs(parentID) {
-  return document.getElementById(parentID).querySelectorAll("input")
+  let tag = "input"
+  if (parentID == "theme") tag = "option"
+  //console.log(parentID,tag)
+  return document.getElementById(parentID).querySelectorAll(tag)
 }
 
 
@@ -101,17 +112,18 @@ function getInputs(parentID) {
 function logSubmit(event) {
   let results = []
   let raw_data = new FormData(form)
+  event.preventDefault()
+
   let data = {
     term: [],
     match: [],
     level: [],
-    // theme: [],
+    theme: [],
     pos: []
   }
   for (const [key, value] of raw_data) {
     data[key].push(value)
   }
-  event.preventDefault()
 
   let term = data.term.join().toLowerCase()
   let level = data.level.join("|")
@@ -158,7 +170,7 @@ function logSubmit(event) {
 
 
 function get_results(find) {  
-  console.log(find,isGEPTKids,currentDb.name)
+  //console.log(find,isGEPTKids,currentDb.name)
   let results = currentDb.db.filter((i) => i[LEMMA].search(find.term) != -1)
   if (find.level) {
     results = results.filter((i) => i[LEVEL].search(find.level) != -1)
@@ -211,13 +223,24 @@ function refreshSlider(slider) {
     //console.log("Using GEPTKids")
     G_level.style.display = "none"
     K_theme.style.display = "block"
-    currentDb = GEPTKids;
-    isGEPTKids = true;
+
+    root_css.style.setProperty('--light', '#f9ccac')
+    //root_css.style.setProperty('--light', '#b7d7e8')
+    root_css.style.setProperty('--medium', '#f4a688')
+    //root_css.style.setProperty('--dark', '#e0876a')
+    root_css.style.setProperty('--dark', '#c1502e')
+    root_css.style.setProperty('--accent', '#fbefcc')    
+    currentDb = GEPTKids
+    isGEPTKids = true
   } else {
     //console.log("Using GEPT")
     G_level.style.display = "block"
     K_theme.style.display = "none"
-    currentDb = GEPT;
-    isGEPTKids = false;
+    root_css.style.setProperty('--light', '#cfe0e8')
+    root_css.style.setProperty('--medium', '#87bdd8')
+    root_css.style.setProperty('--dark', '#3F7FBF')
+    root_css.style.setProperty('--accent', '#daebe8')
+    currentDb = GEPT
+    isGEPTKids = false
   }
 }
