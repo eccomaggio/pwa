@@ -105,7 +105,7 @@ function logSubmit(event) {
     term: [],
     match: [],
     level: [],
-    theme: [],
+    // theme: [],
     pos: []
   }
   for (const [key, value] of raw_data) {
@@ -113,7 +113,7 @@ function logSubmit(event) {
   }
   event.preventDefault()
 
-  let term = data.term.join()
+  let term = data.term.join().toLowerCase()
   let level = data.level.join("|")
   // ** Substitute theme data for level in GEPTKids search
   // ** otherwise theme data is disregarded
@@ -122,7 +122,7 @@ function logSubmit(event) {
   }
   const pos = data.pos.join("|")
   const searchTerms = term + level + pos
-  console.log(`searchTerms=${searchTerms}`)
+  // console.log(`searchTerms=${searchTerms}`)
   if (!searchTerms) {
     results = ["Please enter at least one search term to restrict the number of results.",0]
   } else {
