@@ -1,20 +1,24 @@
-import {GEPTdb} from './GEPT.js'
-import {KIDSdb} from './Kids.js'
+/*if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js')
+    .then(reg => console.log('service worker registered'))
+    .catch(err => console.log('service worker not registered', err));
+}*/
+
+//import {GEPTdb} from './GEPT.js'
+//import {KIDSdb} from './Kids.js'
 
 const LEMMA = 0
 const POS = 1
 const LEVEL = 2
 const NOTE = 3
 
-const GEPTKids = {name:"GEPTKids", db:KIDSdb}
-const GEPT = {name:"GEPT", db:GEPTdb}
-let isGEPTKids = false
+const GEPT = {name:"GEPT", db:GEPTdb, isKids:false, css:['#cfe0e8','#87bdd8','#3F7FBF','#daebe8',0]}
+const GEPTKids = {name:"GEPTKids", db:KIDSdb, isKids:true, css:['#f9ccac','#f4a688','#c1502e','#fbefcc',20]}
 
 const legends = {
   term: "Search",
   match: "Match",
   level: "Level",
-  //pos: "Part of speech:",
   theme: "Theme",
   pos: "PoS",
   results: "Results"
@@ -25,10 +29,9 @@ let currentDb = GEPT
 
 const form = document.getElementById("main")
 const results_text = document.getElementById("results_text")
-const db_toggle = document.getElementById("term_slider")
+const knub = document.getElementById("knub")
 const G_level = document.getElementById("level")
 const K_theme = document.getElementById("theme")
-const theme_select = document.getElementById("theme_select")
 const root_css = document.documentElement;
 
 addListeners()
@@ -40,8 +43,10 @@ finalInit()
 function addListeners(){
   form.addEventListener("submit", logSubmit)
   form.addEventListener("reset", reset_form)
-  db_toggle.addEventListener("change", refreshSliderWrapper)
-  theme_select.addEventListener("change", updateLegendWrapper)
+  //knub.addEventListener("click", refreshSliderWrapper)
+  
+  document.getElementById('js_slider').addEventListener("click", refreshSliderWrapper)
+  document.getElementById("theme_select").addEventListener("change", updateLegendWrapper)
   
   for (const el of document.getElementsByTagName("input")) {
     if (el.type != "text") {
@@ -51,7 +56,7 @@ function addListeners(){
 }
 
 function finalInit(){ 
-  refreshSlider(db_toggle)
+  toggleSlider(GEPT)
   for (const key of Object.keys(legends)) {
     updateLegend(key)
   }
@@ -79,7 +84,6 @@ function updateLegendWrapper() {
 
 function updateLegend(parentID) {
   let labelContent = []
-  //console.log(`legend parent: ${parentID}`)
   if (parentID == "term") {
     labelContent = [` <span class='dbColor'>${currentDb.name}</span> for:`]
   } else {
@@ -95,17 +99,11 @@ function updateLegend(parentID) {
 
 
 
-
-
 function getInputs(parentID) {
   let tag = "input"
   if (parentID == "theme") tag = "option"
-  //console.log(parentID,tag)
   return document.getElementById(parentID).querySelectorAll(tag)
 }
-
-
-
 
 
 
@@ -129,12 +127,11 @@ function logSubmit(event) {
   let level = data.level.join("|")
   // ** Substitute theme data for level in GEPTKids search
   // ** otherwise theme data is disregarded
-  if (isGEPTKids) {
+  if (currentDb.isKids) {
     level = data.theme.join("|")
   }
   const pos = data.pos.join("|")
   const searchTerms = term + level + pos
-  // console.log(`searchTerms=${searchTerms}`)
   if (!searchTerms) {
     results = ["Please enter at least one search term to restrict the number of results.",0]
   } else {
@@ -170,7 +167,6 @@ function logSubmit(event) {
 
 
 function get_results(find) {  
-  //console.log(find,isGEPTKids,currentDb.name)
   let results = currentDb.db.filter((i) => i[LEMMA].search(find.term) != -1)
   if (find.level) {
     results = results.filter((i) => i[LEVEL].search(find.level) != -1)
@@ -209,7 +205,6 @@ function reset_form() {
     updateLegend(key)
   }
   results_text.innerHTML = ""
-  refreshSlider(db_toggle)
 }
 
 
@@ -218,29 +213,28 @@ function refreshSliderWrapper(e) {
   refreshSlider(e.target)
 }
 
-function refreshSlider(slider) {
-  if (slider.checked) {
-    //console.log("Using GEPTKids")
-    G_level.style.display = "none"
-    K_theme.style.display = "block"
 
-    root_css.style.setProperty('--light', '#f9ccac')
-    //root_css.style.setProperty('--light', '#b7d7e8')
-    root_css.style.setProperty('--medium', '#f4a688')
-    //root_css.style.setProperty('--dark', '#e0876a')
-    root_css.style.setProperty('--dark', '#c1502e')
-    root_css.style.setProperty('--accent', '#fbefcc')    
-    currentDb = GEPTKids
-    isGEPTKids = true
+function refreshSlider(slider) {
+  if (!currentDb.isKids) {
+    toggleSlider(GEPTKids)
   } else {
-    //console.log("Using GEPT")
-    G_level.style.display = "block"
-    K_theme.style.display = "none"
-    root_css.style.setProperty('--light', '#cfe0e8')
-    root_css.style.setProperty('--medium', '#87bdd8')
-    root_css.style.setProperty('--dark', '#3F7FBF')
-    root_css.style.setProperty('--accent', '#daebe8')
-    currentDb = GEPT
-    isGEPTKids = false
+    toggleSlider(GEPT)
   }
 }
+
+function toggleSlider(dBase) {
+  currentDb = dBase
+  if (currentDb.isKids) {
+    K_theme.style.setProperty("display","none")
+    G_level.style.setProperty("display","block")
+  } else {
+    K_theme.style.setProperty("display","block")
+    G_level.style.setProperty("display","none")  }
+  root_css.style.setProperty('--light', dBase.css[0])
+  root_css.style.setProperty('--medium', dBase.css[1])
+  root_css.style.setProperty('--dark', dBase.css[2])
+  root_css.style.setProperty('--accent', dBase.css[3])
+  knub.style.transform = `translateX(${dBase.css[4]}px)`
+  updateLegend("term")
+}
+

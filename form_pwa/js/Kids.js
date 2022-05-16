@@ -46,7 +46,8 @@ inf. (infinitive)
 num. = number (geptkids only)
 */
 
-export const KIDSdb = [
+//export  const KIDSdb = [
+const KIDSdb = [
   ["animal", "noun", "Animals & insects", "動物"],
   ["bear", "noun", "Animals & insects", "熊"],
   ["bee", "noun", "Animals & insects", "蜜蜂"],

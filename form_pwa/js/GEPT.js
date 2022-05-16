@@ -17,7 +17,8 @@ num. = number (geptkids only)
 
 
 
-export const GEPTdb = [
+//export const GEPTdb = [
+const GEPTdb = [
   ["a", "art.", "elementary", "後接母音開頭之字時為 an"],
   ["A.M.", "adv.", "elementary", "= a.m.= AM"],
   ["abandon", "verb/noun", "intermediate", ""],
