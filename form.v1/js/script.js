@@ -225,11 +225,11 @@ function refreshSlider(slider) {
 function toggleSlider(dBase) {
   currentDb = dBase
   if (currentDb.isKids) {
-    K_theme.style.setProperty("display","none")
-    G_level.style.setProperty("display","block")
-  } else {
     K_theme.style.setProperty("display","block")
-    G_level.style.setProperty("display","none")  }
+    G_level.style.setProperty("display","none")
+  } else {
+    K_theme.style.setProperty("display","none")
+    G_level.style.setProperty("display","block")  }
   root_css.style.setProperty('--light', dBase.css[0])
   root_css.style.setProperty('--medium', dBase.css[1])
   root_css.style.setProperty('--dark', dBase.css[2])

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/img/logo-96x96.png">
+  <meta name="apple-mobile-web-app-status-bar" content="#FFE1C4">
+  <meta name="theme-color" content="#FFE1C4">
+  <!-- <script src="./js/app.js"></script> -->
+  <meta charset="UTF-8">
+  <title>Wakka PWA</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="./css/style.css">
+  <!--<script src="./js/script.js" type="module" defer></script>-->
+  <script src="./js/GEPT.js"></script>
+  <script src="./js/Kids.js"></script>
+  <script src="./js/script.js" defer></script>
+
+</head>
+
+<body>
+  <form id="main">
+    <div id="container">
+
+      <fieldset id="term">
+        <legend id="term_legend">Search for:</legend>
+        <div id="term_inputs">
+          <input type="text" id="term_i" name="term" autocapitalize="none">
+          <div id="term_buttons">
+            <div id="js_slider" class="slider">
+              <div id="knub" class="slider_inner"></div>
+            </div>
+            <!--<label class="switch" for="term_slider">
+                <span id="js_slider" class="slider"><div id="knub"/></span>
+              </label>-->
+            <button id="reset_form" type="reset">Reset</button>
+          </div>
+
+      </fieldset>
+
+      <!--<fieldset>
+            <div id="button_inputs">
+              <button type="submit">Submit</button>
+              <button id="reset_form" type="reset">Reset</button>
+            </div>
+          </div>
+        </fieldset>-->
+
+      <fieldset id="match">
+        <legend id="match_legend">Match:</legend>
+        <div id="match_inputs" class="line-el line">
+          <label for="match_x">exact
+            <input type="radio" name="match" id="match_x" Xvalue="exact" value="^:$">
+          </label>
+
+          <label for="match_c">contains
+            <input type="radio" name="match" id="match_c" Xvalue="contains" value=":" checked>
+          </label>
+
+          <label for="match_s">starts
+            <input type="radio" name="match" id="match_s" Xvalue="starts" value="^:.*">
+          </label>
+
+          <label for="match_e">ends
+            <input type="radio" name="match" id="match_e" Xvalue="ends" value=".*:$">
+          </label>
+        </div>
+
+      </fieldset>
+
+      <fieldset id="level">
+        <legend id="level_legend">Level:</legend>
+        <div id="level_inputs" class="line-el line">
+          <label for="level_a">any
+            <input type="radio" name="level" id="level_a" value="" checked>
+          </label>
+
+          <label for="level_e">elem.
+            <input type="checkbox" name="level" id="level_e" value="l">
+          </label>
+
+          <label for="level_i">int.
+            <input type="checkbox" name="level" id="level_i" value="d">
+          </label>
+
+          <label for="level_h">hi-Int.
+            <input type="checkbox" name="level" id="level_h" value="h">
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset id="theme">
+        <legend id="theme_legend">Theme:</legend>
+        <div id="theme_values">
+          <select name="theme" id="theme_select">
+            <option value="" selected>any</option>
+            <option value="Ani">Animals &amp; insects</option>
+            <option value="Clo">Clothing &amp; accessories</option>
+            <option value="Col">Colors</option>
+            <option value="Fam">Family</option>
+            <option value="Foo">Food &amp; drink</option>
+            <option value="For">Forms of address</option>
+            <option value="Geo">Geographical terms</option>
+            <option value="Hea">Health</option>
+            <option value="Hol">Holidays &amp; festivals</option>
+            <option value="Hou">Houses &amp; apartments</option>
+            <option value="Mon">Money</option>
+            <option value="Num">Numbers</option>
+            <option value="Occ">Occupations</option>
+            <option value="Oth">Other</option>
+            <option value="Par">Parts of body</option>
+            <option value="Peo">People</option>
+            <option value="Per">Personal characteristics</option>
+            <option value="Pla">Places &amp; directions</option>
+            <option value="Sch">School</option>
+            <option value="Siz">Sizes &amp; measurements</option>
+            <option value="Spo">Sports, interest &amp; hobbies</option>
+            <option value="Syn">Syntax</option>
+            <option value="Tab">Tableware</option>
+            <option value="Tim">Time</option>
+            <option value="Tra">Transportation</option>
+            <option value="Wea">Weather &amp; nature</option>
+            <option value="Wh">Wh - words</option>
+          </select>
+        </div>
+      </fieldset>
+
+      <fieldset id="pos">
+        <legend id="pos_legend">Part of Speech:</legend>
+        <div id="pos_inputs" class="line-el line">
+          <label for="pos_a">any
+            <input type="radio" name="pos" id="pos_a" value=" " checked>
+          </label>
+
+          <label for="pos_n">noun
+            <input type="checkbox" name="pos" id="pos_n" value="noun">
+          </label>
+
+          <label for="pos_v">verb
+            <input type="checkbox" name="pos" id="pos_v" value="verb">
+          </label>
+
+
+          <label for="pos_j">adj.
+            <input type="checkbox" name="pos" id="pos_j" value="adj">
+          </label>
+
+          <label for="pos_d">adv.
+            <input type="checkbox" name="pos" id="pos_d" value="adv">
+          </label>
+
+          <label for="pos_o">other
+            <input type="checkbox" name="pos" id="pos_o" value="prep|conj|inf|det|terj|pron|aux|art">
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset id="results">
+        <legend id="results_legend">Results:</legend>
+        <div id="results_text">&nbsp;</div>
+      </fieldset>
+
+    </div>
+  </form>
+
+
+</body>
+
+</html>
