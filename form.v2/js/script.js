@@ -1,8 +1,8 @@
-if ('serviceWorker' in navigator) {
+/*if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
     .then(reg => console.log('service worker registered'))
     .catch(err => console.log('service worker not registered', err));
-}
+}*/
 
 const LEMMA = 0;
 const POS = 1;
@@ -120,7 +120,7 @@ function registerLabelClick(e_label) {
       defaultChecked.labels[0].classList.add("selected_txt");
       refreshLabels(parentID);
     }
-    submitForm();
+    submitForm(e_label);
   }
 }
 
@@ -142,7 +142,7 @@ function getInputs(parentID) {
   return document.getElementById(parentID).querySelectorAll(tag);
 }
 
-function submitForm() {
+function submitForm(event) {
   let results = [];
   let raw_data = new FormData(form);
   event.preventDefault();
@@ -236,8 +236,9 @@ function reset_form() {
   results_text.innerHTML = "";
 }
 
-function refreshSliderWrapper(e) {
-  refreshSlider(e.target);
+function refreshSliderWrapper(event) {
+  refreshSlider(event.target);
+    submitForm(event);
 }
 
 function refreshSlider(slider) {
@@ -260,6 +261,5 @@ function toggleSlider(dBase) {
   root_css.style.setProperty("--dark", dBase.css[2]);
   root_css.style.setProperty("--accent", dBase.css[3]);
   knub.style.transform = `translateX(${dBase.css[4]}px)`;
-  submitForm();
   //updateLegend("term");
 }
