@@ -5,8 +5,14 @@
   --accent: #ddeedd;
 }
 
+body {
+  width:100%;
+  display: flex;
+  justify-content: center;
+}
+
 form {
-  width: 380px;
+  width: 340px;
 }
 
 form,
@@ -32,12 +38,6 @@ button {
   display: flex;
   flex-direction: column;
 }
-
-/*button[type='submit'] {
-  font-weight: bold;
-  width: 170px;
-  height: 40px;
-}*/
 
 #results_text {
   margin: 10px 0px 10px 10px;
@@ -104,7 +104,7 @@ input[type='text'] {
   border-radius: 5px;
   padding: 6px;
   box-shadow: inset 2px 2px 5px var(--dark);
-  width: 75%;
+  width: 70%;
   height: 50px;
   font-size: large;
   text-indent: 5px;
