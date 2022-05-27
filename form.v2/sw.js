@@ -1,11 +1,11 @@
 const staticCacheName = 'site-static-v2';
 const assets = [
-  '/',
-  '/index.html',
-  '/js/script.js',
-  '/js/GEPT.js',
-  '/js/Kids.js',
-  '/css/style.css',
+  '/form.v2/',
+  '/form.v2/index.html',
+  '/form.v2/js/script.js',
+  '/form.v2/js/GEPT.js',
+  '/form.v2/js/Kids.js',
+  '/form.v2/css/style.css',
 ];
 // install event
 self.addEventListener('install', evt => {
