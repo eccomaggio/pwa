@@ -6,6 +6,14 @@ const assets = [
   '/form.v2/js/GEPT.js',
   '/form.v2/js/Kids.js',
   '/form.v2/css/style.css',
+  '/img/logo-72x72.png',
+  '/img/logo-96x96.png',
+  '/img/logo-128x128.png',
+  '/img/logo-144x144.png',
+  '/img/logo-152x152.png',
+  '/img/logo-192x192.png',
+  '/img/logo-384x384.png',
+  '/img/logo-512x512.png'
 ];
 // install event
 self.addEventListener('install', evt => {

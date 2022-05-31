@@ -46,6 +46,22 @@ button {
   overflow-y: auto;
 }
 
+.level-h {
+}
+
+.level-i {
+  color: var(--dark);
+}
+
+.level-e {
+  color: darkgoldenrod;
+}
+
+.level-h .level-h, .level-i .level-i, .level-e .level-e {
+  /*font-weight: bold;*/
+  font-style: italic;
+}
+
 fieldset {
   border-radius: 10px;
   background: var(--light);

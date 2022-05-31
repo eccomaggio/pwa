@@ -215,7 +215,7 @@ function format_results(results) {
     results
       .map(function (entry, i) {
         return `<tr><td>${i + 1
-          }:</td><td><strong>${entry[LEMMA]}</strong> [${entry[POS].trim()}] ${entry[LEVEL].trim()}, ${entry[NOTE].trim()}</td></tr>`;
+          }:</td><td class='level-${entry[LEVEL][0]}'><strong>${entry[LEMMA]}</strong> [${entry[POS].trim()}] <span class='level-${entry[LEVEL][0]}'>${entry[LEVEL].trim()}</span>, ${entry[NOTE].trim()}</td></tr>`;
       })
       .join("") +
     "</table>"
