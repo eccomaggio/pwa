@@ -213,9 +213,15 @@ function format_results(results) {
   return (
     "<table>" +
     results
-      .map(function (entry, i) {
-        return `<tr><td>${i + 1
-          }:</td><td class='level-${entry[LEVEL][0]}'><strong>${entry[LEMMA]}</strong> [${entry[POS].trim()}] <span class='level-${entry[LEVEL][0]}'>${entry[LEVEL].trim()}</span>, ${entry[NOTE].trim()}</td></tr>`;
+    .map(function (entry, i) {
+      const col1 = `<td>${i + 1}: </td>`;
+      const lemma = `<strong>${entry[LEMMA]}</strong>`;
+      const pos = `[${entry[POS].trim()}]`;
+      const level = entry[LEVEL].trim();
+      let note = entry[NOTE].trim();
+      note = note ? `, ${note}` : "";
+      const col2 = `<td class='level-${entry[LEVEL][0]}'>${lemma} ${pos} ${level}${note}</td>`;
+      return `<tr>${col1}${col2}</tr>`;
       })
       .join("") +
     "</table>"

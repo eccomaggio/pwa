@@ -1,5 +1,11 @@
 const dB = [
-	["a", "art.", 2, "後接母音開頭之字時為 an"],
+["feet", "noun", "elementary", "irreg. plural"],
+["geese", "noun", "elementary", "irreg. plural"],
+["men", "noun", "elementary", "irreg. plural"],
+["mice", "noun", "elementary", "irreg. plural"],
+["teeth", "noun", "elementary", "irreg. plural"],
+["women", "noun", "elementary", "irreg. plural"],
+["a", "art.", 2, "後接母音開頭之字時為 an"],
 ["A.M.", "adv.", 2, "= a.m.= AM"],
 ["abandon", "verb/noun", 2, ""],
 ["abandoned", "adj.", 3, ""],
