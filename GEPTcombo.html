@@ -5,87 +5,159 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GEPT text checker</title>
+  <title>Document</title>
   <style>
     :root {
       --light: #cfe0e8;
       --medium: #87bdd8;
-      --dark: #3F7FBF;
+      --dark: #3f7fbf;
       --accent: #ddeedd;
     }
 
-    @media screen and (max-width: 720px) {
-      #container {
-        flex-direction: column;
-      }
+    /** {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}*/
+
+    /* ## TABS ############################################ */
+    body {
+      margin: 6px;
+      /*background: black;*/
     }
 
-    #container {
+    #tabGroup {
+      /*background: black;*/
+      height: 98vh;
+      width: 98vw;
       display: flex;
-      background: white;
-    }
-
-    #raw_text {
-      background: white;
-      box-shadow: inset 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
-      border: 0.5px solid black;
-    }
-
-    #final_text {
-      /*background: #e3fffe;*/
-      background: var(--light);
-    }
-
-    #final_text,
-    #raw_text {
-      padding: 5px;
-      margin: 5px;
-      min-height: 40vh;
-      flex: 1 1 200px;
-      border-radius: 5px;
-      overflow: scroll;
-    }
-
-    #buttons {
-      padding: 5px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
+      flex-direction: column;
       font-family: "Lucida Console", "Courier New", monospace;
     }
 
-    #reset_button {
-      border-radius: 10px;
-      border: none;
-      background: var(--medium);
-      font: inherit;
-      font-weight: bold;
-      color: var(--dark);
-    }
-
-    #dbSelect {
+    #tabHead {
+      /*background: red;
+  background: white;*/
       display: flex;
-      align-items: center;
+      flex-direction: row;
+      justify-content: flex-start;
     }
 
-    #spacer {
-      /*align-self: stretch;*/
+    #tabBody {
+      /*background: green;*/
+      display: flex;
+      flex: 1;
+      border: 1px solid lightgray;
+      border-radius: 0 10px 0 0;
+      background: white;
     }
 
-    #selectGEPT {
-      color: #3F7FBF;
+    .tab-content {
+      /*background: blue;*/
+      background: white;
+      flex-direction: column;
+      flex: 1;
+      margin: 5px;
     }
 
-    #selectKids {
-      color: #c1502e;
+    .tab-div {
+      /*background: purple;*/
+      flex: 100%;
+      flex-direction: column;
+
+      margin: 6px;
+      display: inherit;
     }
+
+    @media (min-width: 600px) {
+      .tab-content {
+        /*background: CornflowerBlue;*/
+        flex-direction: row;
+      }
+
+      .tab-div {
+        flex: 50%;
+      }
+    }
+
+    .tab {
+      /*background: orange;*/
+      border: 1px solid lightgray;
+      border-radius: 5px 5px 0 0;
+      border-bottom: 0;
+      padding: 8px 6px 6px 6px;
+    }
+
+    .tab-tools {
+      /*background: yellow;*/
+      margin-left: auto;
+      display: flex;
+    }
+
+    .tab-on {
+      color: black;
+      background: white;
+      font-weight: bold;
+      border-bottom: 1px solid white;
+      margin-bottom: -1px;
+      z-index: 1;
+    }
+
+    .tab-off {
+      /*background: lightgray;*/
+      background: var(--light);
+      font-weight: normal;
+    }
+
+    /*#tabHead div,
+#tabBody div .tab-div {
+  border: 1px dotted red;
+}*/
+
+    /* ## Tabs1&2 SHARED ############################################## */
+
+    #t_raw_text {
+      margin-top: 10px;
+    }
+
+    input[type='text'],
+    #t_raw_text {
+      display: block;
+      transform: none;
+      border-width: 0;
+      border-radius: 5px;
+      padding: 6px;
+      background: white;
+      box-shadow: inset 2px 2px 5px var(--medium);
+      border: 0.5px solid var(--light);
+      /*text-indent: 5px;*/
+      flex-grow: 1;
+    }
+
+    input[type='text'],
+    #raw_text,
+    #t_final_text {
+      text-indent: 5px;
+      overflow-wrap: break-word;
+      overflow: auto;
+    }
+
+    #t_final_text {
+      padding-top: 3em;
+    }
+
+    /*#t_final_text, #t_raw_text, #w_results_text {
+  overflow: auto;
+}*/
 
     .level-o {
       color: red;
+      font-style: italic;
     }
 
     .level-h {
-      color: purple;
+      color: fuchsia;
+      /*font-weight: 550;*/
     }
 
     .level-i {
@@ -96,6 +168,111 @@
       color: green;
     }
 
+    input:focus,
+    select:focus {
+      outline: 1 solid var(--dark);
+    }
+
+    /* ## Tab1 (words) lookup ############################################## */
+
+    fieldset {
+      border-radius: 10px;
+      background: var(--light);
+      border: none;
+      margin-top: 10px;
+    }
+
+    fieldset:only-child {
+      flex: 100%;
+      overflow: auto;
+    }
+
+    #w_results_text {
+      padding: 5px;
+      margin: 5px;
+      font-size: smaller;
+    }
+
+    div[id$="inputs"] {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    fieldset label,
+    .deselected {
+      color: var(--dark);
+      text-shadow: 0 2px 2px white, 0 -2px 1px var(--medium);
+    }
+
+    .selected_txt {
+      font-weight: bold;
+      color: black;
+      text-shadow: 0 2px 2px var(--medium), 0 -2px 1px white;
+    }
+
+    option {
+      background: var(--light);
+      color: var(--dark);
+      font-family: inherit;
+    }
+
+    input {
+      display: none;
+    }
+
+    input[type='text'] {
+      height: 25px;
+      font-size: large;
+      /*text-indent: 5px;*/
+      color: var(--dark);
+      font-weight: bold;
+    }
+
+    select {
+      /*width: 100%;*/
+      border-radius: 4px;
+      border-width: 0px;
+      background: var(--light);
+      font-family: inherit;
+      font-size: medium;
+    }
+
+    .opt {
+      display: none;
+    }
+
+    .dbColor {
+      color: var(--dark);
+      font-weight: bold;
+    }
+
+    table {
+      table-layout: fixed;
+      border-collapse: collapse;
+    }
+
+    td:nth-child(1) {
+      width: 10%;
+    }
+
+    td {
+      vertical-align: top;
+    }
+
+    /*.line-el {
+  --line-color: #B8C1C1;
+  --line-height: 16px;
+}*/
+
+
+    /* ## Tab2 (text) lookup ############################################## */
+
+    /*#t_final_text {
+  background: var(--light);
+}*/
+
     .v {
       color: orange;
     }
@@ -104,9 +281,45 @@
       color: gray;
     }
 
+    .text-right {
+      text-align: end;
+      font-weight: bold;
+    }
 
-    /* ## FOR PLACEHOLDER TEXT ## */
-    [contenteditable=true]:empty:before {
+    /* ## PAGE COMMON ELEMENTS #################################### */
+
+    #reset_button {
+      /*border-radius: 20px;*/
+      border: 0;
+      background: unset;
+      /*background: var(--medium);*/
+      /*background: var(--light);
+  background: white;*/
+      font: inherit;
+      font-weight: bold;
+      color: var(--dark);
+    }
+
+    #dbSelect {
+      display: flex;
+      align-items: center;
+    }
+
+    .spacer {
+      width: 5vw;
+    }
+
+    #selectGEPT {
+      color: #3f7fbf;
+    }
+
+    #selectKids {
+      color: #c1502e;
+    }
+
+    /* ## FOR PLACEHOLDER TEXT #################################### */
+
+    [contenteditable="true"]:empty:before {
       content: attr(placeholder);
       pointer-events: none;
       display: block;
@@ -114,7 +327,7 @@
       color: gray;
     }
 
-    /* ## FOR TOOLTIP ## */
+    /* ## FOR TOOLTIP ############################################# */
     .tooltip {
       position: relative;
       display: inline-block;
@@ -152,496 +365,219 @@
     .tooltip:hover .tooltiptext {
       visibility: visible;
       opacity: 1;
+      font-size: small;
     }
 
-    /* ## FOR SLIDER ## */
+    /* ## FOR SLIDER ############################################# */
+    .selectGEPT {
+      color: #3f7fbf;
+    }
+
+    .selectKids {
+      color: #c1502e;
+    }
+
+    .selectGEPT,
+    .selectKids {
+      font-weight: bold;
+    }
+
+    .sliderContainer {
+      display: flex;
+      align-items: center;
+    }
+
     .slider {
       background-color: var(--medium);
-      background: linear-gradient(to right, red 20%, orange 20% 40%, yellow 40% 60%, green 60% 80%, blue 80%);
-
+      background: linear-gradient(to right,
+          red 20%,
+          orange 20% 40%,
+          yellow 40% 60%,
+          green 60% 80%,
+          blue 80%);
       width: 60px;
       height: 24px;
       border-radius: 4px;
       box-shadow: inset 2px 2px 5px var(--dark);
       margin: 5px;
+      cursor: pointer;
     }
 
     .slider_inner {
       position: relative;
-      top: 2px;
+      top: 0px;
       left: 2px;
       width: 18px;
       height: 18px;
       border-radius: 10px;
       background-color: var(--light);
-      /*border: 0.5px solid var(--accent);*/
       box-shadow: 2px 2px 5px var(--dark);
-      transition: .4s;
+      transition: 0.4s;
       cursor: pointer;
     }
-  </style>
 
+    .slider[data-inset] {
+      background: unset;
+      color: var(--dark);
+      width: 100px;
+    }
+
+    .slider_bg {
+      position: relative;
+      top: -14px;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      padding: 0 5px 0 5px;
+      z-index: -1;
+      overflow: hidden;
+    }
+  </style>
 </head>
 
 <body>
-  <form>
-    <div id="buttons">
-      <button id="reset_button" type="button">Reset</button>
-      <div id="spacer">&nbsp;</div>
-      <div id="dbSelect">
-        <div id="selectGEPT">GEPT</div>
-        <div id="js_slider" class="slider">
-          <div id="knub" class="slider_inner"></div>
+  <div id="tabGroup">
+    <div id="tabHead">
+      <div class="tab">tab one</div>
+      <div class="tab">tab two</div>
+      <div class="tab-tools">
+        <button class="reset selected_txt" id="reset_button" type="button">Clear</button>
+        <div class="spacer">&nbsp;</div>
+        <div class="sliderContainer">
+          <div class="selectGEPT">GEPT</div>
+          <div id="dbSelect" class="slider" data-selected="default">
+            <div class="slider_inner"></div>
+            <div class="slider_bg"></div>
+          </div>
+          <div class="selectKids">Kids</div>
         </div>
-        <div id="selectKids">Kids</div>
       </div>
     </div>
-
-    <div id="container">
-      <div id="raw_text" contenteditable="true" placeholder="Enter text here..."></div>
-      <div id="final_text">Checked text...</div>
+    <div id="tabBody">
+      <div class="tab-content">
+        <div class="tab-div">
+          <form id="w_form">
+            <fieldset id="w_term">
+              <legend id="w_term_legend">Search for:</legend>
+              <div id="w_term_inputs">
+                <input type="text" id="w_term_i" name="term" autocapitalize="none">
+              </div>
+            </fieldset>
+            <fieldset id="w_match">
+              <legend id="w_match_legend">Match:</legend>
+              <div id="w_match_inputs" class="line-el line">
+                <label for="w_match_x">exact
+                  <input type="radio" name="match" id="w_match_x" Xvalue="exact" value="^:$">
+                </label>
+                <label for="w_match_c">contains
+                  <input type="radio" name="match" id="w_match_c" Xvalue="contains" value=":" checked>
+                </label>
+                <label for="w_match_s">starts
+                  <input type="radio" name="match" id="w_match_s" Xvalue="starts" value="^:.*">
+                </label>
+                <label for="w_match_e">ends
+                  <input type="radio" name="match" id="w_match_e" Xvalue="ends" value=".*:$">
+                </label>
+              </div>
+            </fieldset>
+            <fieldset id="w_level">
+              <legend id="w_level_legend">Level:</legend>
+              <div id="w_level_inputs" class="line-el line">
+                <label for="w_level_a">any
+                  <input type="radio" name="level" id="w_level_a" value="" checked>
+                </label>
+                <label for="w_level_e">elem.
+                  <input type="checkbox" name="level" id="w_level_e" value="l">
+                </label>
+                <label for="w_level_i">int.
+                  <input type="checkbox" name="level" id="w_level_i" value="d">
+                </label>
+                <label for="w_level_h">hi-Int.
+                  <input type="checkbox" name="level" id="w_level_h" value="h">
+                </label>
+              </div>
+            </fieldset>
+            <fieldset id="w_theme">
+              <legend id="w_theme_legend">Theme:</legend>
+              <div id="w_theme_values">
+                <select name="theme" id="w_theme_select" class="selected_txt">
+                  <option value="" selected>any</option>
+                  <option value="Ani">Animals &amp; insects</option>
+                  <option value="Clo">Clothing &amp; accessories</option>
+                  <option value="Col">Colors</option>
+                  <option value="Fam">Family</option>
+                  <option value="Foo">Food &amp; drink</option>
+                  <option value="For">Forms of address</option>
+                  <option value="Geo">Geographical terms</option>
+                  <option value="Hea">Health</option>
+                  <option value="Hol">Holidays &amp; festivals</option>
+                  <option value="Hou">Houses &amp; apartments</option>
+                  <option value="Mon">Money</option>
+                  <option value="Num">Numbers</option>
+                  <option value="Occ">Occupations</option>
+                  <option value="Oth">Other</option>
+                  <option value="Par">Parts of body</option>
+                  <option value="Peo">People</option>
+                  <option value="Per">Personal characteristics</option>
+                  <option value="Pla">Places &amp; directions</option>
+                  <option value="Sch">School</option>
+                  <option value="Siz">Sizes &amp; measurements</option>
+                  <option value="Spo">Sports, interest &amp; hobbies</option>
+                  <option value="Syn">Syntax</option>
+                  <option value="Tab">Tableware</option>
+                  <option value="Tim">Time</option>
+                  <option value="Tra">Transportation</option>
+                  <option value="Wea">Weather &amp; nature</option>
+                  <option value="Wh">Wh - words</option>
+                </select>
+              </div>
+            </fieldset>
+            <fieldset id="w_pos">
+              <legend id="w_pos_legend">Part of Speech:</legend>
+              <div id="w_pos_inputs" class="line-el line">
+                <label for="w_pos_a">any
+                  <input type="radio" name="pos" id="w_pos_a" value=" " checked>
+                </label>
+                <label for="w_pos_n">noun
+                  <input type="checkbox" name="pos" id="w_pos_n" value="noun">
+                </label>
+                <label for="w_pos_v">verb
+                  <input type="checkbox" name="pos" id="w_pos_v" value="verb">
+                </label>
+                <label for="w_pos_j">adj.
+                  <input type="checkbox" name="pos" id="w_pos_j" value="adj">
+                </label>
+                <label for="w_pos_d">adv.
+                  <input type="checkbox" name="pos" id="w_pos_d" value="adv">
+                </label>
+                <label for="w_pos_o">other
+                  <input type="checkbox" name="pos" id="w_pos_o" value="prep|conj|inf|det|terj|pron|aux|art">
+                </label>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+        <div class="tab-div">
+          <fieldset id="w_results">
+            <legend id="w_results_legend">Results:</legend>
+            <div id="w_results_text">&nbsp;</div>
+          </fieldset>
+        </div>
+      </div>
+      <div class="tab-content">
+        <div class="tab-div">
+          <div id="t_raw_text" contenteditable="true" placeholder="Enter text here..."></div>
+        </div>
+        <div class="tab-div">
+          <fieldset id="t_final_text">
+            <legend>Checked text:</legend>
+          </fieldset>
+        </div>
+      </div>
     </div>
-  </form>
+  </div>
   <script>
-    //const punctuation = /[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/g;
-    const punctuation = /[!"#$%&'()*+,./:;<=>?@[\]^_`{}~]/g;
-
-    const LEMMA = 0;
-    const POS = 1;
-    const LEVEL = 2;
-    const NOTE = 3;
-
-    const finalDiv = document.getElementById("final_text");
-    const rawDiv = document.getElementById("raw_text");
-    const resetButton = document.getElementById("reset_button");
-    const root_css = document.documentElement;
-    //const textArea = document.getElementById("text_input");
-    rawDiv.addEventListener("input", parseText);
-    resetButton.addEventListener("click", resetAll);
-    document
-      .getElementById("js_slider")
-      .addEventListener("click", refreshSliderWrapper);
-    //textArea.addEventListener("input", parseText);
-
-    function parseText(e) {
-      //let raw_text = e.target.value
-      let raw_text = e.target.innerText;
-      raw_text = raw_text
-        .replace(/[\u2018\u2019']/g, " '")
-        .replace(/[\n\r]/g, " | "); // encode EOLs
-      let text = [];
-      for (const word of raw_text.split(" ")) {
-        let processed_word = word
-          .replace(/[\u2018\u2019']/g, " ")
-          .replace(/[\u201C\u201D]/g, '"')
-          .replace(punctuation, "")
-          //.replace(/[\n\r]/g, " # ")
-          .toLowerCase()
-          .trim();
-        text.push([processed_word, word]);
-      }
-      //finalDiv.innerHTML = text.map(([word, raw_word]) => lookUp([word, raw_word])).join(" ");
-      const outputText = text.map(([word, raw_word]) => lookUp([word, raw_word])).join(" ");
-      finalDiv.innerHTML = "<br>" + outputText;
-    }
-
-    function lookUp([word, raw_word]) {
-      if (word == "|") {
-        return "<br>";
-      }
-      let matches = [];
-      let suffix = 0;
-
-      if (stopWords.includes(word)) {
-        // ## check for common stop words
-        matches.push([word, "contraction", "s"]);
-      } else {
-        matches = getWord(word);
-        /* ## if no match...
-         */
-        if (!matches.length) {
-          if (pastVerbLookUp[word]) {
-            /* ## check for irregular past tenses
-            test = hidden written stole lain
-            */
-            matches.push(getWord(pastVerbLookUp[word])[0]);
-          } else if (word.slice(-2) == "ed") {
-            /* ## check for regular past tenses
-            test = robbed gagged passed busied played visited
-             */
-            findUrWord(word, d_subs, matches);
-            //matches.push([word, "reg. past", "s"]);
-          } else if (word.slice(-3) == "ing") {
-            /* ## check for Ving
-            test = "bobbing begging swimming buzzing picnicking hoping dying going flying"
-            */
-            findUrWord(word, g_subs, matches);
-          } else if (word.slice(-1) == "s") {
-            /* ## check for plurals or 3rd pers pres verbs
-            test: families tries potatoes scarves crises boxes dogs
-            */
-            findUrWord(word, s_subs, matches);
-          } else if (word.slice(-2) == "ly") {
-            /* ## check for adverbs
-            test: happily clumsily annually finely sensibly sadly
-            */
-            findUrWord(word, y_subs, matches);
-          } else if (isNumeric(word)) {
-            matches.push([word, "digits", "s"]);
-          }
-          if (!matches.length) matches.push([word, "offlist", "o"]);
-        }
-      }
-      //console.log(`word=<${word}>, matches=<${matches}>`);
-      //return formatMatches(word, matches);
-      return formatMatches([word, raw_word], matches);
-    }
-
-    //function formatMatches(word, matches) {
-    function formatMatches([word, raw_word], matches) {
-      let result = "";
-      for (const [i, el] of matches.entries()) {
-        //const level = ` class="tooltip level-${el[2].slice(0, 1)}"`;
-        let level_class = el[2].slice(0, 1);
-        if (currentDb.name == "GEPTKids" && level_class != "o") level_class = "e";
-        const level = ` class="tooltip level-${level_class}"`;
-        const baseform = el[0] == word ? "" : `(${el[0]}) `;
-        //const pos = `<span class="tooltiptext">${baseform}${el[1]}[${word}]</span>`;
-        const pos = `<span class="tooltiptext">${baseform}${el[1]}</span>`;
-        result += `<span ${level}>${raw_word}${pos}</span>`;
-        if (i < matches.length - 1) result += " / ";
-      }
-      return result;
-    }
-
-    function getWord(word) {
-      //console.log(`(in getWord) word(${word}) => tmp=${tmp}`)
-      //return GEPTdb.filter((el) => el[0].toLowerCase() == word);
-      return currentDb.db.filter((el) => el[0].toLowerCase() == word);
-
-    }
-
-    function findUrWord(word, subs, matches) {
-      const candidates = new Set();
-      const slice = subs["_suffix"].length * -1;
-      for (const i of subs["_"]) {
-        const suffix = subs[word.slice(i)];
-        //console.log(`word: ${word} -> ${word.slice(0, slice)}+${suffix}`);
-        if (suffix != undefined) candidates.add(word.slice(0, i) + suffix);
-      }
-      candidates.add(word.slice(0, slice));
-      for (const candidate of candidates) {
-        const tmp_match = getWord(candidate);
-        if (tmp_match.length) matches.push(tmp_match[0]);
-      }
-    }
-
-    function resetAll(e) {
-      finalDiv.innerText = "";
-      rawDiv.innerText = "";
-    }
-
-    function isNumeric(n) {
-      return !Number.isNaN(parseFloat(n))
-    }
-
-    function refreshSliderWrapper(event) {
-      refreshSlider(event.target);
-      //submitForm(event);
-    }
-
-    function refreshSlider(slider) {
-      if (!currentDb.isKids) toggleSlider(GEPTKids);
-      else toggleSlider(GEPT);
-    }
-
-    function toggleSlider(dBase) {
-      currentDb = dBase;
-      rawDiv.dispatchEvent(new Event('input'));
-      //title.innerHTML = `Search <span class='dbColor'>${dBase.name}</span> for:`;
-      /*if (currentDb.isKids) {
-        K_theme.style.setProperty("display", "block");
-        G_level.style.setProperty("display", "none");
-      } else {
-        K_theme.style.setProperty("display", "none");
-        G_level.style.setProperty("display", "block");
-      }*/
-      root_css.style.setProperty("--light", dBase.css[0]);
-      root_css.style.setProperty("--medium", dBase.css[1]);
-      root_css.style.setProperty("--dark", dBase.css[2]);
-      root_css.style.setProperty("--accent", dBase.css[3]);
-      knub.style.transform = `translateX(${dBase.css[4]}px)`;
-      //updateLegend("term");
-    }
-
-    /*
-    1. remove all punctuation (split on apostrophes)
-    2. render to lower case
-    3. remove non-alphabetic (incl. ?hyphens???)
-    4. remove duplicates
-    5. remove stopwords 
-    6. apply gept list
-      a. run against list & assign to levels
-      b. run non-allocated words through de-pluralizer
-      c. re=run against list
-      d. output by level / offlist
-      
-      ONLY convert these if the word is not found in list
-    */
-    const s_subs = {
-      _: [-3, -2],
-      _suffix: "s",
-      ies: "y",
-      oes: "o",
-      ves: "f",
-      ses: "sis",
-      es: "" //,
-      //s: ""
-    };
-
-    const y_subs = {
-      _: [-3],
-      _suffix: "ly",
-      ily: "y",
-      lly: "l",
-      ely: "e",
-      bly: "ble" //,
-      //ly: ""
-    };
-
-    const g_subs = {
-      _: [-5, -4, -3],
-      _suffix: "ing",
-      bbing: "b",
-      dding: "d",
-      ffing: "f",
-      gging: "g",
-      lling: "l",
-      mming: "m",
-      nning: "n",
-      pping: "p",
-      rring: "r",
-      ssing: "s",
-      tting: "t",
-      vving: "v",
-      zzing: "z",
-      ying: "ie",
-      cking: "c",
-      ing: "e"
-    };
-
-    const d_subs = {
-      _: [-4, -3, -2],
-      _suffix: "ed",
-      bbed: "b",
-      dded: "d",
-      ffed: "f",
-      gged: "g",
-      lled: "l",
-      mmed: "m",
-      nned: "n",
-      pped: "p",
-      rred: "r",
-      ssed: "s",
-      tted: "t",
-      vved: "v",
-      zzed: "z",
-      ied: "y",
-      ed: "e"
-    };
-
-    const stopWords = [
-      "re",
-      "ve",
-      "ll",
-      "d",
-      //"was",
-      "t",
-      "s",
-      //"were",
-      //"been",
-      //"has",
-      //"had",
-      //"having",
-      //"does",
-      //"did",
-      //"doing",
-      "an",
-      "aren",
-      "couldn",
-      "didn",
-      "doesn",
-      "hadn",
-      "hasn",
-      "haven",
-      "isn",
-      "mightn",
-      "mustn",
-      "needn",
-      "shan",
-      "shouldn",
-      "wasn",
-      "weren",
-      "won",
-      "wouldn"
-    ];
-
-    const pastVerbLookUp = {
-      were: "be",
-      was: "be",
-      been: "be",
-      has: "have",
-      does: "do",
-      arisen: "arise",
-      arose: "arise",
-      ate: "eat",
-      babysat: "babysit",
-      beaten: "beat",
-      became: "become",
-      began: "begin",
-      begun: "begin",
-      bent: "bend",
-      bet: "bet",
-      bit: "bite",
-      bitten: "bite",
-      bled: "bleed",
-      blew: "blow",
-      blown: "blow",
-      bought: "buy",
-      bound: "bind",
-      bred: "breed",
-      broke: "break",
-      broken: "break",
-      brought: "bring",
-      built: "build",
-      burnt: "burn",
-      came: "come",
-      caught: "catch",
-      chose: "choose",
-      chosen: "choose",
-      dealt: "deal",
-      did: "do",
-      done: "do",
-      drank: "drink",
-      drawn: "draw",
-      dreamt: "dream",
-      drew: "draw",
-      driven: "drive",
-      drove: "drive",
-      drunk: "drink",
-      dug: "dig",
-      eaten: "eat",
-      fallen: "fall",
-      fed: "feed",
-      fell: "fall",
-      felt: "feel",
-      flew: "fly",
-      flown: "fly",
-      forbade: "forbid",
-      forbidden: "forbid",
-      forgave: "forgive",
-      forgiven: "forgive",
-      forgot: "forget",
-      forgotten: "forget",
-      fought: "fight",
-      found: "find",
-      froze: "freeze",
-      frozen: "freeze",
-      gave: "give",
-      given: "give",
-      given: "give",
-      gone: "go",
-      got: "get",
-      gotten: "get",
-      grew: "grow",
-      grown: "grow",
-      had: "have",
-      hanged: "hang",
-      heard: "hear",
-      held: "hold",
-      held: "hold",
-      hid: "hide",
-      hidden: "hide",
-      hung: "hang",
-      kept: "keep",
-      knew: "know",
-      known: "know",
-      laid: "lay",
-      lain: "lie",
-      learnt: "learn",
-      led: "lead",
-      left: "leave",
-      lent: "lend",
-      lit: "light",
-      lost: "lose",
-      made: "make",
-      meant: "mean",
-      met: "meet",
-      paid: "pay",
-      ran: "run",
-      rang: "ring",
-      ridden: "ride",
-      risen: "rise",
-      rode: "ride",
-      rose: "rise",
-      rung: "ring",
-      said: "say",
-      sang: "sing",
-      sank: "sink",
-      sat: "sit",
-      saw: "see",
-      seen: "see",
-      sent: "send",
-      shaken: "shake",
-      shone: "shine",
-      shook: "shake",
-      shot: "shoot",
-      showed: "show",
-      shown: "show",
-      slept: "sleep",
-      slid: "slide",
-      smelt: "smell",
-      sold: "sell",
-      sped: "speed",
-      spent: "spend",
-      spoke: "speak",
-      spoken: "speak",
-      spun: "spin",
-      stole: "steal",
-      stolen: "steal",
-      stood: "stand",
-      struck: "strike",
-      stuck: "stick",
-      stung: "sting",
-      sung: "sing",
-      sunk: "sink",
-      swam: "swim",
-      swept: "sweep",
-      swore: "swear",
-      sworn: "swear",
-      swum: "swim",
-      swung: "swing",
-      taken: "take",
-      taught: "teach",
-      thought: "think",
-      threw: "throw",
-      thrown: "throw",
-      told: "tell",
-      took: "take",
-      tore: "tear",
-      torn: "tear",
-      understood: "understand",
-      went: "go",
-      withdrawn: "withdraw",
-      withdrew: "withdraw",
-      woke: "wake",
-      woken: "wake",
-      won: "win",
-      wore: "wear",
-      worn: "wear",
-      written: "write",
-      wrote: "write"
-    };
+    console.clear();
 
     const GEPTdb = [
       ["feet", "noun", "elementary", "irreg. plural"],
@@ -9669,20 +9605,774 @@
       ["why", "adv.", "Wh-words", "為什麼…"]
     ];
 
+    const s_subs = {
+      _: [-3, -2],
+      _suffix: "s",
+      ies: "y",
+      oes: "o",
+      ves: "f",
+      ses: "sis",
+      es: "" //,
+      //s: ""
+    };
+    const y_subs = {
+      _: [-3],
+      _suffix: "ly",
+      ily: "y",
+      lly: "l",
+      ely: "e",
+      bly: "ble" //,
+      //ly: ""
+    };
+    const g_subs = {
+      _: [-5, -4, -3],
+      _suffix: "ing",
+      bbing: "b",
+      dding: "d",
+      ffing: "f",
+      gging: "g",
+      lling: "l",
+      mming: "m",
+      nning: "n",
+      pping: "p",
+      rring: "r",
+      ssing: "s",
+      tting: "t",
+      vving: "v",
+      zzing: "z",
+      ying: "ie",
+      cking: "c",
+      ing: "e"
+    };
+    const d_subs = {
+      _: [-4, -3, -2],
+      _suffix: "ed",
+      bbed: "b",
+      dded: "d",
+      ffed: "f",
+      gged: "g",
+      lled: "l",
+      mmed: "m",
+      nned: "n",
+      pped: "p",
+      rred: "r",
+      ssed: "s",
+      tted: "t",
+      vved: "v",
+      zzed: "z",
+      ied: "y",
+      ed: "e"
+    };
+    const stopWords = [
+      "re",
+      "ve",
+      "ll",
+      "d",
+      //"was",
+      "t",
+      "s",
+      //"were",
+      //"been",
+      //"has",
+      //"had",
+      //"having",
+      //"does",
+      //"did",
+      //"doing",
+      "an",
+      "aren",
+      "couldn",
+      "didn",
+      "doesn",
+      "hadn",
+      "hasn",
+      "haven",
+      "isn",
+      "mightn",
+      "mustn",
+      "needn",
+      "shan",
+      "shouldn",
+      "wasn",
+      "weren",
+      "won",
+      "wouldn"
+    ];
+    const pastVerbLookUp = {
+      were: "be",
+      was: "be",
+      been: "be",
+      has: "have",
+      does: "do",
+      arisen: "arise",
+      arose: "arise",
+      ate: "eat",
+      babysat: "babysit",
+      beaten: "beat",
+      became: "become",
+      began: "begin",
+      begun: "begin",
+      bent: "bend",
+      bet: "bet",
+      bit: "bite",
+      bitten: "bite",
+      bled: "bleed",
+      blew: "blow",
+      blown: "blow",
+      bought: "buy",
+      bound: "bind",
+      bred: "breed",
+      broke: "break",
+      broken: "break",
+      brought: "bring",
+      built: "build",
+      burnt: "burn",
+      came: "come",
+      caught: "catch",
+      chose: "choose",
+      chosen: "choose",
+      dealt: "deal",
+      did: "do",
+      done: "do",
+      drank: "drink",
+      drawn: "draw",
+      dreamt: "dream",
+      drew: "draw",
+      driven: "drive",
+      drove: "drive",
+      drunk: "drink",
+      dug: "dig",
+      eaten: "eat",
+      fallen: "fall",
+      fed: "feed",
+      fell: "fall",
+      felt: "feel",
+      flew: "fly",
+      flown: "fly",
+      forbade: "forbid",
+      forbidden: "forbid",
+      forgave: "forgive",
+      forgiven: "forgive",
+      forgot: "forget",
+      forgotten: "forget",
+      fought: "fight",
+      found: "find",
+      froze: "freeze",
+      frozen: "freeze",
+      gave: "give",
+      given: "give",
+      given: "give",
+      gone: "go",
+      got: "get",
+      gotten: "get",
+      grew: "grow",
+      grown: "grow",
+      had: "have",
+      hanged: "hang",
+      heard: "hear",
+      held: "hold",
+      held: "hold",
+      hid: "hide",
+      hidden: "hide",
+      hung: "hang",
+      kept: "keep",
+      knew: "know",
+      known: "know",
+      laid: "lay",
+      lain: "lie",
+      learnt: "learn",
+      led: "lead",
+      left: "leave",
+      lent: "lend",
+      lit: "light",
+      lost: "lose",
+      made: "make",
+      meant: "mean",
+      met: "meet",
+      paid: "pay",
+      ran: "run",
+      rang: "ring",
+      ridden: "ride",
+      risen: "rise",
+      rode: "ride",
+      rose: "rise",
+      rung: "ring",
+      said: "say",
+      sang: "sing",
+      sank: "sink",
+      sat: "sit",
+      saw: "see",
+      seen: "see",
+      sent: "send",
+      shaken: "shake",
+      shone: "shine",
+      shook: "shake",
+      shot: "shoot",
+      showed: "show",
+      shown: "show",
+      slept: "sleep",
+      slid: "slide",
+      smelt: "smell",
+      sold: "sell",
+      sped: "speed",
+      spent: "spend",
+      spoke: "speak",
+      spoken: "speak",
+      spun: "spin",
+      stole: "steal",
+      stolen: "steal",
+      stood: "stand",
+      struck: "strike",
+      stuck: "stick",
+      stung: "sting",
+      sung: "sing",
+      sunk: "sink",
+      swam: "swim",
+      swept: "sweep",
+      swore: "swear",
+      sworn: "swear",
+      swum: "swim",
+      swung: "swing",
+      taken: "take",
+      taught: "teach",
+      thought: "think",
+      threw: "throw",
+      thrown: "throw",
+      told: "tell",
+      took: "take",
+      tore: "tear",
+      torn: "tear",
+      understood: "understand",
+      went: "go",
+      withdrawn: "withdraw",
+      withdrew: "withdraw",
+      woke: "wake",
+      woken: "wake",
+      won: "win",
+      wore: "wear",
+      worn: "wear",
+      written: "write",
+      wrote: "write"
+    };
+
+    const G_level = document.getElementById("w_level");
+    const K_theme = document.getElementById("w_theme");
     const GEPT = {
       name: "GEPT",
       db: GEPTdb,
       isKids: false,
-      css: ["#cfe0e8", "#87bdd8", "#3F7FBF", "#daebe8", 0]
+      show: G_level,
+      hide: K_theme,
+      css: {
+        _light: "#cfe0e8",
+        _medium: "#87bdd8",
+        _dark: "#3F7FBF",
+        _accent: "#daebe8"
+      }
     };
     const GEPTKids = {
       name: "GEPTKids",
       db: KIDSdb,
       isKids: true,
-      css: ["#f9ccac", "#f4a688", "#c1502e", "#fbefcc", 36]
+      show: K_theme,
+      hide: G_level,
+      css: {
+        _light: "#f9ccac",
+        _medium: "#f4a688",
+        _dark: "#c1502e",
+        _accent: "#fbefcc"
+      }
     };
 
     let currentDb = GEPT;
+
+    // ## TAB1 (words) SETUP ############################################
+
+    const LEMMA = 0;
+    const POS = 1;
+    const LEVEL = 2;
+    const NOTE = 3;
+
+    const legends = {
+      term: "Search",
+      match: "Match",
+      level: "Level",
+      theme: "Theme",
+      pos: "PoS",
+      results: "Results"
+    };
+
+    const form = document.getElementById("w_form");
+    const results_legend = document.getElementById("w_results_legend");
+    const results_text = document.getElementById("w_results_text");
+    const title = document.getElementById("w_term_legend");
+
+    addListeners();
+    finalInit();
+
+    // ## TAB2 (text) SETUP ############################################
+
+    //const punctuation = /[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/g;
+    const punctuation = /[!"#$%&'()*+,./:;<=>?@[\]^_`{}~]/g;
+
+    const rawDiv = document.getElementById("t_raw_text");
+    const finalDiv = document.getElementById("t_final_text");
+    rawDiv.addEventListener("input", parseText);
+
+    // TAB1 (words) CODE ## ############################################
+
+    // ***** INIT FUNCTIONS
+
+    function addListeners() {
+      document
+        .getElementById("w_theme_select")
+        .addEventListener("change", submitForm);
+      document.getElementById("w_term_i").addEventListener("input", submitForm);
+
+      /*document
+        .getElementById("js_slider")
+        .addEventListener("click", refreshSliderWrapper);*/
+
+      for (const el of document.getElementsByTagName("input")) {
+        //if (el.type != "text") el.addEventListener("click", clearDiffSiblings);
+        if (el.type != "text") {
+          const label = el.labels[0];
+          if (label.htmlFor) label.addEventListener("click", registerLabelClick);
+        }
+      }
+    }
+
+    function finalInit() {
+      //toggleSlider(GEPT);
+      //refreshLabels("w_main");
+      changeDb_words()
+      refreshLabels("w_form");
+    }
+
+    // *****  FUNCTIONS
+
+    function registerLabelClick(e_label) {
+      const label = e_label.target;
+      if (label.htmlFor) {
+        const input = document.getElementById(label.htmlFor);
+        let parentID = label.htmlFor.split("_")[1];
+        //console.log(`*registerLabelClick* parentID=${parentID}`);
+        if (!parentID) {
+          return;
+        } else {
+          parentID = "w_" + parentID;
+        }
+        const allInputs = document
+          .getElementById(parentID)
+          .querySelectorAll("input");
+        let defaultChecked;
+        let countChecked = 0;
+
+        allInputs.forEach((el) => {
+          const el_label = el.labels[0];
+          if (el.defaultChecked) defaultChecked = el;
+          // LOGIC:
+          // 1) clicked element must be checked
+          // 2) de-select an already-checked input
+          if (el.id == input.id) {
+            if (input.checked) {
+              input.checked = false;
+              el_label.classList.remove("selected_txt");
+            } else {
+              el.checked = true;
+              el_label.classList.add("selected_txt");
+            }
+          }
+          // LOGIC: in a group, if 1 radio checked, all others unchecked
+          // 1) if already radio selected, no others selections allowed
+          // 2) if el is radio, then it can't be selected
+          else if (input.type == "radio" || el.type == "radio") {
+            el.checked = false;
+            el_label.classList.remove("selected_txt");
+          }
+          // LOGIC: remaining checkboxes are unaffected
+          if (el.checked) countChecked += 1;
+        });
+        //console.log(`r_l_Click: ${label.htmlFor} (${input.type}:${input.checked}) default:${defaultChecked.id} [${countChecked}]`);
+
+        if (countChecked < 1) {
+          defaultChecked.checked = true;
+          defaultChecked.labels[0].classList.add("selected_txt");
+          refreshLabels(parentID);
+        }
+        submitForm(e_label);
+      }
+    }
+
+    function refreshLabels(parentID) {
+      //console.log(`*refreshLabels* parentID=${parentID}`);
+      const parent = document.getElementById(parentID);
+      if (!parent) return;
+      const allInputs = parent.querySelectorAll("input");
+      allInputs.forEach((el) => {
+        const label = el.labels[0];
+        if (label) {
+          if (el.defaultChecked) label.classList.add("selected_txt");
+          else label.classList.remove("selected_txt");
+        }
+      });
+    }
+
+    function getInputs(parentID) {
+      let tag = "input";
+      if (parentID == "theme") tag = "option";
+      return document.getElementById(parentID).querySelectorAll(tag);
+    }
+
+    function submitForm(event) {
+      let results = [];
+      let raw_data = new FormData(form);
+      if (event) event.preventDefault();
+
+      let data = {
+        term: [],
+        match: [],
+        level: [],
+        theme: [],
+        pos: []
+      };
+      for (const [key, value] of raw_data) {
+        data[key].push(value.trim());
+      }
+      console.log("Search for:" + JSON.stringify(data).replace(/[\[\]\{\}]/g, ""));
+
+      let term = data.term.join().toLowerCase();
+      let level = data.level.join("|");
+      // ** Substitute theme data for level in GEPTKids search
+      // ** otherwise theme data is disregarded
+      if (currentDb.isKids) level = data.theme.join("|");
+      const pos = data.pos.join("|");
+      const searchTerms = term + level + pos;
+      if (searchTerms) {
+        const terms = data.match.join().split(":");
+        term = terms ? terms[0] + term + terms[1] : term;
+        term = new RegExp(term, "i");
+        results = get_results({
+          term: term,
+          level: level,
+          pos: pos
+        });
+        results = [format_results(results), results.length];
+      } else {
+        results = [
+          "Please enter at least one search term to restrict the number of results.",
+          0
+        ];
+      }
+      display_results(results);
+    }
+
+    function get_results(find) {
+      let results = currentDb.db.filter((el) => el[LEMMA].search(find.term) != -1);
+      if (find.level)
+        results = results.filter((el) => el[LEVEL].search(find.level) != -1);
+      if (find.pos)
+        results = results.filter((el) => el[POS].search(find.pos) != -1);
+      return results;
+    }
+
+    function format_results(results) {
+      return (
+        "<table>" +
+        results
+          .map(function (entry, i) {
+            const col1 = `<td>${i + 1}: </td>`;
+            const lemma = `<strong>${entry[LEMMA]}</strong>`;
+            const pos = `[${entry[POS].trim()}]`;
+            const level = entry[LEVEL].trim();
+            let note = entry[NOTE].trim();
+            note = note ? `, ${note}` : "";
+            const col2 = `<td class='level-${entry[LEVEL][0]}'>${lemma} ${pos} ${level}${note}</td>`;
+            return `<tr>${col1}${col2}</tr>`;
+          })
+          .join("") +
+        "</table>"
+      );
+    }
+
+    function display_results(output) {
+      let text = `${legends.results}`;
+      if (output[1]) text += ` (${output[1]})`;
+      results_legend.innerHTML = text;
+      results_text.innerHTML = output[0];
+    }
+
+    function reset_form() {
+      form.reset();
+      display_results([]);
+      //refreshLabels("main");
+      refreshLabels("w_form");
+      results_text.innerHTML = "";
+    }
+
+    function changeDb_words() {
+      title.innerHTML = `Search <span class='dbColor'>${currentDb.name}</span> for:`;
+      console.log(`debug *changeDBwords* ${currentDb.show}`);
+      currentDb.show.style.setProperty("display", "block");
+      currentDb.hide.style.setProperty("display", "none");
+      submitForm();
+    }
+
+    // ## TAB2 (text) CODE ############################################
+
+    function parseText(e) {
+      let raw_text = e.target.innerText;
+      if (!raw_text.trim()) return;
+      // ## Replace hard spaces which mess with div width
+      e.target.innerText = raw_text.replace(/\s+/g, ' ')
+      raw_text = raw_text
+        .replace(/[\u2018\u2019']/g, " '")
+        .replace(/[\n\r]/g, " | "); // encode EOLs
+      let text = [];
+      const re = /\s+/;
+      let wordCount = 0;
+      for (const word of raw_text.split(re)) {
+        wordCount++;
+        let processed_word = word
+          .replace(/[\u2018\u2019']/g, " ")
+          .replace(/[\u201C\u201D]/g, '"')
+          .replace(punctuation, "")
+          //.replace(/[\n\r]/g, " # ")
+          .toLowerCase()
+          .trim();
+        text.push([processed_word, word]);
+      }
+      //finalDiv.innerHTML = text.map(([word,raw_word]) => lookUp([word,raw_word])).join(" ");
+      numOfWords = `<span class="text-right">(${wordCount} word${(wordCount > 1 ? "s" : "")})</span>`;
+      const outputText = text
+        .map(([word, raw_word]) => lookUp([word, raw_word]))
+        .join(" ");
+      finalDiv.innerHTML = `<p>${outputText}</p><p>${numOfWords}</p>`;
+    }
+
+    function lookUp([word, raw_word]) {
+      if (word == "|") {
+        return "<br>";
+      }
+      let matches = [];
+      let suffix = 0;
+
+      if (stopWords.includes(word)) {
+        // ## check for common stop words
+        matches.push([word, "contraction", "s"]);
+      } else {
+        matches = dbLookup(word);
+        /* ## if no match...
+         */
+        if (!matches.length) {
+          if (pastVerbLookUp[word]) {
+            /* ## check for irregular past tenses
+            test = hidden written stole lain
+            */
+            matches.push(dbLookup(pastVerbLookUp[word])[0]);
+          } else if (word.slice(-2) == "ed") {
+            /* ## check for regular past tenses
+            test = robbed gagged passed busied played visited
+             */
+            findUrWord(word, d_subs, matches);
+            //matches.push([word, "reg. past", "s"]);
+          } else if (word.slice(-3) == "ing") {
+            /* ## check for Ving
+            test = "bobbing begging swimming buzzing picnicking hoping dying going flying"
+            */
+            findUrWord(word, g_subs, matches);
+          } else if (word.slice(-1) == "s") {
+            /* ## check for plurals or 3rd pers pres verbs
+            test: families tries potatoes scarves crises boxes dogs
+            */
+            findUrWord(word, s_subs, matches);
+          } else if (word.slice(-2) == "ly") {
+            /* ## check for adverbs
+            test: happily clumsily annually finely sensibly sadly
+            */
+            findUrWord(word, y_subs, matches);
+          } else if (isNumeric(word)) {
+            matches.push([word, "digits", "s"]);
+          }
+          //if (!matches.length) matches.push([word, "offlist", "o"]);
+          if (!matches.length) matches.push(offlist(word));
+        }
+      }
+      //console.log(`*lookup* word=<${word}>, matches=<${matches}>`);
+      return formatMatches([word, raw_word], matches);
+    }
+
+    function formatMatches([word, raw_word], matches) {
+      let result = "";
+      for (let [i, el] of matches.entries()) {
+        //console.log(`*formatMatches* ${i,el}`);
+        if (!el) continue;
+        let full_level = "";
+        let level_class = "o";
+        if (el[2]) {
+          level_class = el[2].slice(0, 1);
+          if (el[2].length > 1) full_level = `${el[2]}: `;
+        }
+        //let level_class = el[2] ? el[2].slice(0, 1) : "o";
+        if (currentDb.name == "GEPTKids" && level_class != "o") level_class = "e";
+        const level = ` class="tooltip level-${level_class}"`;
+        const baseform = (el[0] == word) ? "" : `(${el[0]}) `;
+        const pos = `<span class="tooltiptext">${full_level}${baseform}${el[1]}</span>`;
+        result += `<span ${level}>${raw_word}${pos}</span>`;
+        if (i < matches.length - 1) result += "/";
+      }
+      return result;
+    }
+
+    function dbLookup(word) {
+      let words = currentDb.db.filter((el) => el[0].toLowerCase() == word);
+      //console.log(`*dbLookup* words=${words}`)
+      return words;
+    }
+
+    function findUrWord(word, subs, matches) {
+      const candidates = new Set();
+      const slice = subs["_suffix"].length * -1;
+      for (const i of subs["_"]) {
+        const suffix = subs[word.slice(i)];
+        //console.log(`urword*** word: ${word} -> ${word.slice(0, slice)}+${suffix}`);
+        if (suffix != undefined) candidates.add(word.slice(0, i) + suffix);
+      }
+      candidates.add(word.slice(0, slice));
+      for (const candidate of candidates) {
+        const tmp_match = dbLookup(candidate);
+        if (tmp_match.length) matches.push(tmp_match[0]);
+      }
+    }
+
+    function offlist(word) {
+      return [word, "offlist", "o"];
+    }
+
+    function clearText() {
+      finalDiv.innerText = "";
+      rawDiv.innerText = "";
+    }
+
+    function isNumeric(n) {
+      return !Number.isNaN(parseFloat(n));
+    }
+
+    function changeDb_text() {
+      rawDiv.dispatchEvent(new Event("input"));
+    }
+
+    // ## SLIDER code ############################################
+
+    const root_css = document.documentElement;
+    const dbSelect_slider = document.getElementById("dbSelect");
+    dbSelect_slider.addEventListener("click", toggleSlider);
+    toggleSlider(dbSelect_slider, true);
+
+    function toggleSlider(knub, isInit) {
+      /* accepts triggers from event, knub, & knub background 
+      also works with inset or surrounding labels
+      */
+      if (!isInit) isInit = false;
+      if (knub.target) {
+        knub.preventDefault();
+        knub = knub.target;
+      }
+      if (knub.classList.contains("slider")) knub = knub.firstElementChild;
+
+      const parent = knub.parentElement;
+      const label1 = parent.previousElementSibling;
+      const label2 = parent.nextElementSibling;
+      const insetLabel = knub.nextElementSibling;
+      const isInset = parent.dataset.inset == "true";
+      //const isInit = parent.dataset.selected == "default";
+
+      //console.log(parent.dataset.selected)
+
+      if (isInit) {
+        if (isInset) {
+          label1.style.display = "none";
+          label2.style.display = "none";
+        }
+        parent.dataset.selected = "false";
+      } else {
+        parent.dataset.selected =
+          parent.dataset.selected == "true" ? "false" : "true";
+      }
+      const isSelected = parent.dataset.selected == "true";
+      if (isInset) {
+        insetLabel.innerText = isSelected ? label2.innerText : label1.innerText;
+        insetLabel.style.textAlign = isSelected ? "start" : "end";
+      }
+      knub.style.transform = `translateX(${isSelected ? parent.clientWidth - 23 : 0
+        }px)`;
+
+      //if (parent.id == "dbSelect" && !isInit) {
+      if (!isInit) {
+        changeDb_shared();
+        if (isTab1()) {
+          changeDb_words();
+        } else {
+          changeDb_text();
+        }
+      }
+    }
+
+    // ## COMMON ELEMENTS ######################################
+
+    //document.getElementById("reset_button").addEventListener("click", clearText);
+    document.getElementById("reset_button").addEventListener("click", resetTab);
+    function resetTab(event) {
+      event.preventDefault();
+      console.log(`*resetTab* id=${event.target.id}, isTab1=${isTab1()}`);
+      if (isTab1()) {
+        reset_form();
+      } else {
+        clearText();
+      }
+    }
+
+    function changeDb_shared() {
+      currentDb = currentDb.isKids ? GEPT : GEPTKids;
+      for (let [key, value] of Object.entries(currentDb.css)) {
+        const property = key[0] == "_" ? `--${key.slice(1)}` : key;
+        root_css.style.setProperty(property, value);
+      }
+    }
+
+    function isTab1() {
+      //return document.getElementById("tab-one").checked;
+      return currentTab === 0;
+    }
+
+    // ## TABS ############################################
+
+    for (const el of document.getElementsByClassName("tab")) {
+      el.addEventListener("click", activateTab);
+    }
+    const tabHead = document.getElementById("tabHead");
+    const tabBody = document.getElementById("tabBody");
+    let currentTab = 0;
+    activateTab(tabHead.children[0]);
+
+    function activateTab(tab) {
+      if (tab.target) tab = tab.target
+      let i = 0;
+      for (const content of tabBody.children) {
+        if (tab === tabHead.children[i]) {
+          currentTab = i;
+          tabHead.children[i].classList.add("tab-on");
+          tabHead.children[i].classList.remove("tab-off");
+          content.style.display = "flex";
+        } else {
+          tabHead.children[i].classList.add("tab-off");
+          tabHead.children[i].classList.remove("tab-on");
+          content.style.display = "none";
+        }
+        i++;
+      }
+      //console.log(`current tab = ${currentTab + 1}`);
+    }
 
   </script>
 </body>
