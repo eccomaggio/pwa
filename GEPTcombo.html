@@ -10250,8 +10250,9 @@
     }
 
     function clearText() {
-      finalDiv.innerText = "";
       rawDiv.innerText = "";
+      finalDiv.innerHTML = "<legend>Checked text:</legend>";
+
     }
 
     function isNumeric(n) {
