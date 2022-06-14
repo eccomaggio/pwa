@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
+<!-- To Do
+1) make the results box touch the controls in column mode
+2) is it possible to implement the rainbow on earlier versions of javascript?
+-->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>GEPT Wordlist Checker</title>
   <style>
     :root {
       --light: #cfe0e8;
@@ -29,10 +31,12 @@
     #tabGroup {
       /*background: black;*/
       height: 98vh;
+      max-height: 98vh;
       width: 98vw;
       display: flex;
       flex-direction: column;
       font-family: "Lucida Console", "Courier New", monospace;
+        overflow: hidden;
     }
 
     #tabHead {
@@ -50,6 +54,7 @@
       border: 1px solid lightgray;
       border-radius: 0 10px 0 0;
       background: white;
+        
     }
 
     .tab-content {
@@ -61,22 +66,31 @@
     }
 
     .tab-div {
-      /*background: purple;*/
-      flex: 100%;
+      /*background: purple;
+      flex: 100%;*/
       flex-direction: column;
-
       margin: 6px;
       display: inherit;
+      overflow: auto;
+        overflow: scroll;
     }
+
+    .tab-div:first-of-type {
+        flex-shrink: 2;
+      }
+
+    .tab-div:last-of-type {
+        flex:80%;
+      }
+
 
     @media (min-width: 600px) {
       .tab-content {
         /*background: CornflowerBlue;*/
         flex-direction: row;
       }
-
-      .tab-div {
-        flex: 50%;
+      .tab-div,.tab-div:last-of-type {
+          flex: 50%;
       }
     }
 
@@ -395,6 +409,7 @@
           yellow 40% 60%,
           green 60% 80%,
           blue 80%);
+      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff3232', endColorstr='#dd89ff',GradientType=1 );
       width: 60px;
       height: 24px;
       border-radius: 4px;
@@ -438,15 +453,15 @@
 <body>
   <div id="tabGroup">
     <div id="tabHead">
-      <div class="tab">tab one</div>
-      <div class="tab">tab two</div>
+      <div class="tab tab-on">Words</div>
+      <div class="tab tab-off">Texts</div>
       <div class="tab-tools">
         <button class="reset selected_txt" id="reset_button" type="button">Clear</button>
         <div class="spacer">&nbsp;</div>
         <div class="sliderContainer">
           <div class="selectGEPT">GEPT</div>
-          <div id="dbSelect" class="slider" data-selected="default">
-            <div class="slider_inner"></div>
+          <div id="dbSelect" class="slider" data-selected="false">
+            <div class="slider_inner" style="transform: translateX(0px);"></div>
             <div class="slider_bg"></div>
           </div>
           <div class="selectKids">Kids</div>
@@ -454,11 +469,11 @@
       </div>
     </div>
     <div id="tabBody">
-      <div class="tab-content">
+      <div class="tab-content" style="display: flex;">
         <div class="tab-div">
           <form id="w_form">
             <fieldset id="w_term">
-              <legend id="w_term_legend">Search for:</legend>
+              <legend id="w_term_legend">Search <span id="w_db" class="dbColor">GEPT</span> wordlist for:</legend>
               <div id="w_term_inputs">
                 <input type="text" id="w_term_i" name="term" autocapitalize="none">
               </div>
@@ -467,24 +482,24 @@
               <legend id="w_match_legend">Match:</legend>
               <div id="w_match_inputs" class="line-el line">
                 <label for="w_match_x">exact
-                  <input type="radio" name="match" id="w_match_x" Xvalue="exact" value="^:$">
+                  <input type="radio" name="match" id="w_match_x" xvalue="exact" value="^:$">
                 </label>
-                <label for="w_match_c">contains
-                  <input type="radio" name="match" id="w_match_c" Xvalue="contains" value=":" checked>
+                <label for="w_match_c" class="selected_txt">contains
+                  <input type="radio" name="match" id="w_match_c" xvalue="contains" value=":" checked="">
                 </label>
                 <label for="w_match_s">starts
-                  <input type="radio" name="match" id="w_match_s" Xvalue="starts" value="^:.*">
+                  <input type="radio" name="match" id="w_match_s" xvalue="starts" value="^:.*">
                 </label>
                 <label for="w_match_e">ends
-                  <input type="radio" name="match" id="w_match_e" Xvalue="ends" value=".*:$">
+                  <input type="radio" name="match" id="w_match_e" xvalue="ends" value=".*:$">
                 </label>
               </div>
             </fieldset>
-            <fieldset id="w_level">
+            <fieldset id="w_level" style="display: block;">
               <legend id="w_level_legend">Level:</legend>
               <div id="w_level_inputs" class="line-el line">
-                <label for="w_level_a">any
-                  <input type="radio" name="level" id="w_level_a" value="" checked>
+                <label for="w_level_a" class="selected_txt">any
+                  <input type="radio" name="level" id="w_level_a" value="" checked="">
                 </label>
                 <label for="w_level_e">elem.
                   <input type="checkbox" name="level" id="w_level_e" value="l">
@@ -497,11 +512,11 @@
                 </label>
               </div>
             </fieldset>
-            <fieldset id="w_theme">
+            <fieldset id="w_theme" style="display: none;">
               <legend id="w_theme_legend">Theme:</legend>
               <div id="w_theme_values">
                 <select name="theme" id="w_theme_select" class="selected_txt">
-                  <option value="" selected>any</option>
+                  <option value="" selected="">any</option>
                   <option value="Ani">Animals &amp; insects</option>
                   <option value="Clo">Clothing &amp; accessories</option>
                   <option value="Col">Colors</option>
@@ -535,8 +550,8 @@
             <fieldset id="w_pos">
               <legend id="w_pos_legend">Part of Speech:</legend>
               <div id="w_pos_inputs" class="line-el line">
-                <label for="w_pos_a">any
-                  <input type="radio" name="pos" id="w_pos_a" value=" " checked>
+                <label for="w_pos_a" class="selected_txt">any
+                  <input type="radio" name="pos" id="w_pos_a" value=" " checked="">
                 </label>
                 <label for="w_pos_n">noun
                   <input type="checkbox" name="pos" id="w_pos_n" value="noun">
@@ -559,14 +574,14 @@
         </div>
         <div class="tab-div">
           <fieldset id="w_results">
-            <legend id="w_results_legend">Results:</legend>
-            <div id="w_results_text">&nbsp;</div>
+            <legend id="w_results_legend">Results</legend>
+            <div id="w_results_text">Please enter at least one search term to restrict the number of results.</div>
           </fieldset>
         </div>
       </div>
-      <div class="tab-content">
+      <div class="tab-content" style="display: none;">
         <div class="tab-div">
-          <div id="t_raw_text" contenteditable="true" placeholder="Enter text here..."></div>
+          <div id="t_raw_text" contenteditable="true" placeholder="Paste text here..."></div>
         </div>
         <div class="tab-div">
           <fieldset id="t_final_text">
@@ -10111,8 +10126,9 @@
     }
 
     function changeDb_words() {
-      title.innerHTML = `Search <span class='dbColor'>${currentDb.name}</span> for:`;
-      console.log(`debug *changeDBwords* ${currentDb.show}`);
+      document.getElementById('w_db').textContent = currentDb.name;
+      //title.innerHTML = `Search <span class='dbColor'>${currentDb.name}</span> wordlist for:`;
+      //console.log(`debug *changeDBwords* ${currentDb.show}`);
       currentDb.show.style.setProperty("display", "block");
       currentDb.hide.style.setProperty("display", "none");
       submitForm();
@@ -10252,7 +10268,6 @@
     function clearText() {
       rawDiv.innerText = "";
       finalDiv.innerHTML = "<legend>Checked text:</legend>";
-
     }
 
     function isNumeric(n) {
@@ -10335,9 +10350,9 @@
 
     function changeDb_shared() {
       currentDb = currentDb.isKids ? GEPT : GEPTKids;
-      for (let [key, value] of Object.entries(currentDb.css)) {
-        const property = key[0] == "_" ? `--${key.slice(1)}` : key;
-        root_css.style.setProperty(property, value);
+      for (let key in currentDb.css) {
+          const property = key[0] == "_" ? `--${key.slice(1)}` : key;
+          root_css.style.setProperty(property, currentDb.css[key]);
       }
     }
 
@@ -10376,6 +10391,6 @@
     }
 
   </script>
-</body>
 
-</html>
+
+</body></html>
