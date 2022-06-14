@@ -1,8 +1,5 @@
 <!DOCTYPE html>
-<!-- To Do
-1) make the results box touch the controls in column mode
-2) is it possible to implement the rainbow on earlier versions of javascript?
--->
+
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -65,23 +62,31 @@
       margin: 5px;
     }
 
-    .tab-div {
+    .tab-div1, .tabdiv2 {
       /*background: purple;
       flex: 100%;*/
       flex-direction: column;
       margin: 6px;
-      display: inherit;
-      overflow: auto;
-        overflow: scroll;
+      /*overflow: auto;*/
     }
 
-    .tab-div:first-of-type {
+      .tab-div1 {
+      display: inherit;
+      }
+
+    .tab-div1:first-of-type {
         flex-shrink: 2;
       }
 
-    .tab-div:last-of-type {
-        flex:80%;
+    .tab-div1:last-of-type {
+        /*flex:70%;*/
+        flex-grow: 1;
       }
+
+    .tab-div2 {
+        flex:50%;
+        display: flex;
+    }
 
 
     @media (min-width: 600px) {
@@ -89,10 +94,14 @@
         /*background: CornflowerBlue;*/
         flex-direction: row;
       }
-      .tab-div,.tab-div:last-of-type {
+      .tab-div1,.tab-div1:last-of-type {
           flex: 50%;
       }
     }
+
+/*.tab-div1, .tab-div2 {
+  border: 1px dotted red;
+}*/
 
     .tab {
       /*background: orange;*/
@@ -123,10 +132,6 @@
       font-weight: normal;
     }
 
-    /*#tabHead div,
-#tabBody div .tab-div {
-  border: 1px dotted red;
-}*/
 
     /* ## Tabs1&2 SHARED ############################################## */
 
@@ -470,7 +475,7 @@
     </div>
     <div id="tabBody">
       <div class="tab-content" style="display: flex;">
-        <div class="tab-div">
+        <div class="tab-div1">
           <form id="w_form">
             <fieldset id="w_term">
               <legend id="w_term_legend">Search <span id="w_db" class="dbColor">GEPT</span> wordlist for:</legend>
@@ -572,7 +577,7 @@
             </fieldset>
           </form>
         </div>
-        <div class="tab-div">
+        <div class="tab-div1">
           <fieldset id="w_results">
             <legend id="w_results_legend">Results</legend>
             <div id="w_results_text">Please enter at least one search term to restrict the number of results.</div>
@@ -580,10 +585,10 @@
         </div>
       </div>
       <div class="tab-content" style="display: none;">
-        <div class="tab-div">
+        <div class="tab-div2">
           <div id="t_raw_text" contenteditable="true" placeholder="Paste text here..."></div>
         </div>
-        <div class="tab-div">
+        <div class="tab-div2">
           <fieldset id="t_final_text">
             <legend>Checked text:</legend>
           </fieldset>
