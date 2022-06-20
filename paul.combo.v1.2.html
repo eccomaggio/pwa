@@ -189,7 +189,8 @@
       color: blue;
     }
 
-    .level-e, .level-k {
+    .level-e,
+    .level-k {
       color: green;
     }
 
@@ -659,7 +660,7 @@
       ["accepted", "adj.", [1], ""],
       ["access", "noun/verb", [1], ""],
       ["accessible", "adj.", [2], ""],
-      ["accessory", "noun/adj.", "High-Int", ""],
+      ["accessory", "noun/adj.",[2], ""],
       ["accident", "noun", [0], ""],
       ["accidental", "adj.", [1], ""],
       ["acclaim", "verb/noun", [2], ""],
@@ -1704,7 +1705,7 @@
       ["cell", "noun", [0], ""],
       ["cellar", "noun", [2], ""],
       ["cello", "noun", [2], ""],
-      ["cell-phone", "noun", "high", "= cellphone/cellular phone/mobile phone/mobile/cell"],
+      ["cell-phone", "noun",[2], "= cellphone/cellular phone/mobile phone/mobile/cell"],
       ["Celsius", "noun", [2], "= Centigrade/centigrade"],
       ["cement", "noun/verb", [1], ""],
       ["cemetery", "noun", [2], ""],
@@ -2363,7 +2364,7 @@
       ["crop", "noun/verb", [1], ""],
       ["cross", "verb/noun", [0], ""],
       ["cross-country", "noun/adj./adv.", [2], ""],
-      ["crossing", "noun", "high", "= pedestrian crossing, zebra crossing, crosswalk "],
+      ["crossing", "noun",[2], "= pedestrian crossing, zebra crossing, crosswalk "],
       ["crossroad", "noun", [1], "usually in plural form"],
       ["crouch", "verb/noun", [2], ""],
       ["crow", "noun", [1], "烏鴉"],
@@ -3570,6 +3571,7 @@
       ["foster", "adj./verb", [2], ""],
       ["foul", "adj./verb/noun", [2], ""],
       ["found", "verb", [1], ""],
+      ["found", "verb", [0], "past form of 'find'"],
       ["foundation", "noun", [1], ""],
       ["founder", "noun", [1], ""],
       ["fountain", "noun", [1], ""],
@@ -4948,7 +4950,7 @@
       ["maid", "noun", [1], ""],
       ["maiden", "noun/adj.", [2], ""],
       ["mail", "noun/verb", [0], ""],
-      ["mailman", "noun", "elementary", "= postman (British English)= mail carrier"],
+      ["mailman", "noun",[0], "= postman (British English)= mail carrier"],
       ["main", "adj.", [0], ""],
       ["mainland", "noun", [1], ""],
       ["mainly", "adv.", [1], ""],
@@ -5037,7 +5039,7 @@
       ["mature", "adj.", [1], ""],
       ["maturity", "noun", [1], ""],
       ["maximum", "adj./noun/adv.", [0], ""],
-      ["may", "aux.", "elementary", ""],
+      ["may", "aux.",[0], ""],
       ["May", "noun", [0], ""],
       ["maybe", "adv.", [0], ""],
       ["mayonnaise", "noun", [2], ""],
@@ -5285,7 +5287,7 @@
       ["mower", "noun", [2], ""],
       ["Mr.", "noun", [0], "= Mr"],
       ["Mrs.", "noun", [0], "= Mrs"],
-      ["MRT", "noun", "elementary", "= mass rapid transit= subway= underground= metro"],
+      ["MRT", "noun",[0], "= mass rapid transit= subway= underground= metro"],
       ["Ms.", "noun", [0], "=Ms"],
       ["MTV", "noun", [0], ""],
       ["much", "pron./adv./adj.", [0], ""],
@@ -6070,7 +6072,7 @@
       ["possible", "adj.", [0], ""],
       ["possibly", "adv.", [1], ""],
       ["post", "noun", [1], "柱子"],
-      ["post", "noun/verb", "elementary", "= mail (American English) 郵件,包裹,郵寄"],
+      ["post", "noun/verb",[0], "= mail (American English) 郵件,包裹,郵寄"],
       ["post", "noun", [0], "職位"],
       ["postage", "noun", [1], ""],
       ["postal", "adj.", [1], ""],
@@ -6754,7 +6756,7 @@
       ["ridiculous", "adj.", [1], ""],
       ["rifle", "noun/verb", [1], ""],
       ["rig", "verb/noun", [2], ""],
-      ["right", "adj./adv./noun", "elementary", "正確的,適宜的準確地,完全地 權利 (n)"],
+      ["right", "adj./adv./noun",[0], "正確的,適宜的準確地,完全地 權利 (n)"],
       ["right", "adj./adv./noun", [0], "右邊（的）"],
       ["right-hand", "adj.", [2], ""],
       ["right-wing", "adj./noun", [2], "= right wing"],
@@ -6823,7 +6825,7 @@
       ["royalty", "noun", [2], ""],
       ["rub", "verb", [0], "摩擦,揉"],
       ["rubber", "adj./noun", [0], ""],
-      ["rubbish", "noun/adj./verb", "intermediate", "(used mainly in British English)"],
+      ["rubbish", "noun/adj./verb",[1], "(used mainly in British English)"],
       ["ruby", "noun", [2], ""],
       ["rude", "adj.", [0], ""],
       ["rug", "noun", [1], ""],
@@ -7677,7 +7679,7 @@
       ["subtract", "verb", [1], ""],
       ["suburb", "noun", [1], ""],
       ["suburban", "adj.", [2], ""],
-      ["subway", "noun", "elementary", "= underground=tube (British English)=MRT=metro"],
+      ["subway", "noun",[0], "= underground=tube (British English)=MRT=metro"],
       ["succeed", "verb", [0], ""],
       ["success", "noun", [0], ""],
       ["successful", "adj.", [0], ""],
@@ -9605,11 +9607,11 @@
     ];
     const level_subs = level_headings.concat(offlist_subs);
     // const level_offset = level_headings.length;
-    function markOfflist(word,type) {
+    function markOfflist(word, type) {
       // console.log("debug *markofflist* ", word, type)
-      return [word,type,[offlist_subs.indexOf(type) + level_headings.length]]
+      return [word, type, [offlist_subs.indexOf(type) + level_headings.length]]
     }
-    
+
 
     // ## plural nouns, 3rd person present verbs
     const s_subs = {
@@ -9654,6 +9656,49 @@
       ying: "ie",
       cking: "c",
       ing: "e"
+    };
+
+
+    // ## superlative adjs
+    const est_subs = {
+      _: [-5, -4, -3],
+      _suffix: "est",
+      bbest: "b",
+      ddest: "d",
+      ffest: "f",
+      ggest: "g",
+      llest: "l",
+      mmest: "m",
+      nnerst: "n",
+      ppest: "p",
+      rrest: "r",
+      ssest: "s",
+      ttest: "t",
+      vvest: "v",
+      zzest: "z",
+      iest: "y",
+      est: "e"
+    };
+
+    // ## comparative adjs & agent nouns? (good idea??)
+    const er_subs = {
+      _: [-4, -3, -2],
+      _suffix: "er",
+      bber: "b",
+      dder: "d",
+      ffer: "f",
+      gger: "g",
+      ller: "l",
+      mmer: "m",
+      nner: "n",
+      pper: "p",
+      rrer: "r",
+      sser: "s",
+      tter: "t",
+      vver: "v",
+      zzer: "z",
+      ier: "y",
+      er: "e"
     };
 
     // ## regular past -ed endings
@@ -9889,9 +9934,9 @@
         _accent: "#fbefcc"
       }
     };
-    </script>
-    
-    <script>
+  </script>
+
+  <script>
     let currentDb = GEPT;
 
     // ## TAB1 (words) SETUP ############################################
@@ -9937,12 +9982,7 @@
         .addEventListener("change", submitForm);
       document.getElementById("w_term_i").addEventListener("input", submitForm);
 
-      /*document
-        .getElementById("js_slider")
-        .addEventListener("click", refreshSliderWrapper);*/
-
       for (const el of document.getElementsByTagName("input")) {
-        //if (el.type != "text") el.addEventListener("click", clearDiffSiblings);
         if (el.type != "text") {
           const label = el.labels[0];
           if (label.htmlFor) label.addEventListener("click", registerLabelClick);
@@ -9951,8 +9991,6 @@
     }
 
     function finalInit() {
-      //toggleSlider(GEPT);
-      //refreshLabels("w_main");
       changeDb_words();
       refreshLabels("w_form");
     }
@@ -10050,15 +10088,12 @@
         } else {
           data[key].push(value.trim());
         }
-        //data[key].push(value.trim());
       }
       console.log("Search for:" + JSON.stringify(data).replace(/[\[\]\{\}]/g, ""));
 
       let term = data.term.join().toLowerCase();
       // ** Substitute theme data for level in GEPTKids search
       // ** otherwise theme data is disregarded
-      //let level = data.level.join("|");
-      //if (currentDb.isKids) level = data.theme.join("|");
       let level = data.level;
       if (currentDb.isKids) level = data.theme;
       const pos = data.pos.join("|");
@@ -10084,9 +10119,9 @@
 
     function get_results(find) {
       let results = currentDb.db.filter(el => el[LEMMA].search(find.term) != -1);
-      if (find.level.length){
+      if (find.level.length) {
         let tmpResults = [];
-        for (let i of find.level){
+        for (let i of find.level) {
           tmpResults = tmpResults.concat(results.filter(el => el[LEVEL].includes(i)));
         }
         results = tmpResults;
@@ -10094,7 +10129,7 @@
       if (find.pos)
         results = results.filter(el => el[POS].search(find.pos) != -1);
       return results;
-    }  
+    }
 
     function format_results(results) {
       // console.log("debug *formatresults* ")
@@ -10102,7 +10137,7 @@
         "<table>" +
         results
           .map(function (entry, i) {
-            // console.log("debug *formatresults*",entry[LEMMA],entry[LEVEL])
+            // console.log("debug *formatresults*",entry);
             const col1 = `<td>${i + 1}: </td>`;
             const lemma = `<strong>${entry[LEMMA]}</strong>`;
             const pos = `[${entry[POS].trim()}]`;
@@ -10145,33 +10180,53 @@
     // ## TAB2 (text) CODE ############################################
 
     function parseText(e) {
-      let raw_text = e.target.innerText;
-      if (!raw_text.trim()) return;
+      const raw = e.target;
+      let raw_text = raw.innerText;
+      if (!raw_text) return;
+      raw_text = raw_text.replace(/\s+/g, ' ');
+      const end = raw_text.length - 1;
+      if (raw_text.charAt(end) == " ") raw_text = raw_text.slice(0, -1) + String.fromCharCode(160);
+      raw.innerText = raw_text;
       // ## Replace hard spaces which mess with div width
-      e.target.innerText = raw_text.replace(/\s+/g, ' ')
+      const [text, wordCount] = createFinalText(raw_text);
+      const numOfWords = `<span class="text-right">(${wordCount} word${(wordCount > 1 ? "s" : "")})</span>`;
+      let outputText = text
+        .map(([word, raw_word]) => lookUp([word, raw_word]))
+        .join(" ");
+      finalDiv.innerHTML = `<p>${numOfWords}</p><p>${outputText}</p>`;
+      repositionCursor(raw);
+    }
+
+    function createFinalText(raw_text){
       raw_text = raw_text
         .replace(/[\u2018\u2019']/g, " '")
-        .replace(/[\n\r]/g, " | "); // encode EOLs
+        .replace(/[\n\r\u00A0]/g, " | "); // encode EOLs
       let text = [];
       const re = /\s+/;
       let wordCount = 0;
       for (const word of raw_text.split(re)) {
         wordCount++;
         let processed_word = word
-          .replace(/[\u2018\u2019']/g, " ")
-          .replace(/[\u201C\u201D]/g, '"')
+          // .replace(/[\u2018\u2019']/g, " ") 
+          .replace(/[\u201C\u201D]/g, '"') // ## replace typographer's quotes
           .replace(punctuation, "")
           //.replace(/[\n\r]/g, " # ")
           .toLowerCase()
-          .trim();
+          // .trim()
+          ;
         text.push([processed_word, word]);
       }
-      //finalDiv.innerHTML = text.map(([word,raw_word]) => lookUp([word,raw_word])).join(" ");
-      numOfWords = `<span class="text-right">(${wordCount} word${(wordCount > 1 ? "s" : "")})</span>`;
-      const outputText = text
-        .map(([word, raw_word]) => lookUp([word, raw_word]))
-        .join(" ");
-      finalDiv.innerHTML = `<p>${numOfWords}</p><p>${outputText}</p>`;
+      return [text, wordCount];
+    }
+
+    function repositionCursor(el) {
+      const selection = window.getSelection();
+      const range = document.createRange();
+      selection.removeAllRanges();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      selection.addRange(range);
+      el.focus();
     }
 
     function lookUp([word, raw_word]) {
@@ -10186,7 +10241,7 @@
 
       if (stopWords.includes(word)) {
         // ## check for common stop words
-        matches.push(markOfflist(word,"contraction"));
+        matches.push(markOfflist(word, "contraction"));
       } else {
         matches = dbLookup(word);
         /* ## if no match...
@@ -10201,29 +10256,47 @@
             /* ## check for regular past tenses
             test = robbed gagged passed busied played visited
              */
-            findBaseForm(word, d_subs, matches);
-            //matches.push([word, "reg. past", "s"]);
+            for (const match of findBaseForm(word, d_subs)) {
+              if (match[1].includes("verb")) matches.push(match);
+            }
           } else if (word.slice(-3) == "ing") {
             /* ## check for Ving
             test = "bobbing begging swimming buzzing picnicking hoping dying going flying"
             */
-            findBaseForm(word, g_subs, matches);
+            for (const match of findBaseForm(word, g_subs)) {
+              if (match[1].includes("verb")) matches.push(match);
+            }
+          } else if (word.slice(-2) == "st") {
+            /* ## check for superlative adjs
+            test = "longest hottest prettiest closest"
+            */
+            for (const match of findBaseForm(word, est_subs)) {
+              if (match[1].includes("adj")) matches.push(match);
+            }
+          } else if (word.slice(-1) == "r") {
+            /* ## check for comparative adjs (filters out agent nouns)
+            test = "longer hotter prettier closer"
+            */
+            for (const match of findBaseForm(word, er_subs)) {
+              if (match[1].includes("adj")) matches.push(match);
+            }
           } else if (word.slice(-1) == "s") {
             /* ## check for plurals or 3rd pers pres verbs
             test: families tries potatoes scarves crises boxes dogs
             */
-            findBaseForm(word, s_subs, matches);
+            // findBaseForm(word, s_subs, matches);
+            matches.push(...findBaseForm(word, s_subs));
           } else if (word.slice(-2) == "ly") {
             /* ## check for adverbs
             test: happily clumsily annually finely sensibly sadly
             */
-            findBaseForm(word, y_subs, matches);
+            for (const match of findBaseForm(word, y_subs)) {
+              if (match[1].includes("adj")) matches.push(match);
+            }
           } else if (isNumeric(word)) {
-            // matches.push([word, "digits", "s"]);
-            matches.push(markOfflist(word,"digit"));
+            matches.push(markOfflist(word, "digit"));
           }
-          //if (!matches.length) matches.push([word, "offlist", "o"]);
-          if (!matches.length) matches.push(markOfflist(word,"offlist"));
+          if (!matches.length) matches.push(markOfflist(word, "offlist"));
         }
       }
       //console.log(`*lookup* word=<${word}>, matches=<${matches}>`);
@@ -10236,16 +10309,6 @@
       for (let [i, el] of matches.entries()) {
         // console.log(`*formatMatches* ${i,el}`);
         if (!el) continue;
-        // let level_css = level_subs[el[LEVEL]];
-        // if (typeof el[LEVEL] === "string") {
-        //   level_css = el[LEVEL];
-        // }
-        // let level_css_short = "";
-        // if (level_css) level_css_short = level_css[0];
-        // let full_level = "";
-        // if (level_css !== "o" && level_css !== "s") full_level = `${level_css}: `;
-        // if (currentDb.name == "GEPTKids" && level_css_short != "o") level_css_short = "e";
-        // const level_css = level_subs[el[LEVEL]];
         let level_css = getLevelText(el);
         let level_css_short = "";
         let level_text = "";
@@ -10253,52 +10316,50 @@
           level_css_short = "k";
         } else {
           // level_css = "";
-          level_css_short = level_css[0];
+          level_css_short = (level_css) ? level_css[0] : "o";
           level_text = `${level_css}: `;
         }
         const level_class = ` level-${level_css_short}`;
         const baseform = (el[LEMMA] == word) ? "" : `(${el[LEMMA]}) `;
-        const pos = `<span class="tooltiptext">${level_text}${baseform}${el[POS]}</span>`;
+        let note = "";
+        if (el[NOTE]) note = `<br>[${el[NOTE]}]`;
+        const pos = `<span class="tooltiptext">${level_text}${baseform}${el[POS]}${note}</span>`;
         result += `<span class="tooltip${level_class}">${raw_word}${pos}</span>`;
-        if (i < matches.length - 1) result += "/";
+        if (i < matches.length - 1) result += " /";
       }
       return result;
     }
-    function getLevelText(entry){
-      // const text = level_subs[entry[LEVEL][0] + level_offset];
-      const text = level_subs[entry[LEVEL][0]];
-      // console.log("debug *getleveltext* ",entry,text,(text) ? text[0] : "problem...");
+    function getLevelText(entry) {
+      // console.log("debug *getleveltext*",entry)
+      let text = level_subs[entry[LEVEL][0]];
       return text;
     }
 
     function dbLookup(word) {
       let matches = currentDb.db.filter((el) => el[0].toLowerCase() == word);
-      //console.log(`*dbLookup* words=${words}`)
+      // console.log("*dbLookup* matches=",matches)
       return matches;
     }
 
-    function findBaseForm(word, subs, matches) {
+    function findBaseForm(word, subs) {
+      let localMatches = [];
       const candidates = new Set();
-      const slice = subs["_suffix"].length * -1;
+      const toSuffix  = -(subs["_suffix"].length);
       for (const i of subs["_"]) {
         const suffix = subs[word.slice(i)];
-        //console.log(`urword*** word: ${word} -> ${word.slice(0, slice)}+${suffix}`);
-        if (suffix != undefined) candidates.add(word.slice(0, i) + suffix);
+        if (suffix != undefined) {
+          // console.log(`debug *findBaseForm* word: (${toSuffix}) ${word} -> ${word.slice(0, toSuffix)}+${suffix}`);
+          candidates.add(word.slice(0, i) + suffix);
+        }
       }
-      candidates.add(word.slice(0, slice));
+      candidates.add(word.slice(0, toSuffix));
       for (const candidate of candidates) {
+        // console.log("debug *findBaseForm2*",candidate)
         const tmp_match = dbLookup(candidate);
-        if (tmp_match.length) matches.push(tmp_match[0]);
+        if (tmp_match.length) localMatches.push(...tmp_match);
       }
+      return localMatches;
     }
-
-    //   // return [word, "offlist", "o"];
-    //   return [word, "offlist",0];
-    // }
-
-    // function contraction(word) {
-    //   return [word, "contraction",1];
-    // }
 
     function clearText() {
       rawDiv.innerText = "";
@@ -10375,7 +10436,7 @@
     document.getElementById("reset_button").addEventListener("click", resetTab);
     function resetTab(event) {
       event.preventDefault();
-      console.log(`*resetTab* id=${event.target.id}, isTab1=${isTab1()}`);
+      // console.log(`*resetTab* id=${event.target.id}, isTab1=${isTab1()}`);
       if (isTab1()) {
         reset_form();
       } else {
