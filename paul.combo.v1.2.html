@@ -92,7 +92,6 @@
       display: flex;
     }
 
-
     @media (min-width: 600px) {
       .tab-content {
         /*background: CornflowerBlue;*/
@@ -102,6 +101,13 @@
       .tab-div1,
       .tab-div1:last-of-type {
         flex: 50%;
+      }
+    
+      .tab-div2:first-of-type {
+        margin-right: 5px;
+      }
+      .tab-div2:last-of-type {
+        margin-left: 5px;
       }
     }
 
@@ -160,11 +166,12 @@
     }
 
     input[type='text'],
-    #raw_text,
+    #t_raw_text,
     #t_final_text {
       text-indent: 5px;
       overflow-wrap: break-word;
       overflow: auto;
+      word-break: break-all;
     }
 
     #t_final_text {
@@ -357,6 +364,7 @@
     .tooltip {
       position: relative;
       display: inline-block;
+      word-break: normal;
       /*border-bottom: 1px dotted black;*/
     }
 
@@ -388,6 +396,9 @@
       border-color: #555 transparent transparent transparent;
     }
 
+    .tooltip:hover {
+     font-weight: bold;
+    }
     .tooltip:hover .tooltiptext {
       visibility: visible;
       opacity: 1;
@@ -9615,7 +9626,7 @@
 
     // ## plural nouns, 3rd person present verbs
     const s_subs = {
-      _: [-3, -2],
+      // _: [-3, -2],
       _suffix: "s",
       ies: "y",
       oes: "o",
@@ -9627,7 +9638,7 @@
 
     // ## adverbs
     const y_subs = {
-      _: [-3],
+      // _: [-3],
       _suffix: "ly",
       ily: "y",
       lly: "l",
@@ -9638,7 +9649,7 @@
 
     // ## gerunds
     const g_subs = {
-      _: [-5, -4, -3],
+      // _: [-5, -4, -3],
       _suffix: "ing",
       bbing: "b",
       dding: "d",
@@ -9661,7 +9672,7 @@
 
     // ## superlative adjs
     const est_subs = {
-      _: [-5, -4, -3],
+      // _: [-5, -4, -3],
       _suffix: "est",
       bbest: "b",
       ddest: "d",
@@ -9682,7 +9693,7 @@
 
     // ## comparative adjs & agent nouns? (good idea??)
     const er_subs = {
-      _: [-4, -3, -2],
+      // _: [-4, -3, -2],
       _suffix: "er",
       bber: "b",
       dder: "d",
@@ -9703,7 +9714,7 @@
 
     // ## regular past -ed endings
     const d_subs = {
-      _: [-4, -3, -2],
+      // _: [-4, -3, -2],
       _suffix: "ed",
       bbed: "b",
       dded: "d",
@@ -9937,6 +9948,15 @@
   </script>
 
   <script>
+    /* TO FIX
+
+    layout: 
+    scrolling problems
+    no margin between raw/final text boxes in row mode - DONE
+
+    cursor problems in raw text - DONE
+    text cutting off top of tooltip - DONE (hackily)
+*/
     let currentDb = GEPT;
 
     // ## TAB1 (words) SETUP ############################################
@@ -9954,6 +9974,14 @@
       pos: "PoS",
       results: "Results"
     };
+
+    const display_levels = {
+      e: "初",
+      i: "中",
+      h: "高",
+      o: "",
+      c: ""
+    }
 
     const form = document.getElementById("w_form");
     const results_legend = document.getElementById("w_results_legend");
@@ -10181,10 +10209,13 @@
 
     function parseText(e) {
       const raw = e.target;
+      const cursorPos = getCaretCharacterOffsetWithin(raw);
+      // console.log("debug!",cursorPos)
       let raw_text = raw.innerText;
       if (!raw_text) return;
-      raw_text = raw_text.replace(/\s+/g, ' ');
+      // raw_text = raw_text.replace(/\s+/g, ' ');
       const end = raw_text.length - 1;
+      // ## Add in final space (lost otherwise coz of html default ignore space)
       if (raw_text.charAt(end) == " ") raw_text = raw_text.slice(0, -1) + String.fromCharCode(160);
       raw.innerText = raw_text;
       // ## Replace hard spaces which mess with div width
@@ -10194,7 +10225,7 @@
         .map(([word, raw_word]) => lookUp([word, raw_word]))
         .join(" ");
       finalDiv.innerHTML = `<p>${numOfWords}</p><p>${outputText}</p>`;
-      repositionCursor(raw);
+      repositionCursor(raw,cursorPos);
     }
 
     function createFinalText(raw_text){
@@ -10202,8 +10233,8 @@
         .replace(/[\u2018\u2019']/g, " '")
         .replace(/[\n\r\u00A0]/g, " | "); // encode EOLs
       let text = [];
-      const re = /\s+/;
       let wordCount = 0;
+      const re = /\s+/;
       for (const word of raw_text.split(re)) {
         wordCount++;
         let processed_word = word
@@ -10219,15 +10250,43 @@
       return [text, wordCount];
     }
 
-    function repositionCursor(el) {
+    function repositionCursor(el,offset) {
       const selection = window.getSelection();
       const range = document.createRange();
       selection.removeAllRanges();
       range.selectNodeContents(el);
-      range.collapse(false);
+      // range.setStart(el,0);
+      // range.setEnd(el,offset);
+      range.setStart(el.childNodes[0], offset);
+      range.collapse(true);
+      // range.collapse(false);
       selection.addRange(range);
       el.focus();
     }
+
+    function getCaretCharacterOffsetWithin(el) {
+        var caretOffset = 0;
+        var doc = el.ownerDocument || el.document;
+        var win = doc.defaultView || doc.parentWindow;
+        var sel;
+        if (typeof win.getSelection != "undefined") {
+          sel = win.getSelection();
+          if (sel.rangeCount > 0) {
+            var range = win.getSelection().getRangeAt(0);
+            var preCaretRange = range.cloneRange();
+            preCaretRange.selectNodeContents(el);
+            preCaretRange.setEnd(range.endContainer, range.endOffset);
+            caretOffset = preCaretRange.toString().length;
+          }
+        } else if ((sel = doc.selection) && sel.type != "Control") {
+          var textRange = sel.createRange();
+          var preCaretTextRange = doc.body.createTextRange();
+          preCaretTextRange.moveToElementText(el);
+          preCaretTextRange.setEndPoint("EndToEnd", textRange);
+          caretOffset = preCaretTextRange.text.length;
+        }
+        return caretOffset;
+      }
 
     function lookUp([word, raw_word]) {
       if (word == "|") {
@@ -10310,21 +10369,22 @@
         // console.log(`*formatMatches* ${i,el}`);
         if (!el) continue;
         let level_css = getLevelText(el);
-        let level_css_short = "";
+        let level_css_short = "o";
         let level_text = "";
-        if (currentDb.name == "GEPTKids" && level_css != "offlist") {
-          level_css_short = "k";
-        } else {
-          // level_css = "";
+        if (level_css != "offlist") {
           level_css_short = (level_css) ? level_css[0] : "o";
-          level_text = `${level_css}: `;
+          // level_text = `${level_css}: `;
+          if (display_levels[level_css_short]) level_text = `${display_levels[level_css_short]}: `;
+         if (currentDb.name == "GEPTKids") {
+          level_css_short = "k";
         }
+      }
         const level_class = ` level-${level_css_short}`;
         const baseform = (el[LEMMA] == word) ? "" : `(${el[LEMMA]}) `;
         let note = "";
         if (el[NOTE]) note = `<br>[${el[NOTE]}]`;
-        const pos = `<span class="tooltiptext">${level_text}${baseform}${el[POS]}${note}</span>`;
-        result += `<span class="tooltip${level_class}">${raw_word}${pos}</span>`;
+        const tooltip= `<span class="tooltiptext">${level_text}${baseform}${el[POS]}${note}</span>`;
+        result += `<span class="tooltip${level_class}">${raw_word}${tooltip}</span>`;
         if (i < matches.length - 1) result += " /";
       }
       return result;
@@ -10345,11 +10405,19 @@
       let localMatches = [];
       const candidates = new Set();
       const toSuffix  = -(subs["_suffix"].length);
-      for (const i of subs["_"]) {
+      // for (const i of subs["_"]) {
+      //   const suffix = subs[word.slice(i)];
+      //   if (suffix != undefined) {
+      //     // console.log(`debug *findBaseForm* word: (${toSuffix}) ${word} -> ${word.slice(0, toSuffix)}+${suffix}`);
+      //     candidates.add(word.slice(0, i) + suffix);
+      //   }
+      // }
+      for (const [key, value] of Object.entries(subs)) {
+        // console.log(key, value);
+        const i = -(key.length);
         const suffix = subs[word.slice(i)];
         if (suffix != undefined) {
-          // console.log(`debug *findBaseForm* word: (${toSuffix}) ${word} -> ${word.slice(0, toSuffix)}+${suffix}`);
-          candidates.add(word.slice(0, i) + suffix);
+          candidates.add(word.slice(0,i) + suffix);
         }
       }
       candidates.add(word.slice(0, toSuffix));
@@ -10452,10 +10520,14 @@
       }
     }
 
-    function isTab1() {
-      //return document.getElementById("tab-one").checked;
-      return currentTab === 0;
-    }
+    // function cursor_position() {
+    //   var sel = document.getSelection();
+
+    //   var pos = sel.toString().length;
+    //   if (sel.anchorNode != undefined) sel.collapseToEnd();
+
+    //   return pos;
+    // }
 
     // ## TABS ############################################
 
@@ -10485,6 +10557,12 @@
       }
       //console.log(`current tab = ${currentTab + 1}`);
     }
+
+    function isTab1() {
+      //return document.getElementById("tab-one").checked;
+      return currentTab === 0;
+    }
+
 
   </script>
 
