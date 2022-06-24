@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <button type="button" id="btn_nodes">List all nodes</button>
+  <button type="button" id="btn_feedback">Find cursor pos</button>
+  <h3>Cursor position:</h3>
+ <div id="my_feedback">tba</div> 
+  <div id="my_test" contenteditable="true">
+    <h1>The Problem</h1>
+    <p>However, when you start using rems, it becomes hard to calculate every time how many pixels it would be or vice
+      versa. Like you’d get a design that uses pixels, but you want to use rems.</p>
+  
+    <p>If you’re using something like
+      <em>Tailwind CSS</em> (<a href="#">learn more</a>), you don’t really need to worry about calculations that much. You
+      can just do it once, put it in the config file and forget about calculating them every time you need to use it.
+    </p>
+  
+    <p>On the other hand, if you’re using just CSS, SCSS, styled components, or basically anything that doesn’t do the
+      calculations for you. You may need to use specific sizes, and every time you’d have to convert it from rems to px or
+      vice versa.</p>
+  
+    Some people say you get used to it, but why worry about an extra thing when you can easily fix this by writing a
+    couple of lines of CSS?
+  </div>
+
+ <script>
+  // console.clear();
+
+    const btnNodes = document.getElementById("btn_nodes");
+    const btnFeedback = document.getElementById("btn_feedback");
+    const feedbackDiv = document.getElementById("my_feedback")
+    const testDiv = document.getElementById("my_test");
+    btnNodes.addEventListener("click", test);
+    btnFeedback.addEventListener("click", rangeTest);
+    //el.addEventListener("input", test);
+
+    
+    function readNodes(parentNode, count, store) {
+      for (const node of parentNode.childNodes) {
+        // console.log("count: ",count);
+        tmp = {};
+        tmp.index = count;
+        tmp.name = node.nodeName;
+        tmp.type = node.nodeType;
+        tmp.hasChildren = node.childNodes.length;
+        if (node.nodeType == 3) {
+          tmp.length = node.length;
+          tmp.text = node.nodeValue.slice(0, 10);
+        }
+        store.push(tmp);
+        if (node.hasChildNodes()) {
+          count = readNodes(node, count + 1, store) - 1;
+        }
+        count++;
+      }
+      return count;
+    }
+
+
+    function test() {
+      let myTest = [];
+      const tmp = readNodes(testDiv, 0, myTest);
+      // console.log("hello")
+      console.log("test", myTest);
+    }
+
+    function getIndexInParent(node){
+      return travelNodes(testDiv,node,0)[0];
+    }
+
+    function travelNodes(root,node,count,matchedNode){
+      if (!matchedNode) matchedNode = false;
+      for (const child of root.childNodes){
+        if (child === node) matchedNode = true;
+        if (matchedNode) break;
+        console.log(count,child.nodeName,child === node, (child.nodeType === 3) ? child.nodeValue.slice(0,20) : "el...");
+        if (child.hasChildNodes()){
+          [count,matchedNode] = travelNodes(child,node,count + 1, matchedNode);
+          count--;
+        }
+        count++;
+      }
+      return [count,matchedNode];
+    }
+
+    document.onselectionchange = rangeTest;
+
+    function rangeTest(){
+      console.clear();
+      let {
+        anchorNode, anchorOffset, focusNode, focusOffset
+      } = document.getSelection();
+      // feedbackDiv.innerText = `${getIndexInParent(anchorNode)}:${anchorOffset} - ${focusNode}:${focusOffset}`;
+      feedbackDiv.innerText = `node: ${getIndexInParent(focusNode)}, offset: ${focusOffset} (~${focusNode.nodeValue.slice(0,20)}~)`;
+
+    }
+
+
+ </script> 
+</body>
+</html>
