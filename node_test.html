@@ -30,89 +30,125 @@
   </div>
 
  <script>
-console.clear();
-
-const btnNodes = document.getElementById("btn_nodes");
-const btnFeedback = document.getElementById("btn_feedback");
-const feedbackDiv = document.getElementById("my_feedback");
-const testDiv = document.getElementById("my_test");
-btnNodes.addEventListener("click", test);
-btnFeedback.addEventListener("click", rangeTest);
-//el.addEventListener("input", test);
-
-function test(){
-  console.log(listNodes(testDiv));
-}
-
-function listNodes(parentNode) {
-  let nodeList = [];
-  return readNodes(parentNode, nodeList, 0);
-}
-
-function readNodes(parentNode, list, count) {
-  for (const node of parentNode.childNodes) {
-    tmp = {};
-    tmp.index = count;
-    tmp.name = node.nodeName;
-    tmp.type = node.nodeType;
-    tmp.hasChildren = node.childNodes.length;
-    if (node.nodeType == 3) {
-      tmp.length = node.length;
-      tmp.text = node.nodeValue.slice(0, 10);
-    }
-    list.push(tmp);
-    if (node.hasChildNodes()) {
-      count = readNodes(node, list, count + 1)[1] - 1;
-    }
-    count++;
-  }
-  return [list,count];
-}
-
-
-function getIndexInParent(node) {
-  return travelNodes(testDiv, node)[1];
-}
-
-function travelNodes(root, node, count, matchedNode) {
-  // ## 
-  if (count === undefined) count = 0;
-  if (matchedNode === undefined) matchedNode = false;
-  for (const child of root.childNodes) {
-    if (child === node) matchedNode = true;
-    if (matchedNode) break;
-    console.log(
-      count,
-      child.nodeName,
-      child === node,
-      child.nodeType === 3 ? child.nodeValue.slice(0, 20) : "el..."
-    );
-    if (child.hasChildNodes()) {
-      [matchedNode, count] = travelNodes(child, node, count + 1, matchedNode);
-      count--;
-    }
-    count++;
-  }
-  return [matchedNode, count];
-}
-
-document.onselectionchange = rangeTest;
-
-function rangeTest() {
   console.clear();
-  let {
-    anchorNode,
-    anchorOffset,
-    focusNode,
-    focusOffset
-  } = document.getSelection();
-  feedbackDiv.innerText = `node: ${getIndexInParent(
-    focusNode
-  )}, offset: ${focusOffset} (~${focusNode.nodeValue.slice(0, 20)}~)`;
-}
 
+    const btnNodes = document.getElementById("btn_nodes");
+    const btnFeedback = document.getElementById("btn_feedback");
+    const feedbackDiv = document.getElementById("my_feedback");
+    const testDiv = document.getElementById("my_test");
+    btnNodes.addEventListener("click", test);
+    btnFeedback.addEventListener("click", rangeTest);
+    //el.addEventListener("input", test);
 
+    function test() {
+      console.log(listNodes(testDiv));
+    }
 
- </script> 
+    function listNodes(parentNode) {
+      function readNodes(parentNode, list, count) {
+        for (const node of parentNode.childNodes) {
+          tmp = {};
+          tmp.index = count;
+          tmp.name = node.nodeName;
+          tmp.type = node.nodeType;
+          tmp.hasChildren = node.childNodes.length;
+          if (node.nodeType == 3) {
+            tmp.length = node.length;
+            tmp.text = node.nodeValue.slice(0, 10);
+          }
+          list.push(tmp);
+          if (node.hasChildNodes()) {
+            count = readNodes(node, list, count + 1)[1] - 1;
+          }
+          count++;
+        }
+        return [list, count];
+      }
+      return readNodes(parentNode, [], 0);
+    }
+
+    /*function readNodesOLD(parentNode, list, count) {
+      for (const node of parentNode.childNodes) {
+        tmp = {};
+        tmp.index = count;
+        tmp.name = node.nodeName;
+        tmp.type = node.nodeType;
+        tmp.hasChildren = node.childNodes.length;
+        if (node.nodeType == 3) {
+          tmp.length = node.length;
+          tmp.text = node.nodeValue.slice(0, 10);
+        }
+        list.push(tmp);
+        if (node.hasChildNodes()) {
+          count = readNodes(node, list, count + 1)[1] - 1;
+        }
+        count++;
+      }
+      return [list, count];
+    }*/
+
+    function getIndexInParent(node) {
+      function travelNodes(root, node, count, matchedNode) {
+        // ##
+        if (count === undefined) count = 0;
+        if (matchedNode === undefined) matchedNode = false;
+        for (const child of root.childNodes) {
+          if (child === node) matchedNode = true;
+          if (matchedNode) break;
+          console.log(
+            count,
+            child.nodeName,
+            child === node,
+            child.nodeType === 3 ? child.nodeValue.slice(0, 20) : "el..."
+          );
+          if (child.hasChildNodes()) {
+            [matchedNode, count] = travelNodes(child, node, count + 1, matchedNode);
+            count--;
+          }
+          count++;
+        }
+        return [matchedNode, count];
+      }
+      return travelNodes(testDiv, node)[1];
+    }
+
+    /*function travelNodesOLD(root, node, count, matchedNode) {
+      // ##
+      if (count === undefined) count = 0;
+      if (matchedNode === undefined) matchedNode = false;
+      for (const child of root.childNodes) {
+        if (child === node) matchedNode = true;
+        if (matchedNode) break;
+        console.log(
+          count,
+          child.nodeName,
+          child === node,
+          child.nodeType === 3 ? child.nodeValue.slice(0, 20) : "el..."
+        );
+        if (child.hasChildNodes()) {
+          [matchedNode, count] = travelNodes(child, node, count + 1, matchedNode);
+          count--;
+        }
+        count++;
+      }
+      return [matchedNode, count];
+    }*/
+
+    document.onselectionchange = rangeTest;
+
+    function rangeTest() {
+      console.clear();
+      let {
+        anchorNode,
+        anchorOffset,
+        focusNode,
+        focusOffset
+      } = document.getSelection();
+      feedbackDiv.innerText = `node: ${getIndexInParent(
+        focusNode
+      )}, offset: ${focusOffset} (~${focusNode.nodeValue.slice(0, 20)}~)`;
+    }
+
+ </script>
 </body>
 </html>
