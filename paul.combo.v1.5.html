@@ -10239,76 +10239,96 @@
 
     rawDiv.addEventListener("paste", normalizePastedText);
 
+    // ## if text is pasted in, this is where processing starts
     function normalizePastedText(e) {
       event.preventDefault();
       let paste = (event.clipboardData || window.clipboardData).getData('text');
+      // ## If you need to manipulate the pasted before look-up, do it here
       rawDiv.innerText = paste;
       parseText(e);
       // console.log("debug *normalize*", paste)
     }
 
+    // ## if text is typed in, this is where processing starts
     function parseText(raw) {
       if (raw.target) raw = raw.target;
-      const [textArr, EOLcount] = createFinalText(raw.innerText);
-      const [text, wordCount] = addLookUp(textArr);
-      //const [text, wordCount, EOLcount] = createFinalText(raw.innerText);
-      finalDiv.innerHTML = formatFinalText(text, wordCount);
+      const textArr = splitTextIntoWords(raw.innerText);
+      const [processedTextArr, wordCount] = addLookUp(textArr);
+      const htmlString = formatText(processedTextArr);
+      finalDiv.innerHTML = formatDisplayText(htmlString, wordCount);
       // console.log("debug *newparsetext*", raw.innerHTML);
     }
 
-    function createFinalText(raw_text) {
+    function splitTextIntoWords(raw_text) {
       let EOLcount = 0;
       // ## text = [processed word for lookup + tagging, raw word for display]
       raw_text = raw_text
         .replace(/[\u2018\u2019']/g, " '")
         .replace(/[\n\r]+/g, " *EOL "); // encode EOLs
-      let text = [];
+      let textArr = [];
       const re = /\s+/;
       for (const word of raw_text.split(re)) {
         if (word.includes('*EOL')) {
-          text.push(["*EOL", "<br>"])
+          textArr.push(["*EOL", "<br>"])
           EOLcount++;
-          // rawDiv.focus();
-          // console.log("pressed enter, yay!", EOLcount)
+          // console.log("debug: you pressed enter!", EOLcount)
         } else {
-          let processed_word = word
+          let normalizedWord = word
             .replace(/[\u2018\u2019']/g, "") // ## replace curly single quotes 
             .replace(/[\u201C\u201D]/g, '"')  // ## replace curly double  quotes
             .replace(punctuation, "")
             .toLowerCase();
-          text.push([processed_word, word]);
+          textArr.push([normalizedWord, word]);
         }
       }
-      return [text, EOLcount];
+      return textArr;
     }
 
-
-    function addLookUp(text) {
+    function addLookUp(textArr) {
+      let wordStats = {};
+      let processedWords = [];
       let outputText = "";
       let wordCount = 0;
+      let matches = [];
       // ## capture EOL and insert <br>
-      for (const word of text) {
-        if (word[0] === "*EOL") {
-          outputText += "<br><br>";
-        } else {
-          const matches = lookUp(word);
+      for (const wordArr of textArr) {
+        const word = wordArr[0];
+        // console.log("debug *addLookUp*",wordArr)
+        if (word !== "*EOL") {
+          matches = lookUp(wordArr);
           if (matches && matches[0][1] == "contraction") {
-            // console.log(word,matches)
+            // ???? TODO what should go here?
           } else {
             wordCount++;
+            // ## count any possible variants of words BUT this makes duplicate word count very unreliable!
+            for (match of matches){
+              const baseWord = match[LEMMA];
+              if (typeof wordStats[baseWord] === 'undefined'){
+                wordStats[baseWord] = 0;
+              } else {
+                wordStats[baseWord]++;
+              }
+            }
           }
-          outputText += formatMatches(word, matches);
+          for (const match of matches){
+            if (!match) continue;
+            let level_css = level_subs[match[LEVEL][0]];
+            if (level_css !== "offlist" && currentDb.name === "GEPTKids") {
+              level_css = "kids";
+            }
+            match.push(level_css)
+          }
         }
+        processedWords.push([wordArr, matches]);
       }
-      return [outputText, wordCount];
-    }
-
-    function formatFinalText(text, wordCount) {
-      const numOfWords = `<span class="text-right">(${wordCount} word${(wordCount > 1 ? "s" : "")})</span>`;
-      return `<p>${numOfWords}</p><p>${text}</p>`;
+      // console.log("debug *addLookUp*",processedWords);
+      console.log("wordStats:",wordStats)
+      return [processedWords, wordCount];
     }
 
     function lookUp([word, raw_word]) {
+      // ## NB. always returns a match, even if it is just "offlist"
+      // console.log("debug *lookup* ",word,typeof word, raw_word)
       if (word == "|") {
         return "<br>";
       } else if (!word.match(/[a-z0-9]/i)) {
@@ -10316,8 +10336,6 @@
       }
       let matches = [];
       let suffix = 0;
-      // console.log("debug *lookup* ",word)
-
       if (stopWords.includes(word)) {
         // ## check for common stop words
         matches.push(markOfflist(word, "contraction"));
@@ -10378,42 +10396,48 @@
           if (!matches.length) matches.push(markOfflist(word, "offlist"));
         }
       }
-      // console.log(`*lookup* word=<${word}>, matches=<${matches}>`);
       return matches;
     }
 
-    function formatMatches([word, raw_word], matches) {
-      if (!matches || typeof (matches) !== "object") return raw_word;
-      //console.log("debug *formatmatches1* ",word, matches,typeof(matches))
-      let result = "";
-      //for (let [i, el] of matches.entries()) {
-      let i = 0;
-      for (const el of matches) {
-        // console.log("*formatMatches2* ","###", el);
-        if (!el) continue;
-        let level_css = getLevelText(el);
-        let level_css_short = "o";
-        let level_text = "";
-        if (level_css != "offlist") {
-          level_css_short = (level_css) ? level_css[0] : "o";
-          if (display_levels[level_css_short]) level_text = `${display_levels[level_css_short]}: `;
-          if (currentDb.name == "GEPTKids") level_css_short = "k";
+    function formatText(textArr){
+      // ## textArr = [ [[lemma, raw_word] , [ [match1 [lemma,PoS,[level_digit],note,level_text]],...]] ]
+      /* ## lemma = textArr[0][0], raw_word = textArr[0][1]
+         ## match1 = textArr[1][0] -> lemma = [0], PoS = [1], level-digit = [2], note = [3]
+         ## + added, processed level text = [4]
+      */
+      let htmlString = "";
+      for (wordArr of textArr){
+        const word = wordArr[0][0];
+        if (word === "*EOL") {
+          htmlString += "<br><br>";
+          continue;
         }
-        const level_class = ` level-${level_css_short}`;
-        const baseform = (el[LEMMA] == word) ? "" : `(${el[LEMMA]}) `;
-        const note = (el[NOTE]) ? `<br>[${el[NOTE]}]` : "";
-        const tooltip = `<span class="tooltiptext">${level_text}${baseform}${el[POS]}${note}</span>`;
-        result += `<span class="tooltip${level_class}">${raw_word}${tooltip}</span> `;
-        if (i < matches.length - 1) result += "/ ";
-        i++;
+        const rawWord = wordArr[0][1];
+        const matches = wordArr[1];
+        let displayWord = "";
+        let matchCount = 0;
+        for (const match of matches){
+          const level =  (match[4]) ? match[4] : "offlist";
+          displayWord = `<span class='tooltip level-${level[0]}'>`;
+          displayWord += rawWord;
+          const levelPrefix = (display_levels[level[0]]) ? `${display_levels[level[0]]}: ` : "";
+          const baseForm = (match[LEMMA] === word) ? "" : `(${match[LEMMA]}) `;
+          const PoS = `${match[POS]}`;
+          let notes = (match[NOTE] && level !== "offlist") ? `<br>[${match[NOTE]}]` : "";
+          displayWord += `<span class='tooltiptext'>` + levelPrefix + baseForm + PoS + notes;
+          displayWord += "</span></span> ";
+          if (matchCount < matches.length -1) displayWord += "/ ";
+          // console.log("debug *formatText*",match, displayWord);
+          htmlString += displayWord;
+          matchCount++;
+        }
       }
-      return result;
+      return htmlString;
     }
 
-    function getLevelText(entry) {
-      //console.log("debug *getleveltext*",entry)
-      let text = level_subs[entry[LEVEL][0]];
-      return text;
+    function formatDisplayText(htmlText, wordCount) {
+      const numOfWords = `<span class="text-right">(${wordCount} word${(wordCount > 1 ? "s" : "")})</span>`;
+      return `<p>${numOfWords}</p><p>${htmlText}</p>`;
     }
 
     function dbLookup(word) {
@@ -10426,10 +10450,8 @@
       let localMatches = [];
       const candidates = new Set();
       const toSuffix = -(subs["_suffix"].length);
-      //for (const [key, value] of Object.entries(subs)) {
       //console.log("debug *findbaseform", subs)
       for (const key in subs) {
-        // console.log(key, value);
         const i = -(key.length);
         const suffix = subs[word.slice(i)];
         if (suffix != undefined) {
