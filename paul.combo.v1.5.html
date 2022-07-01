@@ -223,6 +223,18 @@
     .level-d {
       color: rgb(123, 0, 255);
     }
+    
+    .duplicate {
+      background-color: var(--accent);
+    }
+
+    .highlight {
+      /* border: dashed black; */
+      background-color: white;
+      box-shadow: 10px 5px 5px var(--dark);
+      /* text-decoration: wavy underline overline red; */
+      /* font-style: italic; */
+    }
 
     input:focus,
     select:focus {
@@ -647,12 +659,12 @@
     console.clear();
 
     const GEPTdb = [
-      ["feet", "noun", [0], "irreg. plural"],
-      ["geese", "noun", [0], "irreg. plural"],
-      ["men", "noun", [0], "irreg. plural"],
-      ["mice", "noun", [0], "irreg. plural"],
-      ["teeth", "noun", [0], "irreg. plural"],
-      ["women", "noun", [0], "irreg. plural"],
+      // ["feet", "noun", [0], "irreg. plural"],
+      // ["geese", "noun", [0], "irreg. plural"],
+      // ["men", "noun", [0], "irreg. plural"],
+      // ["mice", "noun", [0], "irreg. plural"],
+      // ["teeth", "noun", [0], "irreg. plural"],
+      // ["women", "noun", [0], "irreg. plural"],
       ["a", "art.", [0], "後接母音開頭之字時為 an"],
       ["A.M.", "adv.", [0], "= a.m.= AM"],
       ["abandon", "verb/noun", [1], ""],
@@ -902,7 +914,7 @@
       ["altogether", "adv.", [0], ""],
       ["aluminium", "noun/adj.", [1], ""],
       ["always", "adv.", [0], ""],
-      ["am", "verb", [0], ""],
+      // ["am", "verb", [0], ""],
       ["amateur", "adj./noun", [1], ""],
       ["amaze", "verb", [1], ""],
       ["amazing", "adj.", [1], ""],
@@ -1035,7 +1047,7 @@
       ["architecture", "noun", [1], ""],
       ["archive", "noun/adj.", [2], ""],
       ["Arctic", "adj./noun", [2], "= arctic, 北極"],
-      ["are", "verb", [0], ""],
+      // ["are", "verb", [0], ""],
       ["area", "noun", [0], ""],
       ["arena", "noun", [2], ""],
       ["argue", "verb", [0], ""],
@@ -4547,7 +4559,7 @@
       ["irritable", "adj.", [2], ""],
       ["irritate", "verb", [2], ""],
       ["irritation", "noun", [2], ""],
-      ["is", "verb", [0], ""],
+      // ["is", "verb", [0], ""],
       ["island", "noun", [0], ""],
       ["isle", "noun", [2], ""],
       ["isolate", "verb", [1], ""],
@@ -9765,8 +9777,20 @@
       ed: "e"
     };
 
+    const foreign_plurals = [
+      ["ae","a"],
+      ["a","um"],
+      ["a","on"],
+      // ["ia","ion"],
+      ["i","us"],
+      ["i","o"],
+      ["es","is"],
+      ["ices","ex"], 
+      ["ices","ix"],
+    ];
+
     // ## contractions
-    const stopWords = [
+    const contractions = [
       "m",
       "re",
       "ve",
@@ -9774,26 +9798,61 @@
       "d",
       "t",
       "s",
-      "an",
-      "aren",
-      "couldn",
-      "didn",
-      "doesn",
-      "hadn",
-      "hasn",
-      "haven",
-      "isn",
-      "mightn",
-      "mustn",
-      "needn",
-      "shan",
-      "shouldn",
-      "wasn",
-      "weren",
-      "won",
-      "wouldn"
+      // "am",
+      // "aren",
+      // "couldn",
+      // "didn",
+      // "doesn",
+      // "don",
+      // "hadn",
+      // "hasn",
+      // "haven",
+      // "isn",
+      // "mightn",
+      // "mustn",
+      // "needn",
+      // "shan",
+      // "shouldn",
+      // "wasn",
+      // "weren",
+      // "won",
+      // "wouldn"
     ];
-    const pastVerbLookUp = {
+
+    const irregPluralLookUp = {
+      feet: "foot",
+      geese: "goose",
+      men: "man",
+      mice: "mouse",
+      teeth: "tooth",
+      women: "woman",
+      children: "child",
+      oxen: "ox"
+    };
+
+    // const pastVerbLookUp = {
+    const irregVerbLookUp = {
+      aren: "be",
+      couldn: "could",
+      didn: "do",
+      doesn: "do",
+      don: "do",
+      hadn: "have",
+      hasn: "have",
+      haven: "have",
+      isn: "be",
+      mightn: "might",
+      mustn: "must",
+      needn: "need",
+      shan: "shall",
+      shouldn: "should",
+      wasn: "be",
+      weren: "be",
+      won: "will",
+      wouldn: "would",
+      am: "be",
+      is: "be",
+      are: "be",
       were: "be",
       was: "be",
       been: "be",
@@ -9950,6 +10009,72 @@
       wrote: "write"
     };
 
+    const repeatableWords = [
+      "a",
+      "and",
+      "but",
+      "or",
+      "so",
+      "the",
+      "this",
+      "that",
+      "these",
+      "those",
+      "here",
+      "there",
+      "not",
+      "no",
+      "yes",
+      "be",
+      "have",
+      "do",
+      "he",
+      "him",
+      "his",
+      "I",
+      "me",
+      "mine",
+      "my",
+      "you",
+      "your",
+      "yours",
+      "she",
+      "her",
+      "hers",
+      "it",
+      "its",
+      "we",
+      "us",
+      "our",
+      "ours",
+      "they",
+      "their",
+      "theirs",
+      "one",
+      "this",
+      "that",
+      "these",
+      "those",
+      "who",
+      "which",
+      "where",
+      "when",
+      "how",
+      "why",
+      "what",
+      "that",
+      "more",
+      "in",
+      "on",
+      "at",
+      "of",
+      "by",
+      "with",
+      "to",
+      "from",
+      "for"
+   ];
+
     const G_level = document.getElementById("w_level");
     const K_theme = document.getElementById("w_theme");
     const GEPT = {
@@ -9998,6 +10123,8 @@
     const POS = 1;
     const LEVEL = 2;
     const NOTE = 3;
+    const DUPLICATE = 4;
+    const DISPLAY = 5;
     const NBSP = String.fromCharCode(160);
 
     const legends = {
@@ -10237,7 +10364,30 @@
 
     // ## TAB2 (text) CODE ############################################
 
+    // document.getElementById("t_final_text").addEventListener("mouseover",showRepeats);
+    const finalTextDiv = document.getElementById("t_final_text");
     rawDiv.addEventListener("paste", normalizePastedText);
+
+    function showRepeats(e) {
+      const classList = [].slice.apply(e.target.classList);
+      if (classList.includes("duplicate")) {
+        relatedWords = classList.filter(name => name.slice(0, 4) === "all_")[0]
+        // console.log("debug: *showrepeats*", classList, relatedWords)
+        const dupes = document.getElementsByClassName(relatedWords);
+        toggleHighlight(dupes);
+        // for (let i=0; i < dupes.length;i++){
+        //   dupes[i].classList.toggle("highlight");
+        // }
+        setTimeout(() => {
+          toggleHighlight(dupes);
+        }, "2000")
+      }
+      function toggleHighlight(els){
+        for (let i=0; i < els.length;i++){
+          els[i].classList.toggle("highlight");
+        }
+      }
+    }
 
     // ## if text is pasted in, this is where processing starts
     function normalizePastedText(e) {
@@ -10251,12 +10401,14 @@
 
     // ## if text is typed in, this is where processing starts
     function parseText(raw) {
+      finalDiv.removeEventListener("mouseover",showRepeats);
       if (raw.target) raw = raw.target;
       const textArr = splitTextIntoWords(raw.innerText);
       const [processedTextArr, wordCount] = addLookUp(textArr);
       const htmlString = formatText(processedTextArr);
       finalDiv.innerHTML = formatDisplayText(htmlString, wordCount);
       // console.log("debug *newparsetext*", raw.innerHTML);
+      finalTextDiv.addEventListener("mouseover",showRepeats);
     }
 
     function splitTextIntoWords(raw_text) {
@@ -10301,13 +10453,18 @@
           } else {
             wordCount++;
             // ## count any possible variants of words BUT this makes duplicate word count very unreliable!
+            let i = 0;
             for (match of matches){
-              const baseWord = match[LEMMA];
-              if (typeof wordStats[baseWord] === 'undefined'){
-                wordStats[baseWord] = 0;
-              } else {
-                wordStats[baseWord]++;
+              const baseForm = match[LEMMA];
+              if (i == 0){
+                if (typeof wordStats[baseForm] === 'undefined'){
+                  wordStats[baseForm] = 0;
+                } else {
+                  wordStats[baseForm]++;
+                }
               }
+              updateArray(match,DUPLICATE,wordStats[baseForm]);
+              i++;
             }
           }
           for (const match of matches){
@@ -10316,14 +10473,22 @@
             if (level_css !== "offlist" && currentDb.name === "GEPTKids") {
               level_css = "kids";
             }
-            match.push(level_css)
+            updateArray(match,DISPLAY,level_css);
           }
         }
         processedWords.push([wordArr, matches]);
       }
       // console.log("debug *addLookUp*",processedWords);
-      console.log("wordStats:",wordStats)
+      // console.log("debug *wordStats:",wordStats)
       return [processedWords, wordCount];
+    }
+
+    function updateArray(array,pos,value) {
+      if (typeof array[pos] === "undefined") {
+        array.push(value)
+      } else {
+      }
+        array[pos] = value;
     }
 
     function lookUp([word, raw_word]) {
@@ -10336,7 +10501,7 @@
       }
       let matches = [];
       let suffix = 0;
-      if (stopWords.includes(word)) {
+      if (contractions.includes(word)) {
         // ## check for common stop words
         matches.push(markOfflist(word, "contraction"));
       } else {
@@ -10344,33 +10509,37 @@
         /* ## if no match...
          */
         if (!matches.length) {
-          if (pastVerbLookUp[word]) {
+          if (irregVerbLookUp[word]) {
             /* ## check for irregular past tenses
             test = hidden written stole lain
             */
-            matches.push(dbLookup(pastVerbLookUp[word])[0]);
-          } else if (word.slice(-2) == "ed") {
+            matches.push(dbLookup(irregVerbLookUp[word])[0]);
+          } 
+          else if (word.slice(-2) == "ed") {
             /* ## check for regular past tenses
             test = robbed gagged passed busied played visited
              */
             for (const match of findBaseForm(word, d_subs)) {
               if (match[1].includes("verb")) matches.push(match);
             }
-          } else if (word.slice(-3) == "ing") {
+          } 
+          else if (word.slice(-3) == "ing") {
             /* ## check for Ving
             test = "bobbing begging swimming buzzing picnicking hoping dying going flying"
             */
             for (const match of findBaseForm(word, g_subs)) {
               if (match[1].includes("verb")) matches.push(match);
             }
-          } else if (word.slice(-2) == "st") {
+          } 
+          else if (word.slice(-2) == "st") {
             /* ## check for superlative adjs
             test = "longest hottest prettiest closest"
             */
             for (const match of findBaseForm(word, est_subs)) {
               if (match[1].includes("adj")) matches.push(match);
             }
-          } else if (word.slice(-1) == "r") {
+          } 
+          else if (word.slice(-1) == "r") {
             /* ## check for comparative adjs (filters out agent nouns)
             test = "longer hotter prettier closer"
             */
@@ -10383,16 +10552,32 @@
             */
             // findBaseForm(word, s_subs, matches);
             matches.push(...findBaseForm(word, s_subs));
-          } else if (word.slice(-2) == "ly") {
+          } 
+          else if (word.slice(-2) == "ly") {
             /* ## check for adverbs
             test: happily clumsily annually finely sensibly sadly automatically
             */
-            for (const match of findBaseForm(word, y_subs)) {
-              if (match[1].includes("adj")) matches.push(match);
-            }
-          } else if (isNumeric(word)) {
+              for (const match of findBaseForm(word, y_subs)) {
+                if (match[1].includes("adj")) matches.push(match);
+              }
+          } 
+          else if (irregPluralLookUp[word]){
+            /* ## test: indices, cacti, criteria, phenomena, radii, formulae, bases, children, crisis */
+              matches.push(dbLookup(irregPluralLookUp[word])[0]);
+          } 
+          else if (isNumeric(word)) {
             matches.push(markOfflist(word, "digit"));
+          } 
+          // else {
+          for (const candidate of checkForeignPlurals(word)) {
+            const result = dbLookup(candidate);
+            // console.log("debug *foreignPlurals*1",candidate, result, result.length)
+            if (result.length) {
+              matches.push(result[0]);
+              // console.log("debug *foreignPlurals*2",candidate, result);
+            }
           }
+          // }
           if (!matches.length) matches.push(markOfflist(word, "offlist"));
         }
       }
@@ -10417,13 +10602,19 @@
         let displayWord = "";
         let matchCount = 0;
         for (const match of matches){
-          const level =  (match[4]) ? match[4] : "offlist";
-          displayWord = `<span class='tooltip level-${level[0]}'>`;
+          const ignoreRepeats = repeatableWords.includes(match[LEMMA]);
+          const level =  (match[DISPLAY]) ? match[DISPLAY] : "offlist";
+          const levelClass = "level-" + level[0];
+          const duplicateClass = (match[DUPLICATE] > 0 && !ignoreRepeats) ? " duplicate" : "";
+          const relatedWordsClass = " all_" + match[LEMMA];
+          // displayWord = `<span class='tooltip level-${level[0]}${relatedWords}${duplicate}'>`;
+          displayWord = `<span class='tooltip ${levelClass}${relatedWordsClass}${duplicateClass}'>`;
           displayWord += rawWord;
           const levelPrefix = (display_levels[level[0]]) ? `${display_levels[level[0]]}: ` : "";
           const baseForm = (match[LEMMA] === word) ? "" : `(${match[LEMMA]}) `;
           const PoS = `${match[POS]}`;
           let notes = (match[NOTE] && level !== "offlist") ? `<br>[${match[NOTE]}]` : "";
+          if (duplicateClass) notes += ` (${match[DUPLICATE]} rep${(match[DUPLICATE] !== 1) ? "s" : ""})`;
           displayWord += `<span class='tooltiptext'>` + levelPrefix + baseForm + PoS + notes;
           displayWord += "</span></span> ";
           if (matchCount < matches.length -1) displayWord += "/ ";
@@ -10435,14 +10626,25 @@
       return htmlString;
     }
 
+    // function makeOrdinal(x){
+    //  x = parseInt(x);
+    //  ord_suffixes = {
+    //   0: "th",
+    //   1: "st",
+    //   2: "nd"
+    //  }
+    //  const generic = (x < 0 || x > 2) ? 0 : x;
+    //  return x + ord_suffixes[generic];
+    // }
+
     function formatDisplayText(htmlText, wordCount) {
       const numOfWords = `<span class="text-right">(${wordCount} word${(wordCount > 1 ? "s" : "")})</span>`;
       return `<p>${numOfWords}</p><p>${htmlText}</p>`;
     }
 
     function dbLookup(word) {
-      let matches = currentDb.db.filter((el) => el[0].toLowerCase() == word);
-      // console.log("*dbLookup* matches=",matches)
+      let matches = currentDb.db.filter(el => el[0].toLowerCase() == word);
+      // console.log("*dbLookup* matches=",word,matches)
       return matches;
     }
 
@@ -10465,6 +10667,16 @@
         if (tmp_match.length) localMatches.push(...tmp_match);
       }
       return localMatches;
+    }
+
+    function checkForeignPlurals(word) {
+      let candidates = [];
+      for (const ending of foreign_plurals) {
+        const len = ending[0].length;
+        const guess = word.slice(0, -len) + ending[1];
+        if (ending[0] === word.slice(-len)) candidates.push(guess);
+      }
+      return candidates;
     }
 
     function clearText() {
