@@ -415,7 +415,8 @@
       padding: 5px 0;
       position: absolute;
       z-index: 1;
-      bottom: 125%;
+      /* bottom: 125%; */
+      bottom: 175%;
       left: 50%;
       margin-left: -60px;
       opacity: 0;
@@ -10026,6 +10027,7 @@
       "no",
       "yes",
       "be",
+      "are",
       "have",
       "do",
       "he",
@@ -10106,15 +10108,6 @@
   </script>
 
   <script>
-    /* TO FIX
-
-    layout: 
-    scrolling problems
-    no margin between raw/final text boxes in row mode - DONE
-
-    cursor problems in raw text - DONE
-    text cutting off top of tooltip - DONE (hackily)
-*/
     let currentDb = GEPT;
 
     // ## TAB1 (words) SETUP ############################################
@@ -10405,13 +10398,17 @@
       if (raw.target) raw = raw.target;
       const textArr = splitTextIntoWords(raw.innerText);
       const [processedTextArr, wordCount] = addLookUp(textArr);
-      const htmlString = formatText(processedTextArr);
+      const htmlString = convertToHTML(processedTextArr);
       finalDiv.innerHTML = formatDisplayText(htmlString, wordCount);
-      // console.log("debug *newparsetext*", raw.innerHTML);
       finalTextDiv.addEventListener("mouseover",showRepeats);
     }
 
     function splitTextIntoWords(raw_text) {
+      /* Divides text on spaces. Creates an array of words.
+         Each word is a sub array: 
+         1) normalized word
+         2) word with caps + punctuation for display
+      */
       let EOLcount = 0;
       // ## text = [processed word for lookup + tagging, raw word for display]
       raw_text = raw_text
@@ -10422,7 +10419,7 @@
       for (const word of raw_text.split(re)) {
         if (word.includes('*EOL')) {
           textArr.push(["*EOL", "<br>"])
-          EOLcount++;
+          // EOLcount++;
           // console.log("debug: you pressed enter!", EOLcount)
         } else {
           let normalizedWord = word
@@ -10437,6 +10434,9 @@
     }
 
     function addLookUp(textArr) {
+      /* Words are counted + line breaks dealt with
+         Normalized word sent to be checked against wordlist 
+      */
       let wordStats = {};
       let processedWords = [];
       let outputText = "";
@@ -10448,24 +10448,20 @@
         // console.log("debug *addLookUp*",wordArr)
         if (word !== "*EOL") {
           matches = lookUp(wordArr);
-          if (matches && matches[0][1] == "contraction") {
-            // ???? TODO what should go here?
-          } else {
-            wordCount++;
-            // ## count any possible variants of words BUT this makes duplicate word count very unreliable!
-            let i = 0;
-            for (match of matches){
-              const baseForm = match[LEMMA];
-              if (i == 0){
-                if (typeof wordStats[baseForm] === 'undefined'){
-                  wordStats[baseForm] = 0;
-                } else {
-                  wordStats[baseForm]++;
-                }
+          wordCount++;
+          // ## count any possible variants of words BUT this makes duplicate word count very unreliable!
+          let i = 0;
+          for (match of matches){
+            const baseForm = match[LEMMA];
+            if (i == 0){
+              if (typeof wordStats[baseForm] === 'undefined'){
+                wordStats[baseForm] = 0;
+              } else {
+                wordStats[baseForm]++;
               }
-              updateArray(match,DUPLICATE,wordStats[baseForm]);
-              i++;
             }
+            updateArray(match,DUPLICATE,wordStats[baseForm]);
+            i++;
           }
           for (const match of matches){
             if (!match) continue;
@@ -10484,108 +10480,108 @@
     }
 
     function updateArray(array,pos,value) {
+      /* Beware: this updates the live db array: a future version should probably avoid doing this!
+      */
       if (typeof array[pos] === "undefined") {
         array.push(value)
       } else {
-      }
         array[pos] = value;
+      }
     }
 
     function lookUp([word, raw_word]) {
-      // ## NB. always returns a match, even if it is just "offlist"
+      /* 
+      NB. always returns a match, even if it is just "offlist"
       // console.log("debug *lookup* ",word,typeof word, raw_word)
-      if (word == "|") {
-        return "<br>";
-      } else if (!word.match(/[a-z0-9]/i)) {
-        return word;
-      }
+      */
       let matches = [];
-      let suffix = 0;
-      if (contractions.includes(word)) {
-        // ## check for common stop words
-        matches.push(markOfflist(word, "contraction"));
+      if (word.match(/\d/i)) {
+        matches.push(markOfflist(word,"digit"));
+        return matches;
+      } else if (!word.match(/[a-z]/i)){
+        matches.push(markOfflist(word,"unknown"));
+        return matches;
       } else {
-        matches = dbLookup(word);
-        /* ## if no match...
-         */
-        if (!matches.length) {
-          if (irregVerbLookUp[word]) {
-            /* ## check for irregular past tenses
-            test = hidden written stole lain
-            */
-            matches.push(dbLookup(irregVerbLookUp[word])[0]);
-          } 
-          else if (word.slice(-2) == "ed") {
-            /* ## check for regular past tenses
-            test = robbed gagged passed busied played visited
-             */
-            for (const match of findBaseForm(word, d_subs)) {
-              if (match[1].includes("verb")) matches.push(match);
-            }
-          } 
-          else if (word.slice(-3) == "ing") {
-            /* ## check for Ving
-            test = "bobbing begging swimming buzzing picnicking hoping dying going flying"
-            */
-            for (const match of findBaseForm(word, g_subs)) {
-              if (match[1].includes("verb")) matches.push(match);
-            }
-          } 
-          else if (word.slice(-2) == "st") {
-            /* ## check for superlative adjs
-            test = "longest hottest prettiest closest"
-            */
-            for (const match of findBaseForm(word, est_subs)) {
-              if (match[1].includes("adj")) matches.push(match);
-            }
-          } 
-          else if (word.slice(-1) == "r") {
-            /* ## check for comparative adjs (filters out agent nouns)
-            test = "longer hotter prettier closer"
-            */
-            for (const match of findBaseForm(word, er_subs)) {
-              if (match[1].includes("adj")) matches.push(match);
-            }
-          } else if (word.slice(-1) == "s") {
-            /* ## check for plurals or 3rd pers pres verbs
-            test: families tries potatoes scarves crises boxes dogs
-            */
-            // findBaseForm(word, s_subs, matches);
-            matches.push(...findBaseForm(word, s_subs));
-          } 
-          else if (word.slice(-2) == "ly") {
-            /* ## check for adverbs
-            test: happily clumsily annually finely sensibly sadly automatically
-            */
-              for (const match of findBaseForm(word, y_subs)) {
+        let suffix = 0;
+        if (contractions.includes(word)) {
+          // ## check for common stop words
+          matches.push(markOfflist(word, "contraction"));
+        } else {
+          matches = dbLookup(word);
+          /* ## if no match...
+          */
+          if (!matches.length) {
+            if (irregVerbLookUp[word]) {
+              /* ## check for irregular past tenses
+              test = hidden written stole lain
+              */
+              matches.push(dbLookup(irregVerbLookUp[word])[0]);
+            } 
+            else if (word.slice(-2) == "ed") {
+              /* ## check for regular past tenses
+              test = robbed gagged passed busied played visited
+              */
+              for (const match of findBaseForm(word, d_subs)) {
+                if (match[1].includes("verb")) matches.push(match);
+              }
+            } 
+            else if (word.slice(-3) == "ing") {
+              /* ## check for Ving
+              test = "bobbing begging swimming buzzing picnicking hoping dying going flying"
+              */
+              for (const match of findBaseForm(word, g_subs)) {
+                if (match[1].includes("verb")) matches.push(match);
+              }
+            } 
+            else if (word.slice(-2) == "st") {
+              /* ## check for superlative adjs
+              test = "longest hottest prettiest closest"
+              */
+              for (const match of findBaseForm(word, est_subs)) {
                 if (match[1].includes("adj")) matches.push(match);
               }
-          } 
-          else if (irregPluralLookUp[word]){
-            /* ## test: indices, cacti, criteria, phenomena, radii, formulae, bases, children, crisis */
-              matches.push(dbLookup(irregPluralLookUp[word])[0]);
-          } 
-          else if (isNumeric(word)) {
-            matches.push(markOfflist(word, "digit"));
-          } 
-          // else {
-          for (const candidate of checkForeignPlurals(word)) {
-            const result = dbLookup(candidate);
-            // console.log("debug *foreignPlurals*1",candidate, result, result.length)
-            if (result.length) {
-              matches.push(result[0]);
-              // console.log("debug *foreignPlurals*2",candidate, result);
+            } 
+            else if (word.slice(-1) == "r") {
+              /* ## check for comparative adjs (filters out agent nouns)
+              test = "longer hotter prettier closer"
+              */
+              for (const match of findBaseForm(word, er_subs)) {
+                if (match[1].includes("adj")) matches.push(match);
+              }
+            } else if (word.slice(-1) == "s") {
+              /* ## check for plurals or 3rd pers pres verbs
+              test: families tries potatoes scarves crises boxes dogs
+              */
+              // findBaseForm(word, s_subs, matches);
+              matches.push(...findBaseForm(word, s_subs));
+            } 
+            else if (word.slice(-2) == "ly") {
+              /* ## check for adverbs
+              test: happily clumsily annually finely sensibly sadly automatically
+              */
+                for (const match of findBaseForm(word, y_subs)) {
+                  if (match[1].includes("adj")) matches.push(match);
+                }
+            } 
+            else if (irregPluralLookUp[word]){
+              /* ## test: indices, cacti, criteria, phenomena, radii, formulae, bases, children, crisis */
+                matches.push(dbLookup(irregPluralLookUp[word])[0]);
+            } 
+            else if (isNumeric(word)) {
+              matches.push(markOfflist(word, "digit"));
+            } 
+            for (const match of checkForeignPlurals(word)){
+              matches.push(match[0])
             }
+            if (!matches.length) matches.push(markOfflist(word, "offlist"));
           }
-          // }
-          if (!matches.length) matches.push(markOfflist(word, "offlist"));
         }
+        return matches;
       }
-      return matches;
     }
 
-    function formatText(textArr){
-      // ## textArr = [ [[lemma, raw_word] , [ [match1 [lemma,PoS,[level_digit],note,level_text]],...]] ]
+    function convertToHTML(textArr){
+      // ## textArr = [[lemma, raw_word] , [ [match1 [lemma,PoS,[level_digit],note,level_text]],...] ]
       /* ## lemma = textArr[0][0], raw_word = textArr[0][1]
          ## match1 = textArr[1][0] -> lemma = [0], PoS = [1], level-digit = [2], note = [3]
          ## + added, processed level text = [4]
@@ -10607,7 +10603,6 @@
           const levelClass = "level-" + level[0];
           const duplicateClass = (match[DUPLICATE] > 0 && !ignoreRepeats) ? " duplicate" : "";
           const relatedWordsClass = " all_" + match[LEMMA];
-          // displayWord = `<span class='tooltip level-${level[0]}${relatedWords}${duplicate}'>`;
           displayWord = `<span class='tooltip ${levelClass}${relatedWordsClass}${duplicateClass}'>`;
           displayWord += rawWord;
           const levelPrefix = (display_levels[level[0]]) ? `${display_levels[level[0]]}: ` : "";
@@ -10618,7 +10613,7 @@
           displayWord += `<span class='tooltiptext'>` + levelPrefix + baseForm + PoS + notes;
           displayWord += "</span></span> ";
           if (matchCount < matches.length -1) displayWord += "/ ";
-          // console.log("debug *formatText*",match, displayWord);
+          // console.log("debug *convertToHTML*",match, displayWord);
           htmlString += displayWord;
           matchCount++;
         }
@@ -10649,6 +10644,8 @@
     }
 
     function findBaseForm(word, subs) {
+      /* Uses lookup tables to apply common spelling rules to guess underlying base form
+      */
       let localMatches = [];
       const candidates = new Set();
       const toSuffix = -(subs["_suffix"].length);
@@ -10674,7 +10671,11 @@
       for (const ending of foreign_plurals) {
         const len = ending[0].length;
         const guess = word.slice(0, -len) + ending[1];
-        if (ending[0] === word.slice(-len)) candidates.push(guess);
+        // if (ending[0] === word.slice(-len)) candidates.push(guess);
+        if (ending[0] === word.slice(-len)) {
+          const result = dbLookup(guess);
+          if (result.length) candidates.push(result)
+        } 
       }
       return candidates;
     }
@@ -10791,7 +10792,6 @@
         }
         i++;
       }
-      //console.log(`current tab = ${currentTab + 1}`);
     }
 
     function isTab1() {
