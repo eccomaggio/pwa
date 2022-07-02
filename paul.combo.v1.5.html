@@ -220,9 +220,15 @@
       color: green;
     }
 
-    .level-d {
-      color: rgb(123, 0, 255);
+    /* contractions */
+    .level-c, .level-d {
+      color: darkgray;
     }
+    
+    /* numbers */
+    /* .level-d {
+      color: rgb(123, 0, 255);
+    } */
     
     .duplicate {
       background-color: var(--accent);
@@ -9664,7 +9670,7 @@
 
     function markOfflist(word, type) {
       // console.log("debug *markofflist* ", word, type)
-      return [word, type, [offlist_subs.indexOf(type) + level_headings.length]]
+      return [word, type, [offlist_subs.indexOf(type) + level_headings.length],""];
     }
 
 
@@ -9828,7 +9834,8 @@
       teeth: "tooth",
       women: "woman",
       children: "child",
-      oxen: "ox"
+      oxen: "ox",
+      an: "a"
     };
 
     // const pastVerbLookUp = {
@@ -10074,7 +10081,14 @@
       "with",
       "to",
       "from",
-      "for"
+      "for",
+      "m",
+      "re",
+      "ve",
+      "ll",
+      "d",
+      "t",
+      "s",
    ];
 
     const G_level = document.getElementById("w_level");
@@ -10357,7 +10371,6 @@
 
     // ## TAB2 (text) CODE ############################################
 
-    // document.getElementById("t_final_text").addEventListener("mouseover",showRepeats);
     const finalTextDiv = document.getElementById("t_final_text");
     rawDiv.addEventListener("paste", normalizePastedText);
 
@@ -10368,9 +10381,6 @@
         // console.log("debug: *showrepeats*", classList, relatedWords)
         const dupes = document.getElementsByClassName(relatedWords);
         toggleHighlight(dupes);
-        // for (let i=0; i < dupes.length;i++){
-        //   dupes[i].classList.toggle("highlight");
-        // }
         setTimeout(() => {
           toggleHighlight(dupes);
         }, "2000")
@@ -10567,9 +10577,6 @@
               /* ## test: indices, cacti, criteria, phenomena, radii, formulae, bases, children, crisis */
                 matches.push(dbLookup(irregPluralLookUp[word])[0]);
             } 
-            else if (isNumeric(word)) {
-              matches.push(markOfflist(word, "digit"));
-            } 
             for (const match of checkForeignPlurals(word)){
               matches.push(match[0])
             }
@@ -10671,7 +10678,6 @@
       for (const ending of foreign_plurals) {
         const len = ending[0].length;
         const guess = word.slice(0, -len) + ending[1];
-        // if (ending[0] === word.slice(-len)) candidates.push(guess);
         if (ending[0] === word.slice(-len)) {
           const result = dbLookup(guess);
           if (result.length) candidates.push(result)
@@ -10685,9 +10691,9 @@
       finalDiv.innerHTML = "<legend>Checked text:</legend>";
     }
 
-    function isNumeric(n) {
-      return (typeof n === 'number' || !isNaN(parseInt(n)))
-    }
+    // function isNumeric(n) {
+    //   return (typeof n === 'number' || !isNaN(parseInt(n)))
+    // }
 
     function changeDb_text() {
       rawDiv.dispatchEvent(new Event("input"));
