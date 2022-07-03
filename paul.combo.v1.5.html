@@ -10457,7 +10457,7 @@
         const word = wordArr[0];
         // console.log("debug *addLookUp*",wordArr)
         if (word !== "*EOL") {
-          matches = lookUp(wordArr);
+          matches = lookUpWord(wordArr);
           wordCount++;
           // ## count any possible variants of words BUT this makes duplicate word count very unreliable!
           let i = 0;
@@ -10499,7 +10499,7 @@
       }
     }
 
-    function lookUp([word, raw_word]) {
+    function lookUpWord([word, raw_word]) {
       /* 
       NB. always returns a match, even if it is just "offlist"
       // console.log("debug *lookup* ",word,typeof word, raw_word)
@@ -10508,93 +10508,92 @@
       if (word.match(/\d/i)) {
         matches.push(markOfflist(word,"digit"));
         return matches;
-      } else if (!word.match(/[a-z]/i)){
+      } 
+      else if (!word.match(/[a-z]/i)){
         matches.push(markOfflist(word,"unknown"));
         return matches;
-      } else {
-        let suffix = 0;
-        if (contractions.includes(word)) {
-          // ## check for common stop words
-          matches.push(markOfflist(word, "contraction"));
-        } else {
-          matches = dbLookup(word);
-          /* ## if no match...
+      } 
+      else if (contractions.includes(word)) {
+        // ## check for common stop words
+        matches.push(markOfflist(word, "contraction"));
+      } 
+      else {
+        matches = dbLookup(word);
+        if (word.slice(-3) == "ing") {
+          /* ## check for Ving
+          test = "bobbing begging swimming buzzing picnicking hoping dying going flying"
           */
-          if (!matches.length) {
-            if (irregVerbLookUp[word]) {
-              /* ## check for irregular past tenses
-              test = hidden written stole lain
-              */
-              matches.push(dbLookup(irregVerbLookUp[word])[0]);
-            } 
-            else if (word.slice(-2) == "ed") {
-              /* ## check for regular past tenses
-              test = robbed gagged passed busied played visited
-              */
-              for (const match of findBaseForm(word, d_subs)) {
-                if (match[1].includes("verb")) matches.push(match);
-              }
-            } 
-            else if (word.slice(-3) == "ing") {
-              /* ## check for Ving
-              test = "bobbing begging swimming buzzing picnicking hoping dying going flying"
-              */
-              for (const match of findBaseForm(word, g_subs)) {
-                if (match[1].includes("verb")) matches.push(match);
-              }
-            } 
-            else if (word.slice(-2) == "st") {
-              /* ## check for superlative adjs
-              test = "longest hottest prettiest closest"
-              */
-              for (const match of findBaseForm(word, est_subs)) {
-                if (match[1].includes("adj")) matches.push(match);
-              }
-            } 
-            else if (word.slice(-1) == "r") {
-              /* ## check for comparative adjs (filters out agent nouns)
-              test = "longer hotter prettier closer"
-              */
-              for (const match of findBaseForm(word, er_subs)) {
-                if (match[1].includes("adj")) matches.push(match);
-              }
-            } else if (word.slice(-1) == "s") {
-              /* ## check for plurals or 3rd pers pres verbs
-              test: families tries potatoes scarves crises boxes dogs
-              */
-              // findBaseForm(word, s_subs, matches);
-              matches.push(...findBaseForm(word, s_subs));
-            } 
-            else if (word.slice(-2) == "ly") {
-              /* ## check for adverbs
-              test: happily clumsily annually finely sensibly sadly automatically
-              */
-                for (const match of findBaseForm(word, y_subs)) {
-                  if (match[1].includes("adj")) matches.push(match);
-                }
-            } 
-            else if (irregPluralLookUp[word]){
-              /* ## test: indices, cacti, criteria, phenomena, radii, formulae, bases, children, crisis */
-                matches.push(dbLookup(irregPluralLookUp[word])[0]);
-            } 
-            for (const match of checkForeignPlurals(word)){
-              matches.push(match[0])
-            }
-            if (!matches.length) matches.push(markOfflist(word, "offlist"));
+          for (const match of findBaseForm(word, g_subs)) {
+            if (match[1].includes("verb")) matches.push(match);
           }
+        } 
+        if (!matches.length) {
+          if (irregVerbLookUp[word]) {
+            /* ## check for irregular past tenses
+            test = hidden written stole lain
+            */
+            matches.push(dbLookup(irregVerbLookUp[word])[0]);
+          } 
+          else if (word.slice(-2) == "ed") {
+            /* ## check for regular past tenses
+            test = robbed gagged passed busied played visited
+            */
+            for (const match of findBaseForm(word, d_subs)) {
+              if (match[1].includes("verb")) matches.push(match);
+            }
+          } 
+          else if (word.slice(-2) == "st") {
+            /* ## check for superlative adjs
+            test = "longest hottest prettiest closest"
+            */
+            for (const match of findBaseForm(word, est_subs)) {
+              if (match[1].includes("adj")) matches.push(match);
+            }
+          } 
+          else if (word.slice(-1) == "r") {
+            /* ## check for comparative adjs (filters out agent nouns)
+            test = "longer hotter prettier closer"
+            */
+            for (const match of findBaseForm(word, er_subs)) {
+              if (match[1].includes("adj")) matches.push(match);
+            }
+          } else if (word.slice(-1) == "s") {
+            /* ## check for plurals or 3rd pers pres verbs
+            test: families tries potatoes scarves crises boxes dogs
+            */
+            matches.push(...findBaseForm(word, s_subs));
+          } 
+          else if (word.slice(-2) == "ly") {
+            /* ## check for adverbs
+            test: happily clumsily annually finely sensibly sadly automatically
+            */
+              for (const match of findBaseForm(word, y_subs)) {
+                if (match[1].includes("adj")) matches.push(match);
+              }
+          } 
+          else if (irregPluralLookUp[word]){
+            /* ## test: indices, cacti, criteria, phenomena, radii, formulae, bases, children, crisis */
+              matches.push(dbLookup(irregPluralLookUp[word])[0]);
+          } 
+          for (const match of checkForeignPlurals(word)){
+            matches.push(...match)
+          }
+          if (!matches.length) matches.push(markOfflist(word, "offlist"));
         }
-        return matches;
       }
-    }
+      return matches;
+      }
 
     function convertToHTML(textArr){
-      // ## textArr = [[lemma, raw_word] , [ [match1 [lemma,PoS,[level_digit],note,level_text]],...] ]
-      /* ## lemma = textArr[0][0], raw_word = textArr[0][1]
-         ## match1 = textArr[1][0] -> lemma = [0], PoS = [1], level-digit = [2], note = [3]
+      /* ## textArr = [ [word], [matches] ] =>
+         ## [[lemma, raw_word] , [ [match1 [lemma,PoS,[level_digit],note,level_text]],...] ]
+         ## lemma = textArr[0][0], raw_word = textArr[0][1]
+         ## match1 (live db entry) = textArr[1][0] -> lemma = [0], PoS = [1], level-digit = [2], note = [3]
          ## + added, processed level text = [4]
       */
       let htmlString = "";
       for (wordArr of textArr){
+        // const [[word,rawWord], [matches]] = wordArr;
         const word = wordArr[0][0];
         if (word === "*EOL") {
           htmlString += "<br><br>";
@@ -10640,7 +10639,7 @@
     // }
 
     function formatDisplayText(htmlText, wordCount) {
-      const numOfWords = `<span class="text-right">(${wordCount} word${(wordCount > 1 ? "s" : "")})</span>`;
+      const numOfWords = `<span class="text-right">(c. ${wordCount} word${(wordCount > 1 ? "s" : "")})</span>`;
       return `<p>${numOfWords}</p><p>${htmlText}</p>`;
     }
 
