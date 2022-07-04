@@ -127,6 +127,7 @@
       #t_raw_text {
         overflow: auto;
         max-height: 90vh;
+        overflow-x: hidden;
       }
 
     }
@@ -329,7 +330,7 @@
       height: inherit;
     }
 
-    td:nth-child(1) {
+    #w_results_text table tr td:nth-child(1) {
       width: 10%;
     }
 
@@ -379,6 +380,11 @@
     .text-right {
       text-align: end;
       font-weight: bold;
+    }
+
+    h1 {
+      font-weight: bold;
+      font-size: medium;
     }
 
     /* ## PAGE COMMON ELEMENTS #################################### */
@@ -10427,9 +10433,11 @@
 
     function hoverEffects(e) {
       const el = e.target;
+      if (typeof el.classList === 'undefined') return;
       // ## 1) show information text
       const tooltip = el.firstElementChild;
-      if (tooltip.classList && tooltip.classList.contains("tooltiptext")) {
+      // console.log("!!!", tooltip)
+      if (tooltip && typeof tooltip.classList !== 'undefined' && tooltip.classList.contains("tooltiptext")) {
         finalInfoDiv.innerText = tooltip.textContent;
       } 
       
@@ -10465,9 +10473,10 @@
       finalTextDiv.removeEventListener("mouseover",hoverEffects);
       if (raw.target) raw = raw.target;
       const textArr = splitTextIntoWords(raw.innerText);
-      const [processedTextArr, wordCount] = addLookUp(textArr);
+      const [processedTextArr, wordCount, wordStats] = addLookUp(textArr);
       const htmlString = convertToHTML(processedTextArr);
-      finalTextDiv.innerHTML = displayInTab(htmlString, wordCount);
+      // finalTextDiv.innerHTML = displayInTab(htmlString, wordCount, wordStats);
+      displayInTab(htmlString, wordCount, wordStats);
       finalInfoDiv.style.display = "flex";
       finalTextDiv.addEventListener("mouseover",hoverEffects);
     }
@@ -10523,7 +10532,7 @@
           let i = 0;
           for (match of matches){
             const baseForm = match[LEMMA];
-            if (i == 0){
+            if (i == 0 && !["digit","contraction", "unknown"].includes(match[POS])){
               if (typeof wordStats[baseForm] === 'undefined'){
                 wordStats[baseForm] = 0;
               } else {
@@ -10546,7 +10555,7 @@
       }
       // console.log("debug *addLookUp*",processedWords);
       // console.log("debug *wordStats:",wordStats)
-      return [processedWords, wordCount];
+      return [processedWords, wordCount, wordStats];
     }
 
     function updateArray(array,pos,value) {
@@ -10698,11 +10707,27 @@
     //  return x + ord_suffixes[generic];
     // }
 
-    function displayInTab(htmlText, wordCount) {
+    function displayInTab(htmlText, wordCount, wordStats) {
+      // console.log("???", Object.keys(wordStats).sort())
+      let count = 0;
+      let listOfRepeats = "<h1>List of repeated words:</h1><table>";
+      for (const key of Object.keys(wordStats).sort()){
+        if (wordStats[key] > 0 && !repeatableWords.includes(key)) {
+          listOfRepeats += `<tr><td>${key}</td><td>${wordStats[key]}</td></tr>`;
+          count++;
+        }
+      }
+      listOfRepeats += "</table>";
+      if (count) {
+        htmlText += listOfRepeats;
+      } else {
+        htmlText += "<h1>There are no significant repeated words.</h1>"
+      }
       const numOfWords = `<span class="text-right">(c. ${wordCount} word${(wordCount > 1 ? "s" : "")})</span>`;
       finalLegend.innerHTML = (wordCount > 0) ? numOfWords : "Checked text:";
+      finalTextDiv.innerHTML = htmlText;
       // return "<p>" + htmlText + "</p>";
-      return htmlText;
+      // return htmlText;
     }
 
     function dbLookup(word) {
