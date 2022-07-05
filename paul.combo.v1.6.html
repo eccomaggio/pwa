@@ -233,6 +233,7 @@
     
     .duplicate {
       background-color: var(--accent);
+      z-index: 1;
     }
 
     .highlight {
@@ -375,6 +376,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      z-index: 2;
     }
 
     .text-right {
@@ -385,6 +387,16 @@
     h1 {
       font-weight: bold;
       font-size: medium;
+    }
+
+    #repeats {
+      columns: 2 auto;
+    }
+
+    #repeats p {
+      line-height: normal;
+      margin-top: 0 ;
+      margin-bottom: 0 ;
     }
 
     /* ## PAGE COMMON ELEMENTS #################################### */
@@ -10436,7 +10448,6 @@
       if (typeof el.classList === 'undefined') return;
       // ## 1) show information text
       const tooltip = el.firstElementChild;
-      // console.log("!!!", tooltip)
       if (tooltip && typeof tooltip.classList !== 'undefined' && tooltip.classList.contains("tooltiptext")) {
         finalInfoDiv.innerText = tooltip.textContent;
       } 
@@ -10447,10 +10458,11 @@
         relatedWords = classList.filter(name => name.slice(0, 4) === "all_")[0]
         const dupes = document.getElementsByClassName(relatedWords);
         toggleHighlight(dupes);
-        setTimeout(() => {
-          toggleHighlight(dupes);
-        }, "2000")
+        // setTimeout(() => {
+        //   toggleHighlight(dupes);
+        // }, "2000")
       }
+      // const isMouseOver = e.type === "mouseover";
       function toggleHighlight(els){
         for (let i=0; i < els.length;i++){
           els[i].classList.toggle("highlight");
@@ -10470,7 +10482,9 @@
 
     // ## if text is typed in, this is where processing starts
     function parseText(raw) {
+      // finalTextDiv.removeEventListener("mouseover",hoverEffects);
       finalTextDiv.removeEventListener("mouseover",hoverEffects);
+      finalTextDiv.removeEventListener("mouseout",hoverEffects);
       if (raw.target) raw = raw.target;
       const textArr = splitTextIntoWords(raw.innerText);
       const [processedTextArr, wordCount, wordStats] = addLookUp(textArr);
@@ -10478,7 +10492,9 @@
       // finalTextDiv.innerHTML = displayInTab(htmlString, wordCount, wordStats);
       displayInTab(htmlString, wordCount, wordStats);
       finalInfoDiv.style.display = "flex";
+      // finalTextDiv.addEventListener("mouseover",hoverEffects);
       finalTextDiv.addEventListener("mouseover",hoverEffects);
+      finalTextDiv.addEventListener("mouseout",hoverEffects);
     }
 
     function splitTextIntoWords(raw_text) {
@@ -10534,7 +10550,7 @@
             const baseForm = match[LEMMA];
             if (i == 0 && !["digit","contraction", "unknown"].includes(match[POS])){
               if (typeof wordStats[baseForm] === 'undefined'){
-                wordStats[baseForm] = 0;
+                wordStats[baseForm] = 1;
               } else {
                 wordStats[baseForm]++;
               }
@@ -10676,7 +10692,7 @@
           const ignoreRepeats = repeatableWords.includes(match[LEMMA]);
           const level =  (match[DISPLAY]) ? match[DISPLAY] : "offlist";
           const levelClass = "level-" + level[0];
-          const duplicateClass = (match[DUPLICATE] > 0 && !ignoreRepeats) ? " duplicate" : "";
+          const duplicateClass = (match[DUPLICATE] > 1 && !ignoreRepeats) ? " duplicate" : "";
           const relatedWordsClass = " all_" + match[LEMMA];
           displayWord = `<span class='tooltip ${levelClass}${relatedWordsClass}${duplicateClass}'>`;
           displayWord += rawWord;
@@ -10684,7 +10700,7 @@
           const baseForm = (match[LEMMA] === word) ? "" : `(${match[LEMMA]}) `;
           const PoS = `${match[POS]}`;
           let notes = (match[NOTE] && level !== "offlist") ? `<br>[${match[NOTE]}]` : "";
-          if (duplicateClass) notes += ` (${match[DUPLICATE]} rep${(match[DUPLICATE] !== 1) ? "s" : ""})`;
+          if (duplicateClass) notes += ` (used ${match[DUPLICATE]} time${(match[DUPLICATE] !== 1) ? "s" : ""})`;
           displayWord += `<span class='tooltiptext'>` + levelPrefix + baseForm + PoS + notes;
           displayWord += "</span></span> ";
           if (matchCount < matches.length -1) displayWord += "/ ";
@@ -10710,14 +10726,17 @@
     function displayInTab(htmlText, wordCount, wordStats) {
       // console.log("???", Object.keys(wordStats).sort())
       let count = 0;
-      let listOfRepeats = "<h1>List of repeated words:</h1><table>";
+      // let listOfRepeats = "<h1>List of repeated words:</h1><table>";
+      let listOfRepeats = "<h1>List of repeated words:</h1><div id='repeats'>";
       for (const key of Object.keys(wordStats).sort()){
-        if (wordStats[key] > 0 && !repeatableWords.includes(key)) {
-          listOfRepeats += `<tr><td>${key}</td><td>${wordStats[key]}</td></tr>`;
+        if (wordStats[key] > 1 && !repeatableWords.includes(key)) {
+          // listOfRepeats += `<tr><td>${key}</td><td>${wordStats[key]}</td></tr>`;
+          listOfRepeats += `<p class='duplicate all_${key}'>${wordStats[key]}x ${key}</p>`;
           count++;
         }
       }
-      listOfRepeats += "</table>";
+      // listOfRepeats += "</table>";
+      listOfRepeats += "</div>";
       if (count) {
         htmlText += listOfRepeats;
       } else {
