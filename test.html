@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+<script>
+function TestObj(x) {
+       this.x = 6;
+       this.afunc = function () { return x + 1}
+    // this.prototype.cfunc = function(x) {return x * x}
+   }
+
+    a = new TestObj(42);
+    b = new TestObj(1);
+
+    TestObj.prototype.bfunc = function (x) {return x - 1}
+    TestObj.prototype.staticVar = 3.142;
+    
+    console.log(b.bfunc(3), a.staticVar ,a,b)
+    
+</script>
+</head>
+<body>
+    
+</body>
+</html>
