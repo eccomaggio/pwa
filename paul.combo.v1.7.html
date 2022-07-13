@@ -168,6 +168,10 @@
 
     /* ## Tabs1&2 SHARED ############################################## */
 
+    a {
+      text-decoration: none;
+    }
+
     #t_raw_text {
       margin-top: 10px;
       white-space: pre-wrap;
@@ -234,7 +238,7 @@
 
     .duplicate {
       background-color: var(--accent);
-      z-index: 1;
+      /* z-index: 0; */
     }
 
     .highlight {
@@ -10758,6 +10762,7 @@
       let outputText = "";
       let wordCount = 0;
       let matches = [];
+      // let duplicateCount = 0;
       // ## capture EOL and insert <br>
       for (const wordArr of textArr) {
         const word = wordArr[0];
@@ -10777,6 +10782,7 @@
               }
             }
             updateArray(match, DUPLICATE, wordStats[baseForm]);
+            wordArr.push(wordStats[baseForm]);
             i++;
           }
           for (const match of matches) {
@@ -10909,24 +10915,29 @@
           continue;
         }
         const rawWord = wordArr[0][1];
+        const duplicateCount = wordArr[0][2];
         const matches = wordArr[1];
-        let displayWord = "";
+        // let displayWord = "";
         let matchCount = 0;
         for (const match of matches) {
+          let displayWord = "";
           const ignoreRepeats = repeatableWords.includes(match[LEMMA]);
           const level = (match[DISPLAY]) ? match[DISPLAY] : "offlist";
           const levelClass = "level-" + level[0];
-          const duplicateClass = (match[DUPLICATE] > 1 && !ignoreRepeats) ? " duplicate" : "";
-          const relatedWordsClass = " all_" + match[LEMMA];
-          displayWord = `<span class='tooltip ${levelClass}${relatedWordsClass}${duplicateClass}'>`;
-          displayWord += rawWord;
           const levelPrefix = (display_levels[level[0]]) ? `${display_levels[level[0]]}: ` : "";
           const baseForm = (match[LEMMA] === word) ? "" : `(${match[LEMMA]}) `;
           const PoS = `${match[POS]}`;
+          let duplicateClass = "";
+          const relatedWordsClass = " all_" + match[LEMMA];
           let notes = (match[NOTE] && level !== "offlist") ? `<br>[${match[NOTE]}]` : "";
-          if (duplicateClass) notes += ` (used ${match[DUPLICATE]} time${(match[DUPLICATE] !== 1) ? "s" : ""})`;
-          displayWord += `<span class='tooltiptext'>` + levelPrefix + baseForm + PoS + notes;
-          displayWord += "</span></span> ";
+          let anchor = "";
+          if (match[DUPLICATE] > 1 && matchCount === 0 && !ignoreRepeats){
+            duplicateClass = " duplicate"; 
+            anchor = ` id='${relatedWordsClass.trim()}_${duplicateCount}'`;
+            notes += ` (used ${match[DUPLICATE]} time${(match[DUPLICATE] !== 1) ? "s" : ""})`;
+          }
+          displayWord = `<span class='tooltip ${levelClass}${relatedWordsClass}${duplicateClass}'${anchor}>` + 
+            rawWord + `<span class='tooltiptext'>` + levelPrefix + baseForm + PoS + notes + "</span></span> ";
           if (matchCount < matches.length - 1) displayWord += "/ ";
           // console.log("debug *convertToHTML*",match, displayWord);
           htmlString += displayWord;
@@ -10951,11 +10962,15 @@
       // console.log("???", Object.keys(wordStats).sort())
       let count = 0;
       // let listOfRepeats = "<h1>List of repeated words:</h1><table>";
-      let listOfRepeats = "<h1>List of repeated words:</h1><div id='repeats'>";
+      let listOfRepeats = "<h1 id='all_repeats'>List of repeated words:</h1><div id='repeats'>";
       for (const key of Object.keys(wordStats).sort()) {
         if (wordStats[key] > 1 && !repeatableWords.includes(key)) {
-          // listOfRepeats += `<tr><td>${key}</td><td>${wordStats[key]}</td></tr>`;
-          listOfRepeats += `<p class='duplicate all_${key}'>${wordStats[key]}x ${key}</p>`;
+          let anchors = "";
+          for (let x = 1; x <= wordStats[key];x++){
+            anchors += ` <a href='#all_${key}_${x}'>${x}</a>`;
+          }
+          // listOfRepeats += `<p class='duplicate all_${key}'>${wordStats[key]}x ${key}${anchors}</p>`;
+          listOfRepeats += `<p class='duplicate all_${key}'>${key}${anchors}</p>`;
           count++;
         }
       }
@@ -10966,7 +10981,7 @@
       } else {
         htmlText += "<h1>There are no significant repeated words.</h1>"
       }
-      const numOfWords = `<span class="text-right">(c. ${wordCount} word${(wordCount > 1 ? "s" : "")})</span>`;
+      const numOfWords = `<span class="text-right">(c. ${wordCount} word${(wordCount > 1 ? "s" : "")}) <a href='#all_repeats'>&#x25BC;</a></span>`;
       finalLegend.innerHTML = (wordCount > 0) ? numOfWords : "Checked text:";
       finalTextDiv.innerHTML = htmlText;
       // return "<p>" + htmlText + "</p>";
