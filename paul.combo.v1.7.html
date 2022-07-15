@@ -10354,9 +10354,57 @@
       "willie",
       "zachary"]);
 
+    const LEMMA = 0;
+    const POS = 1;
+    const LEVEL = 2;
+    const NOTE = 3;
+    const DUPLICATE = 4;
+    const DISPLAY = 5;
+
+    // function buildListOfCompoundWords(wordList){
+    //   let compounds = [];
+    //   for (entry of wordList){
+    //     const word = entry[LEMMA].toLowerCase();
+    //     if (word.includes(" ")){
+    //       const tmp = word.split(" ");
+    //       compounds.push(word,`${tmp[0]}${tmp[1]}`,`${tmp[0]}-${tmp[1]}`);
+    //     }
+    //     if (word.includes("-")){
+    //       const tmp = word.split("-");
+    //       compounds.push(word,`${tmp[0]}${tmp[1]}`,`${tmp[0]} ${tmp[1]}`);
+    //     }  
+    //   }
+    //   return new Set(compounds);
+    // }
+    function buildListOfCompoundWords(wordList){
+      let compounds = {};
+      for (entry of wordList){
+        const word = entry[LEMMA].toLowerCase();
+        let safeWord = word.replace(/-/g, "##").replace(/ /g,"@@");
+        if (word.includes(" ")){
+          let tmp = word.split(" ");
+          compounds[word] = safeWord;
+          compounds[`${tmp[0]}${tmp[1]}`] = safeWord;
+          compounds[`${tmp[0]}-${tmp[1]}`] = safeWord;
+          tmp = word.replace(/-/g,'').split(" ");
+          compounds[`${tmp[0]}${tmp[1]}`] = safeWord;
+        }
+        if (word.includes("-")){
+          let tmp = word.split("-");
+          compounds[word] = safeWord;
+          compounds[`${tmp[0]}${tmp[1]}`] = safeWord;
+          compounds[`${tmp[0]} ${tmp[1]}`] = safeWord;
+          tmp = word.replace(/ /g,'').split("-");
+          compounds[`${tmp[0]}${tmp[1]}`] = safeWord;
+        }
+      }
+      return compounds;
+    }
+
 
     const G_level = document.getElementById("w_level");
     const K_theme = document.getElementById("w_theme");
+
     const GEPT = {
       name: "GEPT",
       db: GEPTdb,
@@ -10368,8 +10416,10 @@
         _medium: "#87bdd8",
         _dark: "#3F7FBF",
         _accent: "#daebe8"
-      }
+      },
+      compounds: buildListOfCompoundWords(GEPTdb)
     };
+
     const GEPTKids = {
       name: "GEPTKids",
       db: KIDSdb,
@@ -10381,8 +10431,10 @@
         _medium: "#f4a688",
         _dark: "#c1502e",
         _accent: "#fbefcc"
-      }
+      },
+      compounds: buildListOfCompoundWords(KIDSdb)
     };
+
   </script>
 
   <script>
@@ -10390,12 +10442,6 @@
 
     // ## TAB1 (words) SETUP ############################################
 
-    const LEMMA = 0;
-    const POS = 1;
-    const LEVEL = 2;
-    const NOTE = 3;
-    const DUPLICATE = 4;
-    const DISPLAY = 5;
     const NBSP = String.fromCharCode(160);
 
     const legends = {
@@ -10422,6 +10468,8 @@
 
     addListeners();
     finalInit();
+
+
 
 
     // TAB1 (words) CODE ## ############################################
@@ -10714,7 +10762,6 @@
       const textArr = splitTextIntoWords(raw.innerText);
       const [processedTextArr, wordCount, wordStats] = addLookUp(textArr);
       const htmlString = convertToHTML(processedTextArr);
-      // finalTextDiv.innerHTML = displayInTab(htmlString, wordCount, wordStats);
       displayInTab(htmlString, wordCount, wordStats);
       finalInfoDiv.style.display = "flex";
 
@@ -10735,14 +10782,22 @@
         .replace(/…/g, "...")
         .replace(/[\n\r]+/g, " *EOL ") // encode EOLs
         .replace(/—/g, " - ")
+      raw_text = findCompounds(raw_text);
       let textArr = [];
-      const re = /\s+/;
-      for (const word of raw_text.split(re)) {
+      for (let word of raw_text.split(/\s+/)) {
         if (word.includes('*EOL')) {
-          textArr.push(["*EOL", "<br>"])
+          textArr.push(["*EOL", "<br>"]);
           // console.log("debug: you pressed enter!", EOLcount)
         } else {
-          let normalizedWord = word
+          let normalizedWord = word;
+          /* ## Deal with compound words */
+          if (word.startsWith('*CMP*')) {
+            word = word
+              .replace(/##/g,'-')
+              .replace(/@@/g, ' ');
+            [normalizedWord, word] = word.slice(5).split('::');
+          }
+          normalizedWord = normalizedWord
             .replace(/[\u2018\u2019']/g, "") // ## replace curly single quotes 
             .replace(/[\u201C\u201D]/g, '"')  // ## replace curly double  quotes
             .replace(punctuation, "")
@@ -10751,6 +10806,16 @@
         }
       }
       return textArr;
+    }
+    
+    function findCompounds(text){
+      for (entry in currentDb.compounds) {
+        const sub = entry.replace(/\-/g,'##').replace(/ /g,'@@');
+        const re = new RegExp(entry, 'gi');
+        const compound = "*CMP*" + currentDb.compounds[entry] + "::" + sub;
+        text = text.replace(re, compound);
+      }
+      return text;
     }
 
     function addLookUp(textArr) {
@@ -10762,11 +10827,9 @@
       let outputText = "";
       let wordCount = 0;
       let matches = [];
-      // let duplicateCount = 0;
       // ## capture EOL and insert <br>
       for (const wordArr of textArr) {
         const word = wordArr[0];
-        // console.log("debug *addLookUp*",wordArr)
         if (word !== "*EOL") {
           matches = lookUpWord(wordArr);
           if (word) wordCount++;
@@ -10796,8 +10859,6 @@
         }
         processedWords.push([wordArr, matches]);
       }
-      // console.log("debug *addLookUp*",processedWords);
-      // console.log("debug *wordStats:",wordStats)
       return [processedWords, wordCount, wordStats];
     }
 
@@ -10928,7 +10989,7 @@
           const baseForm = (match[LEMMA] === word) ? "" : `(${match[LEMMA]}) `;
           const PoS = `${match[POS]}`;
           let duplicateClass = "";
-          const relatedWordsClass = " all_" + match[LEMMA];
+          const relatedWordsClass = (matchCount === 0) ? " all_" + match[LEMMA] : "";
           let notes = (match[NOTE] && level !== "offlist") ? `<br>[${match[NOTE]}]` : "";
           let anchor = "";
           if (match[DUPLICATE] > 1 && matchCount === 0 && !ignoreRepeats){
