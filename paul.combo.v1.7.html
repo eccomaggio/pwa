@@ -24,14 +24,14 @@
 
     /* ## TABS ############################################ */
     body {
-      margin: 6px;
+      /*margin: 6px;*/
       /*background: black;*/
     }
 
     #tabGroup {
       /*background: black;*/
       height: 98vh;
-      max-height: 98vh;
+      /*max-height: 98vh;*/
       width: 98vw;
       display: flex;
       flex-direction: column;
@@ -59,6 +59,8 @@
 
     .tab-content {
       /*background: blue;*/
+      height: inherit;
+      width: inherit;
       background: white;
       flex-direction: column;
       flex: 1;
@@ -69,6 +71,8 @@
     .tabdiv2 {
       /*background: purple;
       flex: 100%;*/
+      height:inherit;
+      width: inherit;
       flex-direction: column;
       margin: 6px;
       /*overflow: auto;*/
@@ -103,6 +107,7 @@
       max-height: 50vh;
     }
 
+
     @media (min-width: 600px) {
       .tab-content {
         /*background: CornflowerBlue;*/
@@ -129,6 +134,8 @@
         max-height: 90vh;
         overflow-x: hidden;
       }
+
+
 
     }
 
@@ -175,7 +182,6 @@
     #t_raw_text {
       margin-top: 10px;
       white-space: pre-wrap;
-      font-size: smaller;
     }
 
     input[type='text'],
@@ -201,9 +207,14 @@
       word-break: break-all;
     }
 
+    #t_raw_text, #t_final_text {
+      font-size: smaller;
+    }
+
     #t_final_text {
       padding-top: 1em;
       white-space: pre-wrap;
+        resize: horizontal;
     }
 
     .level-o {
@@ -213,7 +224,6 @@
 
     .level-h {
       color: fuchsia;
-      /*font-weight: 550;*/
     }
 
     .level-i {
@@ -237,14 +247,14 @@
     } */
 
     .duplicate {
+      /* background-color: var(--accent); */
       background-color: var(--accent);
-      /* z-index: 0; */
     }
 
     .highlight {
       /* border: dashed black; */
-      background-color: white;
-      box-shadow: 10px 5px 5px var(--dark);
+      background-color: var(--light);
+      box-shadow: 3px 3px 3px var(--medium);
       /* text-decoration: wavy underline overline red; */
       /* font-style: italic; */
     }
@@ -371,6 +381,9 @@
     .s {
       color: gray;
     } */
+    #t_final_textOLD {
+      background: white;
+    }
     #t_final_info {
       background-color: var(--medium);
       border-radius: 5px;
@@ -403,6 +416,11 @@
       margin-top: 0;
       margin-bottom: 0;
     }
+
+    .anchors {
+      font-size: smaller;
+    }
+
 
     /* ## PAGE COMMON ELEMENTS #################################### */
 
@@ -11020,16 +11038,16 @@
     // }
 
     function displayInTab(htmlText, wordCount, wordStats) {
-      // console.log("???", Object.keys(wordStats).sort())
       let count = 0;
       // let listOfRepeats = "<h1>List of repeated words:</h1><table>";
       let listOfRepeats = "<h1 id='all_repeats'>List of repeated words:</h1><div id='repeats'>";
       for (const key of Object.keys(wordStats).sort()) {
         if (wordStats[key] > 1 && !repeatableWords.includes(key)) {
-          let anchors = "";
+          let anchors = "<span class='anchors'>";
           for (let x = 1; x <= wordStats[key];x++){
             anchors += ` <a href='#all_${key}_${x}'>${x}</a>`;
           }
+          anchors += "</span>";
           // listOfRepeats += `<p class='duplicate all_${key}'>${wordStats[key]}x ${key}${anchors}</p>`;
           listOfRepeats += `<p class='duplicate all_${key}'>${key}${anchors}</p>`;
           count++;
