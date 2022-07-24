@@ -68,115 +68,153 @@
     <div id="left-top">stuff</div>
     <div id="separator">&nbsp;</div>
     <div id="right-bot">more stuff<div>
-      </div>
+  </div>
 </body>
 <script>
-  const separator = document.getElementById('separator');
-  // const container = document.getElementById('container');
-  let vW = document.documentElement.clientWidth;
-  let vH = document.documentElement.clientHeight;
+      document.addEventListener("touchstart", touch2Mouse, true);
+      document.addEventListener("touchmove", touch2Mouse, true);
+      document.addEventListener("touchend", touch2Mouse, true);
 
-  dragElement(separator);
+      function touch2Mouse(e) {
+        // Thanks to: https://www.codicode.com/art/easy_way_to_add_touch_support_to_your_website.aspx
+        var theTouch = e.changedTouches[0];
+        var mouseEv;
 
-  function dragElement(el) {
-    el.onmousedown = null;
-    console.log("dragElement initiated...")
-    let posX = 0, posY = 0, posX1 = 0, posY1 = 0;
-    const prev = el.previousElementSibling;
-    const next = el.nextElementSibling;
-    const container = el.parentElement;
-    el.onmousedown = dragMouseDown;
-
-    function dragMouseDown(e) {
-      e.preventDefault();
-      // get the mouse cursor position at startup:
-      posX1 = e.clientX;
-      posY1 = e.clientY;
-      document.onmouseup = closeDragElement;
-      // call a function whenever the cursor moves:
-      document.onmousemove = elementDrag;
-    }
-
-    function elementDrag(e) {
-      e.preventDefault();
-      // calculate the new cursor position:
-      posX = posX1 - e.clientX;
-      posY = posY1 - e.clientY;
-      posX1 = e.clientX;
-      posY1 = e.clientY;
-      // set the element's new position:
-      const mediaQuery = window.matchMedia('(max-width: 599px)')
-      if (mediaQuery.matches) {
-        // ## narrow window
-        const topHeight = prev.offsetHeight - posY;
-        const botHeight = window.innerHeight - topHeight - 6;
-        prev.style.width = container.offsetWidth + "px";
-        next.style.width = container.offsetWidth + "px";
-        if (topHeight > 10 && botHeight > 10) {
-          prev.style.height = topHeight + "px";
-          next.style.height = botHeight + "px";
+        switch (e.type) {
+          case "touchstart":
+            mouseEv = "mousedown";
+            break;
+          case "touchend":
+            mouseEv = "mouseup";
+            break;
+          case "touchmove":
+            mouseEv = "mousemove";
+            break;
+          default:
+            return;
         }
-        console.log("small...",container.offsetWidth)
+
+        var mouseEvent = document.createEvent("MouseEvent");
+        mouseEvent.initMouseEvent(
+          mouseEv,
+          true,
+          true,
+          window,
+          1,
+          theTouch.screenX,
+          theTouch.screenY,
+          theTouch.clientX,
+          theTouch.clientY,
+          false,
+          false,
+          false,
+          false,
+          0,
+          null
+        );
+        theTouch.target.dispatchEvent(mouseEvent);
+
+        e.preventDefault();
       }
-      else {
-        // ## wide window
-        const leftWidth = prev.offsetWidth - posX;
-        const rightWidth = window.innerWidth - leftWidth - 6;
-        prev.style.height = container.offsetHeight + "px";
-        next.style.height = container.offsetHeight + "px";
-        if (leftWidth > 10 && rightWidth > 10) {
-          prev.style.width = leftWidth + "px";
-          next.style.width = rightWidth + "px";
+
+      dragElement(document.getElementById('separator'));
+
+      function dragElement(el) {
+        el.onmousedown = null;
+        let posX = 0, posY = 0, posX1 = 0, posY1 = 0;
+        // const separator = document.getElementById('separator');
+        const prev = el.previousElementSibling;
+        const next = el.nextElementSibling;
+        const container = el.parentElement;
+        let resizeCounter = 0;
+        const sepThickness = 6;
+        el.onmousedown = dragMouseDown;
+
+        let prevState = window.matchMedia('(max-width: 599px)');
+        // console.log("dragElement initiated...", prev.id, next.id)
+
+        function dragMouseDown(e) {
+          e.preventDefault();
+          // get the mouse cursor position at startup:
+          posX1 = e.clientX;
+          posY1 = e.clientY;
+          document.onmouseup = closeDragElement;
+          // call a function whenever the cursor moves:
+          document.onmousemove = elementDrag;
         }
-        // console.log("wide...")
+
+        function elementDrag(e) {
+          e.preventDefault();
+          // calculate the new cursor position:
+          posX = posX1 - e.clientX;
+          posY = posY1 - e.clientY;
+          posX1 = e.clientX;
+          posY1 = e.clientY;
+          // set the element's new position:
+          const mediaQuery = window.matchMedia('(max-width: 599px)')
+          if (mediaQuery.matches) {
+            // ## narrow window
+            const topHeight = prev.offsetHeight - posY;
+            const botHeight = container.offsetHeight - topHeight - sepThickness;
+            prev.style.width = container.offsetWidth + "px";
+            next.style.width = container.offsetWidth + "px";
+            if (topHeight > 10 && botHeight > 10) {
+              prev.style.height = topHeight + "px";
+              next.style.height = botHeight + "px";
+            }
+            // console.log("small...",container.offsetWidth)
+          }
+          else {
+            // ## wide window
+            const leftWidth = prev.offsetWidth - posX;
+            const rightWidth = container.offsetWidth - leftWidth - sepThickness;
+            prev.style.height = container.offsetHeight + "px";
+            next.style.height = container.offsetHeight + "px";
+            if (leftWidth > 10 && rightWidth > 10) {
+              prev.style.width = leftWidth + "px";
+              next.style.width = rightWidth + "px";
+            }
+            // console.log("wide...")
+          }
+        }
+
+        function closeDragElement() {
+          // stop moving when mouse button is released:
+          document.onmouseup = null;
+          document.onmousemove = null;
+        }
+
+        window.onresize = function (e) {
+          // console.log("resizing...",counter())
+          const mediaQuery = window.matchMedia('(max-width: 599px)');
+          if (mediaQuery.matches) {
+            // ## narrow window
+            prev.style.width = container.offsetWidth + "px";
+            next.style.width = container.offsetWidth + "px";
+            if (mediaQuery.matches === prevState) {
+              next.style.height = (container.offsetHeight - prev.offsetHeight) + "px";
+            } else {
+              next.style.height = ((container.offsetHeight - sepThickness) / 2) + "px";
+              prev.style.height = ((container.offsetHeight - sepThickness) / 2) + "px";
+              prevState = mediaQuery.matches;
+            }
+            // console.log("narrow...")
+          }
+          else {
+            // ## wide window
+            prev.style.height = container.offsetHeight + "px";
+            next.style.height = container.offsetHeight + "px";
+            if (mediaQuery.matches === prevState) {
+              next.style.width = (container.offsetWidth - prev.offsetWidth) + "px";
+            } else {
+              prev.style.width = ((container.offsetWidth - sepThickness) / 2) + "px";
+              next.style.width = ((container.offsetWidth - sepThickness) / 2) + "px";
+              prevState = mediaQuery.matches;
+            }
+            // console.log("wide...", container.offsetWidth)
+          }
+        }
       }
-      // console.log(prev.offsetWidth,next.offsetWidth,window.innerWidth,"y:",prev.offsetHeight,next.offsetHeight,window.innerHeight)
-      console.log("elementDrag...")
-    }
-
-    function closeDragElement() {
-      // stop moving when mouse button is released:
-      document.onmouseup = null;
-      document.onmousemove = null;
-    }
-  }
-
-
-function makeCounter() {
-    var count = 0;
-    function countUp() {
-      count++;
-      return count;
-    }
-    return countUp;
-  };
-
-  const counter = makeCounter();
-
-  window.onresize = function(e) {
-
-    console.log("resizing...",counter())
-    container = document.getElementById('container');
-    prev = document.getElementById('left-top');
-    next = document.getElementById('right-bot');
-    const mediaQuery = window.matchMedia('(max-width: 599px)')
-    if (mediaQuery.matches) {
-      // ## narrow window
-      prev.style.width = container.offsetWidth + "px";
-      next.style.width = container.offsetWidth + "px";
-      next.style.height = (container.offsetHeight - prev.offsetHeight) + "px";
-      console.log("narrow...")
-    }
-    else {
-      // ## wide window
-      prev.style.height = container.offsetHeight + "px";
-      next.style.height = container.offsetHeight + "px";
-      next.style.width = (container.offsetWidth - prev.offsetWidth) + "px";
-      console.log("wide...", container.offsetWidth)
-    }
-    // elementDrag(separator);
-  }
-
 </script>
 
 </html>
