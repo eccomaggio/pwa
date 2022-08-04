@@ -16,62 +16,48 @@
       --accent: #ddeedd;
       --font-size: 14px;
     }
+  </style>
 
-    </style>
-  
-    <style>
-      /* ## resizeable blocks */
+  <style>
+    /* ## resizeable blocks */
 
+    #container {
+      flex-grow: 1;
+      display: flex;
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    #separator {
+      background-color: var(--medium);
+      height: 6px;
+      width: 50%;
+      border-radius: 5px;
+      cursor: row-resize;
+      align-self: center;
+    }
+
+    #left-top,
+    #right-bot {
+      flex-grow: 1;
+      display: flex;
+    }
+
+    /* ## wide-screen version */
+    @media (min-width: 600px) {
       #container {
-        flex-grow: 1;
-        display: flex;
-        align-items: stretch;
         flex-direction: row;
       }
-    
-      #separator {
-        /* background-color: #BF3F3F; */
-        background-color: var(--medium);
-        width: 6px;
-        height: 100%;
-        height: 50%;
-        border-radius: 5px;
-        cursor: col-resize;
-        align-self: center;
-      }
-    
-      #left-top, #right-bot {
-        flex-grow: 1;
-        display:flex;
-      }
-    
-      /* ## OOOPS - you have another, exactly opposite @media below!!! */
-      /* ## Small-screen version */
-      @media (max-width: 599px) {
-        #container {
-          flex-direction: column;
-        }
-    
-        #separator {
-          height: 6px;
-          /*width: 50%;*/
-          width: 50%;
-          cursor: row-resize;
-        }
-    
-        /* #left-top {
-          height: 50%;
-          width: 100%;
-        }
-    
-        #right-bot {
-          height: 50%;
-          width: 100%;
-        } */
-      }
-    </style>
 
-    <style>
+      #separator {
+        width: 6px;
+        height: 50%;
+        cursor: col-resize;
+      }
+    }
+  </style>
+
+  <style>
     /** {
     padding: 0;
     margin: 0;
@@ -82,7 +68,7 @@
 
     body {
       background-color: var(--dark);
-      height:100vh;
+      height: 100vh;
       width: 100vw;
       padding: 0;
       margin: 0;
@@ -128,7 +114,7 @@
     }
 
     .tab-div1 {
-      height:inherit;
+      height: inherit;
       width: inherit;
       flex-direction: column;
       margin: 6px;
@@ -145,16 +131,12 @@
 
     #t1_results_text,
     #t2_final_text,
-    #t2_raw_text, #t2_final_info {
+    #t2_raw_text,
+    #t2_final_info {
       font-size: var(--font-size);
       overflow: auto;
       flex-grow: 1;
     }
-
-    /* #t1_results_text {
-      overflow: auto;
-    } */
-
 
     /* ## for wide screens */
 
@@ -162,19 +144,7 @@
       .tab-content {
         flex-direction: row;
       }
-
-      /* .tab-div1,
-      .tab-div1:last-of-type {
-        flex: 50%;
-      } */
-
-      /* #t1_results_text,
-      #t2_final_text,
-      #t2_raw_text {
-        overflow: auto;
-        overflow-x: hidden;
-      }*/
-    } 
+    }
 
     .tab {
       border: 1px solid lightgray;
@@ -212,11 +182,9 @@
 
     #t2_raw_text {
       margin: 10px;
-      /* margin-top: 10px; */
       white-space: pre-wrap;
     }
 
-    /* input[type='text'], */
     #t1_term_i,
     #t2_raw_text {
       display: block;
@@ -231,18 +199,15 @@
       flex-grow: 1;
     }
 
-    /* #t2_raw_text, #t2_final_text {
-      font-size: smaller;
-    } */
-
     #t2_final_text {
       padding-top: 1em;
       white-space: pre-wrap;
     }
-    
+
     #t2_final_textOLD {
       background: white;
     }
+
     #t2_final_info {
       background-color: var(--light);
       border-radius: 5px;
@@ -324,13 +289,6 @@
       overflow: auto;
     }
 
-    /* #t1_results_text {
-      padding: 5px;
-      margin: 5px;
-      font-size: smaller;
-      height: inherit;
-    } */
-
     div[id$="inputs"] {
       display: flex;
       flex-direction: row;
@@ -408,12 +366,6 @@
       text-decoration: line-through;
     }
 
-    /*.line-el {
-  --line-color: #B8C1C1;
-  --line-height: 16px;
-}*/
-
-
     /* ## Tab2 (text) lookup ############################################## */
 
     .text-right {
@@ -443,14 +395,6 @@
 
 
     /* ## PAGE COMMON ELEMENTS #################################### */
-
-    /* #reset_button {
-      border: 0;
-      background: unset;
-      font: inherit;
-      font-weight: bold;
-      color: var(--dark);
-    } */
 
     #dbSelect {
       display: flex;
@@ -484,7 +428,6 @@
       position: relative;
       display: inline-block;
       word-break: normal;
-      /*border-bottom: 1px dotted black;*/
     }
 
     .tooltip .tooltiptext {
@@ -504,29 +447,12 @@
       transition: opacity 0.3s;
     }
 
-    /* .tooltip .tooltiptext::after {
-      content: "";
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      margin-left: -5px;
-      border-width: 5px;
-      border-style: solid;
-      border-color: #555 transparent transparent transparent;
-    } */
-
     .tooltip:hover {
       font-weight: bold;
     }
 
-    /* .tooltip:hover .tooltiptext {
-      visibility: visible;
-      opacity: 1;
-      font-size: small;
-    } */
-
   </style>
-  
+
   <style>
     /* from https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_dropdown_right */
 
@@ -559,7 +485,7 @@
       background-color: var(--light);
       min-width: 160px;
       padding: 10px;
-      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
       z-index: 10;
     }
 
@@ -575,11 +501,12 @@
       padding: .6em 1.4em .5em .8em;
       margin: 3px;
       width: 100%;
-      max-width: 100%; /* useful when width is set to anything other than 100% */
+      max-width: 100%;
+      /* useful when width is set to anything other than 100% */
       box-sizing: border-box;
       /*margin: 0;*/
       /* border: 1px solid #aaa; */
-      box-shadow: 0 1px 0 1px rgba(0,0,0,.04);
+      box-shadow: 0 1px 0 1px rgba(0, 0, 0, .04);
       border-radius: 3px;
       -moz-appearance: none;
       -webkit-appearance: none;
@@ -587,81 +514,15 @@
       background-color: #fff;
     }
 
-    .dropdown:hover .dropdown-content {display: flex;}
+    .dropdown:hover .dropdown-content {
+      display: flex;
+    }
+
     .dropbtn:hover {
       background-color: var(--light);
       color: var(--dark);
     }
   </style>
-
-  <!--<style>
-    /* ## FOR SLIDER ############################################# */
-    .selectGEPT {
-      color: #3f7fbf;
-    }
-
-    .selectKids {
-      color: #c1502e;
-    }
-
-    .selectGEPT,
-    .selectKids {
-      font-weight: bold;
-    }
-
-    .sliderContainer {
-      display: flex;
-      align-items: center;
-    }
-
-    .slider {
-      background-color: var(--medium);
-      background: -webkit-linear-gradient(90deg, red, orange, yellow, green, blue);
-      background: linear-gradient(to right,
-          red 20%,
-          orange 20% 40%,
-          yellow 40% 60%,
-          green 60% 80%,
-          blue 80%);
-      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff3232', endColorstr='#dd89ff', GradientType=1);
-      width: 60px;
-      height: 24px;
-      border-radius: 4px;
-      box-shadow: inset 2px 2px 5px var(--dark);
-      margin: 5px;
-      cursor: pointer;
-    }
-
-    .slider_inner {
-      position: relative;
-      top: 0px;
-      left: 2px;
-      width: 18px;
-      height: 18px;
-      border-radius: 10px;
-      background-color: var(--light);
-      box-shadow: 2px 2px 5px var(--dark);
-      transition: 0.4s;
-      cursor: pointer;
-    }
-
-    .slider[data-inset] {
-      background: unset;
-      color: var(--dark);
-      width: 100px;
-    }
-
-    .slider_bg {
-      position: relative;
-      top: -14px;
-      left: 0;
-      bottom: 0;
-      right: 0;
-      padding: 0 5px 0 5px;
-      z-index: -1;
-      overflow: hidden;
-    }
-  </style>-->
 
 </head>
 
@@ -675,14 +536,6 @@
         <button class="dropbtn" id="refresh_button" type="button" style="display: none">Refresh</button>
         <button class="dropbtn" id="reset_button" type="button">Clear</button>
         <div class="spacer">&nbsp;</div>
-        <!--<div class="sliderContainer">
-          <div class="selectGEPT">GEPT</div>
-          <div id="dbSelect" class="slider" data-selected="false">
-            <div class="slider_inner" style="transform: translateX(0px);"></div>
-            <div class="slider_bg"></div>
-          </div>
-          <div class="selectKids">Kids</div>
-        </div>-->
         <!-- adapted from https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_dropdown_right -->
         <!-- <div class="dropdown" style="float:right;"> -->
         <div class="dropdown">
@@ -700,17 +553,14 @@
               <option value="18">font 18pt</option>
               <option value="22">font 22pt</option>
               <option value="24">font 24pt</option>
-              <!-- <option value="30">font 30pt</option>
-              <option value="36">font 36pt</option>
-              <option value="48">font 48pt</option> -->
             </select>
-        
+
             <select name="set-db" id="set-db">
               <option value="0">database: GEPT</option>
               <option value="1">database: GEPTKids</option>
               <option value="2" disabled>database: MOE</option>
             </select>
-        
+
             <select name="set-refresh" id="set-refresh">
               <option value="0">auto refresh</option>
               <option id="set-refresh-manual" value="1">manual refresh</option>
@@ -903,108 +753,108 @@
       e.preventDefault();
     }
 
-  dragElement(document.getElementById('separator'));
+    dragElement(document.getElementById('separator'));
 
-  function dragElement(el) {
-    el.onmousedown = null;
-    let posX = 0, posY = 0, posX1 = 0, posY1 = 0;
-    // const separator = document.getElementById('separator');
-    const prev = el.previousElementSibling;
-    const next = el.nextElementSibling;
-    const container = el.parentElement;
-    let resizeCounter = 0;
-    const sepThickness = 6;
-    el.onmousedown = dragMouseDown;
+    function dragElement(el) {
+      el.onmousedown = null;
+      let posX = 0, posY = 0, posX1 = 0, posY1 = 0;
+      // const separator = document.getElementById('separator');
+      const prev = el.previousElementSibling;
+      const next = el.nextElementSibling;
+      const container = el.parentElement;
+      let resizeCounter = 0;
+      const sepThickness = 6;
+      el.onmousedown = dragMouseDown;
 
-    let prevState = window.matchMedia('(max-width: 599px)');
-    // console.log("dragElement initiated...", prev.id, next.id)
+      let prevState = window.matchMedia('(max-width: 599px)');
+      // console.log("dragElement initiated...", prev.id, next.id)
 
-    function dragMouseDown(e) {
-      e.preventDefault();
-      // get the mouse cursor position at startup:
-      posX1 = e.clientX;
-      posY1 = e.clientY;
-      document.onmouseup = closeDragElement;
-      // call a function whenever the cursor moves:
-      document.onmousemove = elementDrag;
-    }
-
-    function elementDrag(e) {
-      e.preventDefault();
-      // calculate the new cursor position:
-      posX = posX1 - e.clientX;
-      posY = posY1 - e.clientY;
-      posX1 = e.clientX;
-      posY1 = e.clientY;
-      // set the element's new position:
-      const mediaQuery = window.matchMedia('(max-width: 599px)')
-      if (mediaQuery.matches) {
-        // ## narrow window
-        const topHeight = prev.offsetHeight - posY;
-        const botHeight = container.offsetHeight - topHeight - sepThickness;
-        prev.style.width = container.offsetWidth + "px";
-        next.style.width = container.offsetWidth + "px";
-        if (topHeight > 10 && botHeight > 10) {
-          prev.style.height = topHeight + "px";
-          next.style.height = botHeight + "px";
-        }
-        // console.log("small...",container.offsetWidth)
+      function dragMouseDown(e) {
+        e.preventDefault();
+        // get the mouse cursor position at startup:
+        posX1 = e.clientX;
+        posY1 = e.clientY;
+        document.onmouseup = closeDragElement;
+        // call a function whenever the cursor moves:
+        document.onmousemove = elementDrag;
       }
-      else {
-        // ## wide window
-        const leftWidth = prev.offsetWidth - posX;
-        const rightWidth = container.offsetWidth - leftWidth - sepThickness;
-        prev.style.height = container.offsetHeight + "px";
-        next.style.height = container.offsetHeight + "px";
-        if (leftWidth > 10 && rightWidth > 10) {
-          prev.style.width = leftWidth + "px";
-          next.style.width = rightWidth + "px";
-        }
-        // console.log("wide...")
-      }
-    }
 
-    function closeDragElement() {
-      // stop moving when mouse button is released:
-      document.onmouseup = null;
-      document.onmousemove = null;
-    }
+      function elementDrag(e) {
+        e.preventDefault();
+        // calculate the new cursor position:
+        posX = posX1 - e.clientX;
+        posY = posY1 - e.clientY;
+        posX1 = e.clientX;
+        posY1 = e.clientY;
+        // set the element's new position:
+        const mediaQuery = window.matchMedia('(max-width: 599px)')
+        if (mediaQuery.matches) {
+          // ## narrow window
+          const topHeight = prev.offsetHeight - posY;
+          const botHeight = container.offsetHeight - topHeight - sepThickness;
+          prev.style.width = container.offsetWidth + "px";
+          next.style.width = container.offsetWidth + "px";
+          if (topHeight > 10 && botHeight > 10) {
+            prev.style.height = topHeight + "px";
+            next.style.height = botHeight + "px";
+          }
+          // console.log("small...",container.offsetWidth)
+        }
+        else {
+          // ## wide window
+          const leftWidth = prev.offsetWidth - posX;
+          const rightWidth = container.offsetWidth - leftWidth - sepThickness;
+          prev.style.height = container.offsetHeight + "px";
+          next.style.height = container.offsetHeight + "px";
+          if (leftWidth > 10 && rightWidth > 10) {
+            prev.style.width = leftWidth + "px";
+            next.style.width = rightWidth + "px";
+          }
+          // console.log("wide...")
+        }
+      }
 
-    window.onresize = function (e) {
-      // console.log("resizing...",counter())
-      const mediaQuery = window.matchMedia('(max-width: 599px)');
-      // document.getElementById('tab-group').style.width = window.innerWidth + 'px';
-      document.body.style.translateZ = "0";
-      if (mediaQuery.matches) {
-        // ## narrow window
-        prev.style.width = container.offsetWidth + "px";
-        next.style.width = container.offsetWidth + "px";
-        if (mediaQuery.matches === prevState) {
-          next.style.height = (container.offsetHeight - prev.offsetHeight) + "px";
-        } else {
-          next.style.height = ((container.offsetHeight - sepThickness) / 2) + "px";
-          prev.style.height = ((container.offsetHeight - sepThickness) / 2) + "px";
-          prevState = mediaQuery.matches;
-        }
-        // console.log("narrow...")
+      function closeDragElement() {
+        // stop moving when mouse button is released:
+        document.onmouseup = null;
+        document.onmousemove = null;
       }
-      else {
-        // ## wide window
-        prev.style.height = container.offsetHeight + "px";
-        next.style.height = container.offsetHeight + "px";
-        if (mediaQuery.matches === prevState) {
-          next.style.width = (container.offsetWidth - prev.offsetWidth) + "px";
-        } else {
-          prev.style.width = ((container.offsetWidth - sepThickness) / 2) + "px";
-          next.style.width = ((container.offsetWidth - sepThickness) / 2) + "px";
-          prevState = mediaQuery.matches;
-        }
-        // console.log("wide...", container.offsetWidth)
+
+      window.onresize = function (e) {
+        // console.log("resizing...",counter())
+        const mediaQuery = window.matchMedia('(min-width: 600px)');
+        // document.getElementById('tab-group').style.width = window.innerWidth + 'px';
+        // document.body.style.translateZ = "0";
+        // if (mediaQuery.matches) {
+        //   // ## wide window
+        //   prev.style.height = container.offsetHeight + "px";
+        //   next.style.height = container.offsetHeight + "px";
+        //   if (mediaQuery.matches === prevState) {
+        //     next.style.width = (container.offsetWidth - prev.offsetWidth) + "px";
+        //   } else {
+        //     prev.style.width = ((container.offsetWidth - sepThickness) / 2) + "px";
+        //     next.style.width = ((container.offsetWidth - sepThickness) / 2) + "px";
+        //     prevState = mediaQuery.matches;
+        //   }
+        //   // console.log("wide...", container.offsetWidth)
+        // }
+        // else {
+        //   // ## narrow window
+        //   prev.style.width = container.offsetWidth + "px";
+        //   next.style.width = container.offsetWidth + "px";
+        //   if (mediaQuery.matches === prevState) {
+        //     next.style.height = (container.offsetHeight - prev.offsetHeight) + "px";
+        //   } else {
+        //     next.style.height = ((container.offsetHeight - sepThickness) / 2) + "px";
+        //     prev.style.height = ((container.offsetHeight - sepThickness) / 2) + "px";
+        //     prevState = mediaQuery.matches;
+        //   }
+        //   // console.log("narrow...")
+        // }
       }
     }
-  }
-</script>
- 
+  </script>
+
 
   <script>
 
@@ -10675,25 +10525,25 @@
     //   }
     //   return new Set(compounds);
     // }
-    function buildListOfCompoundWords(wordList){
+    function buildListOfCompoundWords(wordList) {
       let compounds = {};
-      for (entry of wordList){
+      for (entry of wordList) {
         const word = entry[LEMMA].toLowerCase();
-        let safeWord = word.replace(/-/g, "##").replace(/ /g,"@@");
-        if (word.includes(" ")){
+        let safeWord = word.replace(/-/g, "##").replace(/ /g, "@@");
+        if (word.includes(" ")) {
           let tmp = word.split(" ");
           compounds[word] = safeWord;
           compounds[`${tmp[0]}${tmp[1]}`] = safeWord;
           compounds[`${tmp[0]}-${tmp[1]}`] = safeWord;
-          tmp = word.replace(/-/g,'').split(" ");
+          tmp = word.replace(/-/g, '').split(" ");
           compounds[`${tmp[0]}${tmp[1]}`] = safeWord;
         }
-        if (word.includes("-")){
+        if (word.includes("-")) {
           let tmp = word.split("-");
           compounds[word] = safeWord;
           compounds[`${tmp[0]}${tmp[1]}`] = safeWord;
           compounds[`${tmp[0]} ${tmp[1]}`] = safeWord;
-          tmp = word.replace(/ /g,'').split("-");
+          tmp = word.replace(/ /g, '').split("-");
           compounds[`${tmp[0]}${tmp[1]}`] = safeWord;
         }
       }
@@ -11067,9 +10917,9 @@
       finalTextDiv.removeEventListener("mouseover", hoverEffects);
       finalTextDiv.removeEventListener("mouseout", hoverEffects);
       // if (raw.target) raw = raw.target;
-      if (raw.innerText.trim()){
-      const textArr = splitTextIntoWords(raw.innerText);
-      // if (textArr.length){
+      if (raw.innerText.trim()) {
+        const textArr = splitTextIntoWords(raw.innerText);
+        // if (textArr.length){
         const [processedTextArr, wordCount, wordStats] = addLookUp(textArr);
         const htmlString = convertToHTML(processedTextArr);
         displayInTab(htmlString, wordCount, wordStats);
@@ -11103,7 +10953,7 @@
           /* ## Deal with compound words */
           if (word.startsWith('*CMP*')) {
             word = word
-              .replace(/##/g,'-')
+              .replace(/##/g, '-')
               .replace(/@@/g, ' ');
             [normalizedWord, word] = word.slice(5).split('::');
           }
@@ -11117,10 +10967,10 @@
       }
       return textArr;
     }
-    
-    function findCompounds(text){
+
+    function findCompounds(text) {
       for (entry in currentDb.compounds) {
-        const sub = entry.replace(/\-/g,'##').replace(/ /g,'@@');
+        const sub = entry.replace(/\-/g, '##').replace(/ /g, '@@');
         const re = new RegExp(entry, 'gi');
         const compound = "*CMP*" + currentDb.compounds[entry] + "::" + sub;
         text = text.replace(re, compound);
@@ -11313,12 +11163,12 @@
           const relatedWordsClass = (matchCount === 0) ? " all_" + match[LEMMA] : "";
           let notes = (match[NOTE] && level !== "offlist") ? `<br>[${match[NOTE]}]` : "";
           let anchor = "";
-          if (match[DUPLICATE] > 1 && matchCount === 0 && !ignoreRepeats){
-            duplicateClass = " duplicate"; 
+          if (match[DUPLICATE] > 1 && matchCount === 0 && !ignoreRepeats) {
+            duplicateClass = " duplicate";
             anchor = ` id='${relatedWordsClass.trim()}_${duplicateCount}'`;
             notes += ` (used ${match[DUPLICATE]} time${(match[DUPLICATE] !== 1) ? "s" : ""})`;
           }
-          displayWord = `<span class='tooltip ${levelClass}${relatedWordsClass}${duplicateClass}'${anchor}>` + 
+          displayWord = `<span class='tooltip ${levelClass}${relatedWordsClass}${duplicateClass}'${anchor}>` +
             rawWord + `<span class='tooltiptext'>` + levelPrefix + baseForm + PoS + notes + kidsTheme + "</span></span> ";
           if (matchCount < matches.length - 1) displayWord += "/ ";
           // console.log("debug *convertToHTML*",match, displayWord);
@@ -11347,7 +11197,7 @@
         if (wordStats[key] > 1 && !repeatableWords.includes(key)) {
           countReps++;
           let anchors = "<span class='anchors'>";
-          for (let x = 1; x <= wordStats[key];x++){
+          for (let x = 1; x <= wordStats[key]; x++) {
             anchors += ` <a href='#all_${key}_${x}'>${x}</a>`;
           }
           anchors += "</span>";
@@ -11428,17 +11278,17 @@
 
     const root_css = document.documentElement;
     // toggleSlider(document.getElementById("dbSelect"), true);
-    document.getElementById("set-db").addEventListener("change",changeDb_shared);
-    document.getElementById("set-font").addEventListener("change",changeFont);
-    document.getElementById("set-refresh").addEventListener("change",changeRefresh);
+    document.getElementById("set-db").addEventListener("change", changeDb_shared);
+    document.getElementById("set-font").addEventListener("change", changeFont);
+    document.getElementById("set-refresh").addEventListener("change", changeRefresh);
     const refreshButton = document.getElementById("refresh_button");
-    refreshButton.addEventListener("click",parseText);
+    refreshButton.addEventListener("click", parseText);
     let isAutoRefresh = true;
 
     function changeFont(e) {
       // console.log("font",e.target.value)
       const fontSize = e.target.value + "px";
-      root_css.style.setProperty("--font-size",fontSize);
+      root_css.style.setProperty("--font-size", fontSize);
     }
 
     function changeRefresh(e) {
