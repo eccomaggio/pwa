@@ -15,6 +15,7 @@
       --dark: #3f7fbf;
       --accent: #ddeedd;
       --font-size: 14px;
+      --sep-width: 6px;
     }
   </style>
 
@@ -30,7 +31,7 @@
 
     #separator {
       background-color: var(--medium);
-      height: 6px;
+      height: var(--sep-width);
       width: 50%;
       border-radius: 5px;
       cursor: row-resize;
@@ -50,7 +51,7 @@
       }
 
       #separator {
-        width: 6px;
+        width: var(--sep-width);
         height: 50%;
         cursor: col-resize;
       }
@@ -72,7 +73,6 @@
       width: 100vw;
       padding: 0;
       margin: 0;
-      /* overflow: hidden; */
       display: flex;
       align-items: stretch;
       align-content: stretch;
@@ -763,10 +763,12 @@
       const next = el.nextElementSibling;
       const container = el.parentElement;
       let resizeCounter = 0;
-      const sepThickness = 6;
+      const sepThickness = parseInt(window.getComputedStyle(document.documentElement).getPropertyValue('--sep-width'));
+      const matchMedia = '(min-width: 600px)';
+      const maxCompress = 50;
       el.onmousedown = dragMouseDown;
 
-      let prevState = window.matchMedia('(max-width: 599px)');
+      let prevState = window.matchMedia(matchMedia);
       // console.log("dragElement initiated...", prev.id, next.id)
 
       function dragMouseDown(e) {
@@ -787,30 +789,30 @@
         posX1 = e.clientX;
         posY1 = e.clientY;
         // set the element's new position:
-        const mediaQuery = window.matchMedia('(max-width: 599px)')
-        if (mediaQuery.matches) {
-          // ## narrow window
-          const topHeight = prev.offsetHeight - posY;
-          const botHeight = container.offsetHeight - topHeight - sepThickness;
-          prev.style.width = container.offsetWidth + "px";
-          next.style.width = container.offsetWidth + "px";
-          if (topHeight > 10 && botHeight > 10) {
-            prev.style.height = topHeight + "px";
-            next.style.height = botHeight + "px";
-          }
-          // console.log("small...",container.offsetWidth)
-        }
-        else {
+        const minWidth600px = window.matchMedia(matchMedia)
+        if (minWidth600px.matches) {
           // ## wide window
           const leftWidth = prev.offsetWidth - posX;
           const rightWidth = container.offsetWidth - leftWidth - sepThickness;
           prev.style.height = container.offsetHeight + "px";
           next.style.height = container.offsetHeight + "px";
-          if (leftWidth > 10 && rightWidth > 10) {
+          if (leftWidth > maxCompress && rightWidth > maxCompress) {
             prev.style.width = leftWidth + "px";
             next.style.width = rightWidth + "px";
           }
           // console.log("wide...")
+        }
+        else {
+          // ## narrow window
+          const topHeight = prev.offsetHeight - posY;
+          const botHeight = container.offsetHeight - topHeight - sepThickness;
+          prev.style.width = container.offsetWidth + "px";
+          next.style.width = container.offsetWidth + "px";
+          if (topHeight > maxCompress && botHeight > maxCompress) {
+            prev.style.height = topHeight + "px";
+            next.style.height = botHeight + "px";
+          }
+          // console.log("small...",container.offsetWidth)
         }
       }
 
@@ -821,36 +823,47 @@
       }
 
       window.onresize = function (e) {
-        // console.log("resizing...",counter())
-        const mediaQuery = window.matchMedia('(min-width: 600px)');
-        // document.getElementById('tab-group').style.width = window.innerWidth + 'px';
-        // document.body.style.translateZ = "0";
-        // if (mediaQuery.matches) {
-        //   // ## wide window
-        //   prev.style.height = container.offsetHeight + "px";
-        //   next.style.height = container.offsetHeight + "px";
-        //   if (mediaQuery.matches === prevState) {
-        //     next.style.width = (container.offsetWidth - prev.offsetWidth) + "px";
-        //   } else {
-        //     prev.style.width = ((container.offsetWidth - sepThickness) / 2) + "px";
-        //     next.style.width = ((container.offsetWidth - sepThickness) / 2) + "px";
-        //     prevState = mediaQuery.matches;
-        //   }
-        //   // console.log("wide...", container.offsetWidth)
-        // }
-        // else {
-        //   // ## narrow window
-        //   prev.style.width = container.offsetWidth + "px";
-        //   next.style.width = container.offsetWidth + "px";
-        //   if (mediaQuery.matches === prevState) {
-        //     next.style.height = (container.offsetHeight - prev.offsetHeight) + "px";
-        //   } else {
-        //     next.style.height = ((container.offsetHeight - sepThickness) / 2) + "px";
-        //     prev.style.height = ((container.offsetHeight - sepThickness) / 2) + "px";
-        //     prevState = mediaQuery.matches;
-        //   }
-        //   // console.log("narrow...")
-        // }
+        const isWide = window.matchMedia(matchMedia).matches;
+        const isNewAspect = (isWide !== prevState);
+        if (isNewAspect) prevState = isWide;
+        console.log("resizing...",isWide,isNewAspect, container.offsetWidth,container.offsetHeight)
+        return
+        if (isWide) {
+          // ## wide window (height = full height, width = half)
+          prev.style.height = container.offsetHeight + "px";
+          next.style.height = container.offsetHeight + "px";
+          if (isNewAspect) {
+            console.log("all change to wide")
+            // ## if no aspect change, width changes incrementally
+            next.style.width = (container.offsetWidth - prev.offsetWidth) + "px";
+            // next.style.width = (container.offsetWidth - parseInt(prev.style.width)) + "px";
+          } else {
+            // ## if aspect change, width = half
+            const prevWidth = (Math.floor(container.offsetWidth / 2));
+            const nextWidth = container.offsetWidth - prevWidth - sepThickness;
+            prev.style.width = prevWidth + "px";
+            next.style.width = nextWidth + "px";
+            prevState = isWide;
+          }
+          console.log("  wide...", container.offsetWidth, container.offsetHeight)
+        }
+        else {
+          // ## narrow window (width = full width, height is half)
+          prev.style.width = container.offsetWidth + "px";
+          next.style.width = container.offsetWidth + "px";
+          if (isNewAspect) {
+            console.log("all change to narrow")
+            next.style.height = (container.offsetHeight - prev.offsetHeight) + "px";
+            // next.style.height = (container.offsetHeight - parseInt(prev.style.height)) + "px";
+          } else {
+            const prevHeight = (Math.floor(container.offsetHeight / 2));
+            const nextHeight = container.offsetHeight - prevHeight - sepThickness;
+            prev.style.height = prevHeight + "px";
+            next.style.height = nextHeight + "px";
+            prevState = isWide;
+          }
+          console.log("  narrow...", container.offsetWidth, container.offsetHeight)
+        }
       }
     }
   </script>
