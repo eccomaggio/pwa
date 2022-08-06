@@ -20,6 +20,18 @@
   </style>
 
   <style>
+    body {
+      background-color: var(--dark);
+      height: 100vh;
+      width: 100vw;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      align-items: stretch;
+      align-content: stretch;
+      /* overflow: hidden; */
+    }
+
     /* ## resizeable blocks */
 
     #container {
@@ -41,7 +53,10 @@
     #left-top,
     #right-bot {
       flex-grow: 1;
+      min-width: 5%;
+      overflow-y: auto;
       display: flex;
+      /* align-items: stretch; */
     }
 
     /* ## wide-screen version */
@@ -67,17 +82,6 @@
 
     /* ## TABS ############################################ */
 
-    body {
-      background-color: var(--dark);
-      height: 100vh;
-      width: 100vw;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      align-items: stretch;
-      align-content: stretch;
-      overflow: auto;
-    }
 
     #tab-group {
       /* height: 100vh;
@@ -87,7 +91,6 @@
       flex-grow: 1;
       display: flex;
       flex-direction: column;
-      /* overflow-y: auto; */
     }
 
     #tab-head {
@@ -136,7 +139,8 @@
     #t2_raw_text,
     #t2_final_info {
       font-size: var(--font-size);
-      overflow: auto;
+      /* overflow: auto; */
+      overflow-y: scroll;
       flex-grow: 1;
     }
 
@@ -206,7 +210,7 @@
       white-space: pre-wrap;
     }
 
-    #t2_final_textOLD {
+    #t2_final_text_wrapper {
       background: white;
     }
 
@@ -288,8 +292,7 @@
 
     fieldset:only-child {
       flex: 100%;
-      /* overflow: auto; */
-      overflow: hidden;
+      /* overflow: hidden; */
     }
 
     div[id$="inputs"] {
@@ -694,7 +697,7 @@
           </div>
           <div id="separator">&nbsp;</div>
           <div id="right-bot">
-            <fieldset id="t2_final_textOLD">
+            <fieldset id="t2_final_text_wrapper">
               <legend id="t2_final_legend">Checked text:</legend>
               <div id="t2_final_info"></div>
               <div id="t2_final_text"></div>
@@ -809,8 +812,8 @@
           const leftWidth = prev.offsetWidth - posX;
           const rightWidth = container.offsetWidth - leftWidth - sepThickness;
           if (leftWidth > maxCompress && rightWidth > maxCompress) {
-            prev.style.flex = (leftWidth / container.offsetWidth) * 100 + '%';
-            next.style.flex = (rightWidth / container.offsetWidth) * 100 + '%';
+            prev.style.flex = "0 0 " + (leftWidth / container.offsetWidth) * 100 + '%';
+            next.style.flex = "0 0 " + (rightWidth / container.offsetWidth) * 100 + '%';
           }
         }
         else {
@@ -820,8 +823,8 @@
           const topHeight = prev.offsetHeight - posY;
           const botHeight = container.offsetHeight - topHeight - sepThickness;
           if (topHeight > maxCompress && botHeight > maxCompress) {
-            prev.style.flex = (topHeight / container.offsetHeight) * 100 + '%';
-            next.style.flex = (botHeight / container.offsetHeight) * 100 + '%';
+            prev.style.flex = "0 0 " + (topHeight / container.offsetHeight) * 100 + '%';
+            next.style.flex = "0 0 " + (botHeight / container.offsetHeight) * 100 + '%';
           }
         }
       }
