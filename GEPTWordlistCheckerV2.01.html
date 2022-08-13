@@ -289,6 +289,10 @@
       /* font-style: italic; */
     }
 
+    .jumpHighlight{
+      border: dashed red;
+    }
+
     input:focus,
     select:focus {
       outline: 1 solid var(--dark);
@@ -10871,7 +10875,10 @@
         finalInfoDiv.innerText = tooltip.textContent;
       }
 
-      // ## 2) show repeated words
+      // ## 2) remove highlighting after a jump to a duplicate
+      el.classList.remove('jumpHighlight');
+
+      // ## 3) show repeated words
       const classList = [].slice.apply(el.classList);
       if (classList.includes("duplicate")) {
         relatedWords = classList.filter(name => name.slice(0, 4) === "all_")[0]
@@ -11193,7 +11200,8 @@
           countReps++;
           let anchors = "<span class='anchors'>";
           for (let x = 1; x <= wordStats[key]; x++) {
-            anchors += ` <a href='#all_${key}_${x}'>${x}</a>`;
+            // anchors += ` <a href='#all_${key}_${x}'>${x}</a>`;
+            anchors += ` <a href="#" onclick="jumpToDuplicate('all_${key}_${x}'); return false;">${x}</a>`;
           }
           anchors += "</span>";
           listOfRepeats += `<p class='duplicate all_${key}'>${key}${anchors}</p>`;
@@ -11298,55 +11306,19 @@
 
     }
 
-    // function dbSelect(e) {
-    //   // console.log("newDB", e.target.value)
-    //   changeDb_shared(e.target.value);
-    // }
-
-    // function toggleSlider(knub, isInit) {
-    //   /* accepts triggers from event, knub, & knub background 
-    //   also works with inset or surrounding labels
-    //   */
-    //   if (!isInit) isInit = false;
-    //   if (knub.target) {
-    //     knub.preventDefault();
-    //     knub = knub.target;
-    //   }
-    //   if (knub.classList.contains("slider")) knub = knub.firstElementChild;
-    //   const parent = knub.parentElement;
-    //   const label1 = parent.previousElementSibling;
-    //   const label2 = parent.nextElementSibling;
-    //   const insetLabel = knub.nextElementSibling;
-    //   const isInset = parent.dataset.inset == "true";
-    //   //console.log(parent.dataset.selected)
-
-    //   if (isInit) {
-    //     if (isInset) {
-    //       label1.style.display = "none";
-    //       label2.style.display = "none";
-    //     }
-    //     parent.dataset.selected = "false";
-    //   } else {
-    //     parent.dataset.selected =
-    //       parent.dataset.selected == "true" ? "false" : "true";
-    //   }
-    //   const isSelected = parent.dataset.selected == "true";
-    //   if (isInset) {
-    //     insetLabel.innerText = isSelected ? label2.innerText : label1.innerText;
-    //     insetLabel.style.textAlign = isSelected ? "start" : "end";
-    //   }
-    //   knub.style.transform = `translateX(${isSelected ? parent.clientWidth - 23 : 0
-    //     }px)`;
-
-    //   if (!isInit) {
-    //     changeDb_shared();
-    //     if (isTab1()) {
-    //       changeDb_words();
-    //     } else {
-    //       changeDb_text();
-    //     }
-    //   }
-    // }
+    function jumpToDuplicate(id) {
+      // ## clean up previous highlights
+      const cssClass = "jumpHighlight";
+      for (element of document.getElementsByClassName(cssClass)) {
+        element.classList.remove(cssClass)
+      }
+      const duplicate = document.getElementById(id);
+      duplicate.classList.add(cssClass);
+      const url = location.href;
+      // location.href = "#" + id;
+      duplicate.scrollIntoView({behavior: "smooth", block: "center"});
+      // history.replaceState(null, null, url);
+    }
 
     // ## COMMON ELEMENTS ######################################
 
