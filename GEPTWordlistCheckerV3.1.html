@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<!-- saved from url=(0058)https://eccomaggio.epizy.com/GEPTWordlistCheckerV2.02.html -->
+<!-- TODO: 
+1) tidy up tooltip text
+2) fix problem with some repeats not displaying (e.g. bear, lead)
+3) why is gept kids broken?
+-->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  
-
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GEPT Wordlist Checker</title>
@@ -939,12 +941,19 @@
     const G_level = document.getElementById("t1_level");
     const K_theme = document.getElementById("t1_theme");
 
-    const LEMMA = 0;
-    const POS = 1;
-    const LEVEL = 2;
-    const NOTE = 3;
-    const DUPLICATE = 4;
-    const DISPLAY = 5;
+    // const LEMMA = 0;
+    // const POS = 1;
+    // const LEVEL = 2;
+    // const NOTE = 3;
+    // const DUPLICATE = 4;
+    // const DISPLAY = 5;
+    const ID = 0;
+    const LEMMA = 1;
+    const POS = 2;
+    const LEVEL = 3;
+    const NOTE = 4;
+    const DUPLICATE = 5;
+    const DISPLAY = 6;
 
     const form = document.getElementById("t1_form");
     const results_legend = document.getElementById("t1_results_legend");
@@ -982,17 +991,17 @@
       c: ""
     }
 
-    changeDb_shared(0);
+    // changeDb_shared(0);
 
-    // const GEPTdb = [
-      function makeGEPTdb() {
+    function indexDb(db) {
+      for (const i in db) {
+        db[i].unshift(parseInt(i));
+      }
+      return db;
+    }
+      
+    function makeGEPTdb() {
         return [
-      // ["feet", "noun", [0], "irreg. plural"],
-      // ["geese", "noun", [0], "irreg. plural"],
-      // ["men", "noun", [0], "irreg. plural"],
-      // ["mice", "noun", [0], "irreg. plural"],
-      // ["teeth", "noun", [0], "irreg. plural"],
-      // ["women", "noun", [0], "irreg. plural"],
       ["a", "art.", [0], "後接母音開頭之字時為 an"],
       ["A.M.", "adv.", [0], "= a.m.= AM"],
       ["abandon", "verb/noun", [1], ""],
@@ -9226,10 +9235,9 @@
       ["zoo", "noun", [0], ""],
       ["zoom", "verb/noun", [2], ""]
     ];
-      }
+    }
 
-    // const KIDSdb = [
-      function makeKIDSdb() {
+    function makeKIDSdb() {
         return [
       ["animal", "noun", [3], "動物"],
       ["bear", "noun", [3], "熊"],
@@ -9898,7 +9906,12 @@
       ["whose", "det.", [29], "誰的…"],
       ["why", "adv.", [29], "為什麼…"]
     ];
-      }
+    }
+
+    // ## offlist db uses negative ids (translate to positive index) so no 0
+    let offlistDb = [["unused"]];
+    let offlistIndex = 1;
+    // let wordStats = {};
 
     // const level_offset = offlist_subs.length;
     const level_headings = [
@@ -9936,10 +9949,13 @@
       "verbs"
     ];
 
+    const OFFLIST = level_headings.length;
+
     const offlist_subs = [
       "offlist",
       "contraction",
-      "digit"
+      "digit",
+      "name"
     ];
 
     const level_subs = level_headings.concat(offlist_subs);
@@ -10633,15 +10649,16 @@
       document.getElementById("set-db").addEventListener("change", changeDb_shared);
       document.getElementById("set-font").addEventListener("change", changeFont);
       document.getElementById("set-refresh").addEventListener("change", changeRefresh);
-      refreshButton.addEventListener("click", parseText);
+      refreshButton.addEventListener("click", processText);
 
       // ## for text input box
-      rawDiv.addEventListener("input", parseText);
+      rawDiv.addEventListener("input", processText);
       rawDiv.addEventListener("paste", normalizePastedText);
     }
 
     function finalInit() {
-      changeDb_words();
+      changeDb_shared(0);
+      // changeDb_words();
       refreshLabels("t1_form");
       resetTab1();
     }
@@ -10865,8 +10882,11 @@
       if (typeof el.classList === 'undefined') return;
       // ## 1) show information text
       const tooltip = el.firstElementChild;
-      if (tooltip && typeof tooltip.classList !== 'undefined' && tooltip.classList.contains("tooltiptext")) {
-        finalInfoDiv.innerText = tooltip.textContent;
+      // if (tooltip && typeof tooltip.classList !== 'undefined' && tooltip.classList.contains("tooltiptext")) {
+      //   finalInfoDiv.innerText = tooltip.textContent;
+      // }
+      if (el.dataset.entry) {
+        finalInfoDiv.innerText = getDbEntry(el.dataset.entry);
       }
 
       // ## 2) remove highlighting after a jump to a duplicate
@@ -10896,12 +10916,12 @@
       let paste = (event.clipboardData || window.clipboardData).getData('text');
       // ## If you need to manipulate the pasted before look-up, do it here
       rawDiv.innerText = paste;
-      parseText(e);
+      processText(e);
       // console.log("debug *normalize*", paste)
     }
 
     // ## if text is typed in, this is where processing starts
-    function parseText(raw) {
+    function processText(raw) {
       // ## need to distinguish between typed / button / pasted input 
       // ## and interact with auto-refresh toggle
       const isTyped = (raw.type === 'input' || raw.type === 'paste');
@@ -10915,10 +10935,14 @@
       // if (raw.target) raw = raw.target;
       if (raw.innerText.trim()) {
         const textArr = splitTextIntoWords(raw.innerText);
-        // if (textArr.length){
+        // console.log("processText textArr",textArr)
         const [processedTextArr, wordCount, wordStats] = addLookUp(textArr);
+        // console.log("processedTextArr", processedTextArr,wordCount, wordStats)
+        console.log("wordstats",wordStats)
         const htmlString = convertToHTML(processedTextArr,wordStats);
-        displayInTab(htmlString, wordCount, wordStats);
+        const listOfRepeats = buildRepeatList(wordCount,wordStats);
+        displayCheckedText(htmlString, listOfRepeats, wordCount)
+        // displayInTab(htmlString, wordCount, wordStats);
         finalInfoDiv.style.display = "flex";
       }
       finalTextDiv.addEventListener("mouseover", hoverEffects);
@@ -10975,52 +10999,88 @@
     }
 
     function addLookUp(textArr) {
-      /* Words are counted + line breaks dealt with
-         Normalized word sent to be checked against wordlist 
+      /* textArr = array of [normalized, raw]
+      return => processedTextArr, array of [normalized-word, raw-word, [[matched-ID, duplicate-count], ...]]
+        Words are counted + line breaks dealt with
+        Normalized word sent to be checked against wordlist 
+        WordStats records the number of times a word is repeated: {word-id: count}
       */
       let wordStats = {};
-      let processedWords = [];
+      let processedTextArr = [];
       let outputText = "";
       let wordCount = 0;
       let matches = [];
       // ## capture EOL and insert <br>
       for (const wordArr of textArr) {
         const word = wordArr[0];
+        const matchedIDs = [];
         if (word !== "*EOL") {
           matches = lookUpWord(wordArr);
           if (word) wordCount++;
-          // ## count any possible variants of words BUT this makes duplicate word count very unreliable!
           let i = 0;
-          for (match of matches) {
+          for (id of matches) {
+            const match = getDbEntry(id);
             const baseForm = match[LEMMA];
-            if (i == 0 && word.length > 1 && !["digit", "contraction", "unknown", "name"].includes(match[POS])) {
-              if (typeof wordStats[baseForm] === 'undefined') {
-                wordStats[baseForm] = 1;
+            // ## don't count contractions as separate words
+            if (["contraction"].includes(match[POS])) wordCount--; 
+            // if (i == 0 && word.length > 1 && !["digit", "contraction", "unknown", "name"].includes(match[POS])) {
+              // if (typeof wordStats[id] === 'undefined') {
+              if (!wordStats[id]) {
+                wordStats[id] = 1;
               } else {
-                wordStats[baseForm]++;
+                wordStats[id]++;
               }
-            }
-            updateArray(match, DUPLICATE, wordStats[baseForm]);
-            wordArr.push(wordStats[baseForm]);
+            // }
+            // updateArray(match, DUPLICATE, wordStats[baseForm]);
+            // wordArr.push(wordStats[baseForm]);
+            // updateArray(match, DUPLICATE, wordStats[id]);
+            matchedIDs.push([id, wordStats[id]]);
+            // wordArr.push(wordStats[id]);
             i++;
           }
-          for (const match of matches) {
-            if (!match) continue;
-            let level_css = level_subs[match[LEVEL][0]];
-            if (level_css !== "offlist" && currentDb.name === "GEPTKids") {
-              level_css = "kids";
-            }
-            updateArray(match, DISPLAY, level_css);
-          }
+          // for (const match of matches) {
+          //   if (!match) continue;
+          //  let level_css = level_subs[match[LEVEL][0]];
+          //   if (level_css !== "offlist" && currentDb.name === "GEPTKids") {
+          //     level_css = "kids";
+          //   }
+          //   updateArray(match, DISPLAY, level_css);
+          // }
+          // const processedWordArr = [id, wordArr[1], matchedIDs]
         }
-        processedWords.push([wordArr, matches]);
+        // processedTextArr.push([wordArr, matches]);
+        // processedTextArr.push(processedWordArr);
+        processedTextArr.push([word, wordArr[1], matchedIDs]);
       }
-      return [processedWords, wordCount, wordStats];
+      return [processedTextArr, wordCount, wordStats];
     }
 
     function markOfflist(word, type) {
-      // console.log("debug *markofflist* ", word, type)
-      return [word, type, [offlist_subs.indexOf(type) + level_headings.length], ""];
+      // ## adds entry to offlistDb & returns ID (always negative number)
+      // ## This creates a dummy dB entry for offlist words
+      // WiP: currently returns entry as before
+      // if (!word) return;
+      // TODO: find out why this is being called with an empty word??
+      let tmp = "";
+      let isUnique = true;
+      for (const i in offlistDb) {
+        if (offlistDb[i][LEMMA] === word) {
+          isUnique = false;
+          tmp = offlistDb[i];
+          break;
+        }
+      }
+      // if (isUnique && word.length > 0) {
+      // if (isUnique && word) {
+      if (isUnique) {
+        tmp = [-(offlistIndex), word, type, [offlist_subs.indexOf(type)+ level_headings.length], ""];
+        offlistDb.push(tmp);
+        offlistIndex++
+      }
+      // console.log("debug *markofflist* ", word, type, tmp)
+      // return tmp;
+      return tmp[0];
+      // return [-1, word, type, [offlist_subs.indexOf(type) + level_headings.length], ""];
     }
 
     function updateArray(array, pos, value) {
@@ -11035,6 +11095,7 @@
 
     function lookUpWord([word, raw_word]) {
       /* 
+      returns => array of matched ids
       NB. always returns a match, even if it is just "offlist"
       // console.log("debug *lookup* ",word,typeof word, raw_word)
       */
@@ -11060,8 +11121,12 @@
           /* ## check for Ving
           test = "bobbing begging swimming buzzing picnicking hoping dying going flying"
           */
-          for (const match of findBaseForm(word, g_subs)) {
-            if (match[1].includes("verb")) matches.push(match);
+          // for (const match of findBaseForm(word, g_subs)) {
+          //   if (match[POS].includes("verb")) matches.push(match);
+          // }
+          for (const id of findBaseForm(word, g_subs)) {
+            const match = getDbEntry(id);
+            if (match[POS].includes("verb")) matches.push(id);
           }
         }
         if (!matches.length) {
@@ -11072,31 +11137,43 @@
             // matches.push(dbLookup(irregVerbLookUp[word])[0]);
             const candidate = dbLookup(irregVerbLookUp[word])[0];
             matches.push(candidate);
-            console.log("debug irreg verbs:", candidate)
+            // console.log("debug irreg verbs:", candidate)
           }
           else if (word.slice(-2) == "ed") {
             /* ## check for regular past tenses
             test = robbed gagged passed busied played visited
             */
-            for (const match of findBaseForm(word, d_subs)) {
-              if (match[1].includes("verb")) matches.push(match);
+            // for (const match of findBaseForm(word, d_subs)) {
+            //   if (match[POS].includes("verb")) matches.push(match);
+            // }
+            for (const id of findBaseForm(word, d_subs)) {
+              const match = getDbEntry(id);
+              if (match[POS].includes("verb")) matches.push(id);
             }
           }
           else if (word.slice(-2) == "st") {
             /* ## check for superlative adjs
             test = "longest hottest prettiest closest"
             */
-            for (const match of findBaseForm(word, est_subs)) {
-              if (match[1].includes("adj")) matches.push(match);
-            }
+            // for (const match of findBaseForm(word, est_subs)) {
+            //   if (match[POS].includes("adj")) matches.push(match);
+            // }
+          for (const id of findBaseForm(word, est_subs)) {
+            const match = getDbEntry(id);
+            if (match[POS].includes("adj")) matches.push(id);
+          }
           }
           else if (word.slice(-1) == "r") {
             /* ## check for comparative adjs (filters out agent nouns)
             test = "longer hotter prettier closer"
             */
-            for (const match of findBaseForm(word, er_subs)) {
-              if (match[1].includes("adj")) matches.push(match);
-            }
+            // for (const match of findBaseForm(word, er_subs)) {
+            //   if (match[POS].includes("adj")) matches.push(match);
+            // }
+          for (const id of findBaseForm(word, er_subs)) {
+            const match = getDbEntry(id);
+            if (match[POS].includes("adj")) matches.push(id);
+          }
           } else if (word.slice(-1) == "s") {
             /* ## check for plurals or 3rd pers pres verbs
             test: families tries potatoes scarves crises boxes dogs
@@ -11105,10 +11182,16 @@
             // matches.push(...findBaseForm(word, s_subs));
             const candidates = findBaseForm(word, s_subs);
             // matches.push(...candidates);
-            for (const i in candidates){
-              const candidate = candidates[i];
-              if (candidate.length > 0 && candidate[1] !== "adj.") {
-                matches.push(candidate);
+            // for (const i in candidates){
+            //   const candidate = candidates[i];
+            //   if (candidate.length > 0 && !candidate[POS].includes("adj")) {
+            //     matches.push(candidate);
+            //   }
+            // }
+            for (const id of candidates){
+              const candidate = getDbEntry(id);
+              if (candidate.length > 0 && !candidate[POS].includes("adj")) {
+                matches.push(id);
               }
             }
           }
@@ -11116,9 +11199,13 @@
             /* ## check for adverbs
             test: happily clumsily annually finely sensibly sadly automatically
             */
-            for (const match of findBaseForm(word, y_subs)) {
-              if (match[1].includes("adj")) matches.push(match);
-            }
+            // for (const match of findBaseForm(word, y_subs)) {
+            //   if (match[POS].includes("adj")) matches.push(match);
+            // }
+          for (const id of findBaseForm(word, y_subs)) {
+            const match = getDbEntry(id);
+            if (match[POS].includes("adj")) matches.push(id);
+          }
           }
           else if (irregPluralLookUp[word]) {
             /* ## test: indices, cacti, criteria, phenomena, radii, formulae, bases, children, crisis */
@@ -11130,12 +11217,25 @@
           if (!matches.length) matches.push(markOfflist(word, "offlist"));
         }
       }
+      // console.log("debug lookupword", matches)
       return matches;
     }
 
+    function getDbEntry(id) {
+      // ## a negative id signifies an offlist word
+      if (id === undefined) return;
+      id = parseInt(id);
+      dB = (id >= 0) ? currentDb.db : offlistDb;
+      id = Math.abs(id);
+      // console.log("getDbEntry debug",id,dB[id])
+      return dB[id];
+    }
+
     function convertToHTML(textArr, wordStats) {
-      // console.log("convert2html", textArr)
-      /* ## textArr = [ [word], [matches] ] =>
+      /* ## textArr = array of [normalized-word, raw-word, [[matched-id, occurence]...]]
+      for each word, repeat the raw-word for each match, but with different info
+      
+      ## textArr = [ [word], [matches] ] =>
          ## [[lemma, raw_word] , [ [match1 [lemma,PoS,[level_digit],note,level_text]],...] ]
          ## lemma = textArr[0][0], raw_word = textArr[0][1]
          ## match1 (live db entry) = textArr[1][0] -> lemma = [0], PoS = [1], level-digit = [2], note = [3]
@@ -11143,63 +11243,116 @@
       */
       let htmlString = "";
       for (wordArr of textArr) {
-        // const [[word,rawWord], [matches]] = wordArr;
-        const word = wordArr[0][0];
+        const word = wordArr[0];
         if (word === "*EOL") {
           htmlString += "<br><br>";
           continue;
         }
-        const rawWord = wordArr[0][1];
+        const rawWord = wordArr[1];
         // ## duplicateCount = running total; totalRepeats = total
-        const duplicateCount = wordArr[0][2];
-        // const totalRepeats = wordStats[word];
-        const matches = wordArr[1];
-        // let displayWord = "";
+        const matches = wordArr[2];
         let matchCount = 0;
         let tmp = [];
-        for (const match of matches) {
-          let kidsTheme = "";
-          if (currentDb.isKids) {
-            const levelList = match[2];
-            for (const i in match[2]) {
-              if (level_headings[levelList[i]]) {
-                tmp.push(level_headings[levelList[i]]);
-              }
-            }
-            if (tmp.length) kidsTheme = "<br>(" + tmp.join(", ") + ")";
-          }
+        for (const [id,count] of matches) {
+          const match = getDbEntry(id);
           let displayWord = "";
-          // const totalRepeats = wordStats[word];
           const ignoreRepeats = repeatableWords.includes(match[LEMMA]);
-          const level = (match[DISPLAY]) ? match[DISPLAY] : "offlist";
-          const levelClass = "level-" + level[0];
-          const levelPrefix = (display_levels[level[0]]) ? `${display_levels[level[0]]}: ` : "";
-          const baseForm = (match[LEMMA] === word) ? "" : `(${match[LEMMA]}) `;
-          const PoS = `${match[POS]}`;
-          const totalRepeats = wordStats[match[LEMMA]];
+          // console.log("repeats",match[LEMMA],ignoreRepeats)
+          const level_num = match[LEVEL][0];
+          // const level_text = level_subs[level_num];
+          // if (currentDb.isKids && level_num !== OFFLIST) level_text = "k";
+          // const levelClass = "level-" + level_text[0];
+          const levelClass = "level-" + getLevelPrefix(level_num);
+          const totalRepeats = wordStats[id];
           let duplicateClass = "";
-          const relatedWordsClass = (matchCount === 0) ? " all_" + match[LEMMA] : "";
-          let notes = (match[NOTE] && level !== "offlist") ? `<br>[${match[NOTE]}]` : "";
+          const duplicateCount = count;
+          const relatedWordsClass = ` all_${id}`;
           let anchor = "";
           // ## match[duplicate] doesn't recognize first appearance of offlist word
           let showDuplicateCount = "";
-          if (totalRepeats > 1 && matchCount === 0 && !ignoreRepeats) {
+          if (totalRepeats > 1 && matchCount === 0 && !ignoreRepeats && match[POS] !== "unknown") {
             duplicateClass = " duplicate";
             showDuplicateCount = "<sup>" + totalRepeats + "</sup>";
-            anchor = ` id='${relatedWordsClass.trim()}_${duplicateCount}'`;
-            // notes += ` (used ${match[DUPLICATE]} time${(match[DUPLICATE] !== 1) ? "s" : ""})`;
-            notes += ` (used ${totalRepeats} time${(totalRepeats !== 1) ? "s" : ""})`;
+            anchor = ` id='all_${id}_${duplicateCount}'`;
           }
-          displayWord = `<span class='tooltip ${levelClass}${relatedWordsClass}${duplicateClass}'${anchor}>` +
-            rawWord + showDuplicateCount + `<span class='tooltiptext'>` + levelPrefix + baseForm + PoS + notes + kidsTheme + "</span></span> ";
+          displayWord = `<span data-entry="${id}" class="${levelClass}${relatedWordsClass}${duplicateClass}"${anchor}>${ rawWord + showDuplicateCount}</span> `;
           if (matchCount < matches.length - 1) displayWord += "/ ";
-          // console.log("debug *convertToHTML*",match, displayWord);
           htmlString += displayWord;
           matchCount++;
         }
       }
+      // console.log("convertto html", htmlString)
       return htmlString;
     }
+
+    function getLevelPrefix(level_num) {
+      let level = level_subs[level_num];
+      if (currentDb.isKids && level_num !== OFFLIST) level = "k";
+      return level[0];
+    }
+    //   let htmlString = "";
+    //   for (wordArr of textArr) {
+    //     // const [[word,rawWord], [matches]] = wordArr;
+    //     const word = wordArr[0][0];
+    //     if (word === "*EOL") {
+    //       htmlString += "<br><br>";
+    //       continue;
+    //     }
+    //     const rawWord = wordArr[0][1];
+    //     // ## duplicateCount = running total; totalRepeats = total
+    //     const duplicateCount = wordArr[0][2];
+    //     // const totalRepeats = wordStats[word];
+    //     const matches = wordArr[1];
+    //     // let displayWord = "";
+    //     let matchCount = 0;
+    //     let tmp = [];
+    //     for (const match of matches) {
+    //       let kidsTheme = "";
+    //       if (currentDb.isKids) {
+    //         // const levelList = match[2];
+    //         const levelList = match[LEVEL];
+    //         // for (const i in match[2]) {
+    //         for (const i in match[LEVEL]) {
+    //           if (level_headings[levelList[i]]) {
+    //             tmp.push(level_headings[levelList[i]]);
+    //           }
+    //         }
+    //         if (tmp.length) kidsTheme = "<br>(" + tmp.join(", ") + ")";
+    //       }
+    //       let displayWord = "";
+    //       // const totalRepeats = wordStats[word];
+    //       const ignoreRepeats = repeatableWords.includes(match[LEMMA]);
+    //       const level = (match[DISPLAY]) ? match[DISPLAY] : "offlist";
+    //       const levelClass = "level-" + level[0];
+    //       const levelPrefix = (display_levels[level[0]]) ? `${display_levels[level[0]]}: ` : "";
+    //       const baseForm = (match[LEMMA] === word) ? "" : `(${match[LEMMA]}) `;
+    //       const PoS = `${match[POS]}`;
+    //       const totalRepeats = wordStats[match[LEMMA]];
+    //       let duplicateClass = "";
+    //       // const relatedWordsClass = (matchCount === 0) ? " all_" + match[LEMMA] : "";
+    //       // const relatedWordsClass = (matchCount === 0) ? ` all_${match[ID]}` : "";
+    //       const relatedWordsClass = ` all_${match[ID]}`;
+    //       let notes = (match[NOTE] && level !== "offlist") ? `<br>[${match[NOTE]}]` : "";
+    //       let anchor = "";
+    //       // ## match[duplicate] doesn't recognize first appearance of offlist word
+    //       let showDuplicateCount = "";
+    //       if (totalRepeats > 1 && matchCount === 0 && !ignoreRepeats) {
+    //         duplicateClass = " duplicate";
+    //         showDuplicateCount = "<sup>" + totalRepeats + "</sup>";
+    //         anchor = ` id='${relatedWordsClass.trim()}_${duplicateCount}'`;
+    //         // notes += ` (used ${match[DUPLICATE]} time${(match[DUPLICATE] !== 1) ? "s" : ""})`;
+    //         notes += ` (used ${totalRepeats} time${(totalRepeats !== 1) ? "s" : ""})`;
+    //       }
+    //       displayWord = `<span class='tooltip ${levelClass}${relatedWordsClass}${duplicateClass}'${anchor}>` +
+    //         rawWord + showDuplicateCount + `<span class='tooltiptext'>` + levelPrefix + baseForm + PoS + notes + kidsTheme + "</span></span> ";
+    //       if (matchCount < matches.length - 1) displayWord += "/ ";
+    //       // console.log("debug *convertToHTML*",match, displayWord);
+    //       htmlString += displayWord;
+    //       matchCount++;
+    //     }
+    //   }
+    //   return htmlString;
+    // }
 
     // function makeOrdinal(x){
     //  x = parseInt(x);
@@ -11212,24 +11365,31 @@
     //  return x + ord_suffixes[generic];
     // }
 
-    function displayInTab(htmlText, wordCount, wordStats) {
+    function buildRepeatList(wordCount, wordStats) {
       let countReps = 0;
       let listOfRepeats = "";
       for (const key of Object.keys(wordStats).sort()) {
-        if (wordStats[key] > 1 && !repeatableWords.includes(key)) {
+        const entry = getDbEntry(key);
+        const word = entry[LEMMA];
+        // console.log("in tab", key,word)
+        if (wordStats[key] > 1 && !repeatableWords.includes(word) && entry[POS] !== "unknown") {
           countReps++;
           let anchors = "<span class='anchors'>";
           for (let x = 1; x <= wordStats[key]; x++) {
-            // anchors += ` <a href='#all_${key}_${x}'>${x}</a>`;
+            // anchors += ` <a href="#" onclick="jumpToDuplicate('all_${key}_${x}'); return false;">${x}</a>`;
             anchors += ` <a href="#" onclick="jumpToDuplicate('all_${key}_${x}'); return false;">${x}</a>`;
           }
           anchors += "</span>";
-          listOfRepeats += `<p class='duplicate all_${key}'>${key}${anchors}</p>`;
+          listOfRepeats += `<p data-entry="${key}" class='duplicate all_${key} level-${getLevelPrefix(entry[LEVEL][0])}'>${word}${anchors}</p>`;
         }
       }
       listOfRepeats = `<p id='all_repeats'><strong>${countReps} repeated word${(countReps === 1) ? "" : "s"}:</strong><br><em>Click on a number to jump to the word.</em></p><div id='repeats'>` + listOfRepeats;
       listOfRepeats += "</div>";
-      if (countReps) {
+      return listOfRepeats
+    }
+
+    function displayCheckedText(htmlText, listOfRepeats, wordCount) {
+      if (listOfRepeats) {
         htmlText += listOfRepeats;
       } else {
         htmlText += "<h1>There are no significant repeated words.</h1>"
@@ -11245,19 +11405,25 @@
     }
 
     function dbLookup(word,pos) {
+      // ## returns list of matched IDs
       // let matches = currentDb.db.filter(el => el[0].toLowerCase() == word);
       const search = { 
         term: `^${word.toLowerCase()}$`, 
         level: "", 
         pos: pos 
       };
-      const matches = get_results(search);
-      console.log("*dbLookup* matches=",search, matches)
+      const searchResults = get_results(search);
+      const matches = [];
+      // ## return only the IDs
+      for (const i in get_results(search)){
+        if (searchResults[i]) matches.push(searchResults[i][0]);
+      }
+      // console.log("*dbLookup* matches=",search, matches)
       return matches;
     }
 
     function findBaseForm(word, subs) {
-      /* Uses lookup tables to apply common spelling rules to guess underlying base form
+      /* Uses lookup tables to apply spelling rules to return underlying base form candidates
       */
       let localMatches = [];
       const candidates = new Set();
@@ -11276,6 +11442,7 @@
         const tmp_match = dbLookup(candidate);
         if (tmp_match.length) localMatches.push(...tmp_match);
       }
+      // console.log("findbaseform", localMatches)
       return localMatches;
     }
 
@@ -11359,7 +11526,8 @@
       if (choice === 0) {
         currentDb = {
           name: "GEPT",
-          db: makeGEPTdb(),
+          // db: makeGEPTdb(),
+          db: indexDb(makeGEPTdb()),
           isKids: false,
           // ## show / hide are arrays so that multiple sections can be added if necessary
           show: [G_level],
@@ -11375,7 +11543,8 @@
       } else {
         currentDb = {
           name: "GEPTKids",
-          db: makeKIDSdb(),
+          // db: makeKIDSdb(),
+          db: indexDb(makeKIDSdb()),
           isKids: true,
           show: [K_theme],
           hide: [G_level],
