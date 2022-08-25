@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!-- TODO: 
-1) tidy up tooltip text
-2) fix problem with some repeats not displaying (e.g. bear, lead)
+1) tidy up tooltip text -- DONE
+2) fix problem with some repeats not displaying (e.g. bear, lead) -- DONE
 3) why is gept kids broken?
 -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -214,7 +214,7 @@
     }
 
     #t2_raw_text:focus {
-    outline: none;
+      outline: none;
     }
 
     #t2_final_text {
@@ -238,6 +238,7 @@
       width: 90%;
       flex-shrink: 1;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 2;
@@ -310,6 +311,10 @@
       font-weight: bold;
     }
 
+    td.level-o, td.level-h, td.level-i {
+      font-weight: normal;
+    }
+
     .level-e,
     .level-k {
       color: var(--elem);
@@ -318,7 +323,11 @@
     /* contractions / numbers (digits) */
     .level-c,
     .level-d {
-      color: darkgray;
+      color: salmon;
+    }
+    
+    .pos {
+      color: dimgray;
     }
 
     /* numbers */
@@ -518,6 +527,14 @@
       font-size: smaller;
     }
 
+    .medium {
+      color: var(--medium);
+    }
+
+    .dark {
+      color: var(--dark);
+    }
+
 
     /* ## PAGE COMMON ELEMENTS #################################### */
 
@@ -677,7 +694,8 @@
     <div id="tab-body">
       <div class="tab-content" style="display: flex;">
         <div class="t1_form_in">
-          <form id="t1_form">
+          <form id="t1_form" onkeydown="return event.key != 'Enter';">
+           <!-- the onkeydown prevents the form resetting when 'enter' is pressed  -->
             <fieldset id="t1_term">
               <legend id="t1_term_legend">Search <span id="db_name1" class="dbColor">GEPT</span> wordlist for:</legend>
               <div id="t1_term_inputs">
@@ -10830,7 +10848,7 @@
         if (!level) continue;
         let note = entry[NOTE].trim();
         note = note ? `, ${note}` : "";
-        const col2 = `<td class='level-${level[0]}'>${lemma} ${pos} ${level}${note}</td>`;
+        const col2 = `<td class='level-${level[0]}'>${lemma} <span class="pos">${pos}</span> ${level}${note}</td>`;
         output += `<tr>${col1}${col2}</tr>`;
         i++;
       }
@@ -10878,29 +10896,27 @@
     // ## TAB2 (text) CODE ############################################
 
     function hoverEffects(e) {
+      // ## references to parent elements are to reach embedded elements
       const el = e.target;
       if (typeof el.classList === 'undefined') return;
       // ## 1) show information text
       const tooltip = el.firstElementChild;
-      // if (tooltip && typeof tooltip.classList !== 'undefined' && tooltip.classList.contains("tooltiptext")) {
-      //   finalInfoDiv.innerText = tooltip.textContent;
-      // }
-      if (el.dataset.entry) {
-        finalInfoDiv.innerText = getDbEntry(el.dataset.entry);
+      if (el.dataset.entry || el.parentElement.dataset.entry) {
+        const ref = (el.dataset.entry) ? el.dataset.entry : el.parentElement.dataset.entry;
+        finalInfoDiv.innerHTML = displayEntryInfo(ref);
       }
 
       // ## 2) remove highlighting after a jump to a duplicate
       el.classList.remove('jumpHighlight');
 
       // ## 3) show repeated words
-      const classList = [].slice.apply(el.classList);
+      let classList = [].slice.apply(el.classList);
+      const parentCList = [].slice.apply(el.parentElement.classList);
+      if (parentCList.includes("duplicate")) classList = parentCList;
       if (classList.includes("duplicate")) {
         relatedWords = classList.filter(name => name.slice(0, 4) === "all_")[0]
         const dupes = document.getElementsByClassName(relatedWords);
         toggleHighlight(dupes);
-        // setTimeout(() => {
-        //   toggleHighlight(dupes);
-        // }, "2000")
       }
       // const isMouseOver = e.type === "mouseover";
       function toggleHighlight(els) {
@@ -10908,6 +10924,30 @@
           els[i].classList.toggle("highlight");
         }
       }
+    }
+
+    function displayEntryInfo(ref){
+      const [id,normalizedWord] = ref.split(":");
+      const entry = getDbEntry(id);
+      // console.log("display entry info>",ref, id, normalizedWord,entry)
+      let lemma = "";
+      if (entry[POS] !== "unknown"){
+        lemma = (normalizedWord && normalizedWord !== entry[LEMMA]) ? `${normalizedWord} (${entry[LEMMA]})` : entry[LEMMA];
+        lemma = `<strong>${lemma}</strong>: `;
+      }
+      let level = "";
+      if (parseInt(id) >= 0) {
+        let tmp = [];
+        for (const i of entry[LEVEL]) {
+          tmp.push(level_subs[i]);
+        }
+        level = `<em>${tmp.join()}</em>`;
+      }
+      const pos = entry[POS];
+      const notes = (entry[NOTE]) ? `[${entry[NOTE]}]` : "";
+      // html = `${level}<span>${lemma}${pos}${notes} *${id}</span>`;
+      html = `${level}<span>${lemma}${pos}${notes}</span>`;
+      return html;
     }
 
     // ## if text is pasted in, this is where processing starts
@@ -10938,11 +10978,11 @@
         // console.log("processText textArr",textArr)
         const [processedTextArr, wordCount, wordStats] = addLookUp(textArr);
         // console.log("processedTextArr", processedTextArr,wordCount, wordStats)
-        console.log("wordstats",wordStats)
+        // console.log("wordstats",wordStats)
         const htmlString = convertToHTML(processedTextArr,wordStats);
         const listOfRepeats = buildRepeatList(wordCount,wordStats);
         displayCheckedText(htmlString, listOfRepeats, wordCount)
-        // displayInTab(htmlString, wordCount, wordStats);
+        // console.log("offlist:", offlistDb)
         finalInfoDiv.style.display = "flex";
       }
       finalTextDiv.addEventListener("mouseover", hoverEffects);
@@ -11019,38 +11059,21 @@
           if (word) wordCount++;
           let i = 0;
           for (id of matches) {
+            if (!id) continue;
             const match = getDbEntry(id);
             const baseForm = match[LEMMA];
             // ## don't count contractions as separate words
-            if (["contraction"].includes(match[POS])) wordCount--; 
-            // if (i == 0 && word.length > 1 && !["digit", "contraction", "unknown", "name"].includes(match[POS])) {
-              // if (typeof wordStats[id] === 'undefined') {
-              if (!wordStats[id]) {
-                wordStats[id] = 1;
-              } else {
-                wordStats[id]++;
-              }
-            // }
-            // updateArray(match, DUPLICATE, wordStats[baseForm]);
-            // wordArr.push(wordStats[baseForm]);
-            // updateArray(match, DUPLICATE, wordStats[id]);
+            if (["contraction"].includes(match[POS])) { wordCount-- }; 
+            if (!wordStats[id]) {
+              wordStats[id] = 1;
+            } else if (!["contraction", "unknown", "digit"].includes(getDbEntry(id)[POS])) {
+              wordStats[id]++;
+            }
             matchedIDs.push([id, wordStats[id]]);
-            // wordArr.push(wordStats[id]);
             i++;
           }
-          // for (const match of matches) {
-          //   if (!match) continue;
-          //  let level_css = level_subs[match[LEVEL][0]];
-          //   if (level_css !== "offlist" && currentDb.name === "GEPTKids") {
-          //     level_css = "kids";
-          //   }
-          //   updateArray(match, DISPLAY, level_css);
-          // }
-          // const processedWordArr = [id, wordArr[1], matchedIDs]
-        }
-        // processedTextArr.push([wordArr, matches]);
-        // processedTextArr.push(processedWordArr);
         processedTextArr.push([word, wordArr[1], matchedIDs]);
+        }
       }
       return [processedTextArr, wordCount, wordStats];
     }
@@ -11121,9 +11144,6 @@
           /* ## check for Ving
           test = "bobbing begging swimming buzzing picnicking hoping dying going flying"
           */
-          // for (const match of findBaseForm(word, g_subs)) {
-          //   if (match[POS].includes("verb")) matches.push(match);
-          // }
           for (const id of findBaseForm(word, g_subs)) {
             const match = getDbEntry(id);
             if (match[POS].includes("verb")) matches.push(id);
@@ -11134,18 +11154,13 @@
             /* ## check for irregular past tenses
             test = hidden written stole lain
             */
-            // matches.push(dbLookup(irregVerbLookUp[word])[0]);
             const candidate = dbLookup(irregVerbLookUp[word])[0];
             matches.push(candidate);
-            // console.log("debug irreg verbs:", candidate)
           }
           else if (word.slice(-2) == "ed") {
             /* ## check for regular past tenses
             test = robbed gagged passed busied played visited
             */
-            // for (const match of findBaseForm(word, d_subs)) {
-            //   if (match[POS].includes("verb")) matches.push(match);
-            // }
             for (const id of findBaseForm(word, d_subs)) {
               const match = getDbEntry(id);
               if (match[POS].includes("verb")) matches.push(id);
@@ -11155,39 +11170,25 @@
             /* ## check for superlative adjs
             test = "longest hottest prettiest closest"
             */
-            // for (const match of findBaseForm(word, est_subs)) {
-            //   if (match[POS].includes("adj")) matches.push(match);
-            // }
-          for (const id of findBaseForm(word, est_subs)) {
-            const match = getDbEntry(id);
-            if (match[POS].includes("adj")) matches.push(id);
-          }
+            for (const id of findBaseForm(word, est_subs)) {
+              const match = getDbEntry(id);
+              if (match[POS].includes("adj")) matches.push(id);
+            }
           }
           else if (word.slice(-1) == "r") {
             /* ## check for comparative adjs (filters out agent nouns)
             test = "longer hotter prettier closer"
             */
-            // for (const match of findBaseForm(word, er_subs)) {
-            //   if (match[POS].includes("adj")) matches.push(match);
-            // }
-          for (const id of findBaseForm(word, er_subs)) {
-            const match = getDbEntry(id);
-            if (match[POS].includes("adj")) matches.push(id);
-          }
+            for (const id of findBaseForm(word, er_subs)) {
+              const match = getDbEntry(id);
+              if (match[POS].includes("adj")) matches.push(id);
+            }
           } else if (word.slice(-1) == "s") {
             /* ## check for plurals or 3rd pers pres verbs
             test: families tries potatoes scarves crises boxes dogs
             ## Filter out adjs (can't take '-s')
             */
-            // matches.push(...findBaseForm(word, s_subs));
             const candidates = findBaseForm(word, s_subs);
-            // matches.push(...candidates);
-            // for (const i in candidates){
-            //   const candidate = candidates[i];
-            //   if (candidate.length > 0 && !candidate[POS].includes("adj")) {
-            //     matches.push(candidate);
-            //   }
-            // }
             for (const id of candidates){
               const candidate = getDbEntry(id);
               if (candidate.length > 0 && !candidate[POS].includes("adj")) {
@@ -11199,9 +11200,6 @@
             /* ## check for adverbs
             test: happily clumsily annually finely sensibly sadly automatically
             */
-            // for (const match of findBaseForm(word, y_subs)) {
-            //   if (match[POS].includes("adj")) matches.push(match);
-            // }
           for (const id of findBaseForm(word, y_subs)) {
             const match = getDbEntry(id);
             if (match[POS].includes("adj")) matches.push(id);
@@ -11233,13 +11231,7 @@
 
     function convertToHTML(textArr, wordStats) {
       /* ## textArr = array of [normalized-word, raw-word, [[matched-id, occurence]...]]
-      for each word, repeat the raw-word for each match, but with different info
-      
-      ## textArr = [ [word], [matches] ] =>
-         ## [[lemma, raw_word] , [ [match1 [lemma,PoS,[level_digit],note,level_text]],...] ]
-         ## lemma = textArr[0][0], raw_word = textArr[0][1]
-         ## match1 (live db entry) = textArr[1][0] -> lemma = [0], PoS = [1], level-digit = [2], note = [3]
-         ## + added, processed level text = [4]
+      for each word, repeat the raw-word for each match, but with different interpretations
       */
       let htmlString = "";
       for (wordArr of textArr) {
@@ -11259,23 +11251,20 @@
           const ignoreRepeats = repeatableWords.includes(match[LEMMA]);
           // console.log("repeats",match[LEMMA],ignoreRepeats)
           const level_num = match[LEVEL][0];
-          // const level_text = level_subs[level_num];
-          // if (currentDb.isKids && level_num !== OFFLIST) level_text = "k";
-          // const levelClass = "level-" + level_text[0];
           const levelClass = "level-" + getLevelPrefix(level_num);
           const totalRepeats = wordStats[id];
           let duplicateClass = "";
           const duplicateCount = count;
           const relatedWordsClass = ` all_${id}`;
           let anchor = "";
-          // ## match[duplicate] doesn't recognize first appearance of offlist word
           let showDuplicateCount = "";
-          if (totalRepeats > 1 && matchCount === 0 && !ignoreRepeats && match[POS] !== "unknown") {
+          if (totalRepeats > 1 && !ignoreRepeats) {
             duplicateClass = " duplicate";
             showDuplicateCount = "<sup>" + totalRepeats + "</sup>";
             anchor = ` id='all_${id}_${duplicateCount}'`;
           }
-          displayWord = `<span data-entry="${id}" class="${levelClass}${relatedWordsClass}${duplicateClass}"${anchor}>${ rawWord + showDuplicateCount}</span> `;
+          // displayWord = `<span data-entry="${id}" data-word="${word}" class="${levelClass}${relatedWordsClass}${duplicateClass}"${anchor}>${ rawWord + showDuplicateCount}</span> `;
+          displayWord = `<span data-entry="${id}:${word}" class="${levelClass}${relatedWordsClass}${duplicateClass}"${anchor}>${ rawWord + showDuplicateCount}</span> `;
           if (matchCount < matches.length - 1) displayWord += "/ ";
           htmlString += displayWord;
           matchCount++;
@@ -11287,105 +11276,53 @@
 
     function getLevelPrefix(level_num) {
       let level = level_subs[level_num];
-      if (currentDb.isKids && level_num !== OFFLIST) level = "k";
+      // if (currentDb.isKids && level_num !== OFFLIST) level = "k";
+      if (currentDb.isKids && level_num < OFFLIST) level = "k";
       return level[0];
     }
-    //   let htmlString = "";
-    //   for (wordArr of textArr) {
-    //     // const [[word,rawWord], [matches]] = wordArr;
-    //     const word = wordArr[0][0];
-    //     if (word === "*EOL") {
-    //       htmlString += "<br><br>";
-    //       continue;
-    //     }
-    //     const rawWord = wordArr[0][1];
-    //     // ## duplicateCount = running total; totalRepeats = total
-    //     const duplicateCount = wordArr[0][2];
-    //     // const totalRepeats = wordStats[word];
-    //     const matches = wordArr[1];
-    //     // let displayWord = "";
-    //     let matchCount = 0;
-    //     let tmp = [];
-    //     for (const match of matches) {
-    //       let kidsTheme = "";
-    //       if (currentDb.isKids) {
-    //         // const levelList = match[2];
-    //         const levelList = match[LEVEL];
-    //         // for (const i in match[2]) {
-    //         for (const i in match[LEVEL]) {
-    //           if (level_headings[levelList[i]]) {
-    //             tmp.push(level_headings[levelList[i]]);
-    //           }
-    //         }
-    //         if (tmp.length) kidsTheme = "<br>(" + tmp.join(", ") + ")";
-    //       }
-    //       let displayWord = "";
-    //       // const totalRepeats = wordStats[word];
-    //       const ignoreRepeats = repeatableWords.includes(match[LEMMA]);
-    //       const level = (match[DISPLAY]) ? match[DISPLAY] : "offlist";
-    //       const levelClass = "level-" + level[0];
-    //       const levelPrefix = (display_levels[level[0]]) ? `${display_levels[level[0]]}: ` : "";
-    //       const baseForm = (match[LEMMA] === word) ? "" : `(${match[LEMMA]}) `;
-    //       const PoS = `${match[POS]}`;
-    //       const totalRepeats = wordStats[match[LEMMA]];
-    //       let duplicateClass = "";
-    //       // const relatedWordsClass = (matchCount === 0) ? " all_" + match[LEMMA] : "";
-    //       // const relatedWordsClass = (matchCount === 0) ? ` all_${match[ID]}` : "";
-    //       const relatedWordsClass = ` all_${match[ID]}`;
-    //       let notes = (match[NOTE] && level !== "offlist") ? `<br>[${match[NOTE]}]` : "";
-    //       let anchor = "";
-    //       // ## match[duplicate] doesn't recognize first appearance of offlist word
-    //       let showDuplicateCount = "";
-    //       if (totalRepeats > 1 && matchCount === 0 && !ignoreRepeats) {
-    //         duplicateClass = " duplicate";
-    //         showDuplicateCount = "<sup>" + totalRepeats + "</sup>";
-    //         anchor = ` id='${relatedWordsClass.trim()}_${duplicateCount}'`;
-    //         // notes += ` (used ${match[DUPLICATE]} time${(match[DUPLICATE] !== 1) ? "s" : ""})`;
-    //         notes += ` (used ${totalRepeats} time${(totalRepeats !== 1) ? "s" : ""})`;
-    //       }
-    //       displayWord = `<span class='tooltip ${levelClass}${relatedWordsClass}${duplicateClass}'${anchor}>` +
-    //         rawWord + showDuplicateCount + `<span class='tooltiptext'>` + levelPrefix + baseForm + PoS + notes + kidsTheme + "</span></span> ";
-    //       if (matchCount < matches.length - 1) displayWord += "/ ";
-    //       // console.log("debug *convertToHTML*",match, displayWord);
-    //       htmlString += displayWord;
-    //       matchCount++;
-    //     }
-    //   }
-    //   return htmlString;
-    // }
-
-    // function makeOrdinal(x){
-    //  x = parseInt(x);
-    //  ord_suffixes = {
-    //   0: "th",
-    //   1: "st",
-    //   2: "nd"
-    //  }
-    //  const generic = (x < 0 || x > 2) ? 0 : x;
-    //  return x + ord_suffixes[generic];
-    // }
 
     function buildRepeatList(wordCount, wordStats) {
       let countReps = 0;
       let listOfRepeats = "";
-      for (const key of Object.keys(wordStats).sort()) {
+      for (const key of Object.keys(wordStats).sort(compareByLemma)) {
+        // console.log(">>" , key)
         const entry = getDbEntry(key);
         const word = entry[LEMMA];
-        // console.log("in tab", key,word)
-        if (wordStats[key] > 1 && !repeatableWords.includes(word) && entry[POS] !== "unknown") {
+        if (wordStats[key] > 1 && !repeatableWords.includes(word)) {
           countReps++;
-          let anchors = "<span class='anchors'>";
+          // let anchors = "<span class='anchors'>";
+          let anchors = "";
           for (let x = 1; x <= wordStats[key]; x++) {
-            // anchors += ` <a href="#" onclick="jumpToDuplicate('all_${key}_${x}'); return false;">${x}</a>`;
-            anchors += ` <a href="#" onclick="jumpToDuplicate('all_${key}_${x}'); return false;">${x}</a>`;
+            // const display = (x === 1) ? word : x;
+            let display = x;
+            let displayClass = 'class="anchors" ';
+            if (x === 1) {
+              display = word;
+              displayClass = `class="level-${getLevelPrefix(entry[LEVEL][0])}" `;
+            } 
+            anchors += ` <a href="#" ${displayClass}onclick="jumpToDuplicate('all_${key}_${x}'); return false;">${display}</a>`;
           }
-          anchors += "</span>";
-          listOfRepeats += `<p data-entry="${key}" class='duplicate all_${key} level-${getLevelPrefix(entry[LEVEL][0])}'>${word}${anchors}</p>`;
+          // anchors += "</span>";
+          listOfRepeats += `<p data-entry="${key}" class='duplicate all_${key} level-${getLevelPrefix(entry[LEVEL][0])}'>${anchors}</p>`;
         }
       }
       listOfRepeats = `<p id='all_repeats'><strong>${countReps} repeated word${(countReps === 1) ? "" : "s"}:</strong><br><em>Click on a number to jump to the word.</em></p><div id='repeats'>` + listOfRepeats;
       listOfRepeats += "</div>";
       return listOfRepeats
+    }
+
+    function compareByLemma(a, b) {
+      const lemmaA = getDbEntry(a)[LEMMA];
+      const lemmaB = getDbEntry(b)[LEMMA];
+      if (lemmaA < lemmaB) {
+        return -1;
+      }
+      if (lemmaA > lemmaB) {
+        return 1;
+      }
+
+      // names must be equal
+      return 0;
     }
 
     function displayCheckedText(htmlText, listOfRepeats, wordCount) {
@@ -11394,7 +11331,7 @@
       } else {
         htmlText += "<h1>There are no significant repeated words.</h1>"
       }
-      const numOfWords = (wordCount > 0) ? `<span class="text-right">(c. ${wordCount} word${(wordCount > 1 ? "s" : "")}) <a href='#all_repeats'>&#x25BC;</a></span>` : displayDbName();
+      const numOfWords = (wordCount > 0) ? `<span class="text-right dark">(c. ${wordCount} word${(wordCount > 1 ? "s" : "")}) <a href='#all_repeats' class='medium'>&#x25BC;</a></span>` : displayDbName();
       // finalLegend.innerHTML = (wordCount > 0) ? numOfWords : "Checked text:";
       finalLegend.innerHTML = numOfWords;
       finalTextDiv.innerHTML = htmlText;
@@ -11594,7 +11531,6 @@
     function isTab1() {
       return currentTab === 0;
     }
-
 
   </script>
 
