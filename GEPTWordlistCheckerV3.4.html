@@ -215,6 +215,10 @@
       white-space: pre-wrap;
     }
 
+    #t2_raw_text::placeholder {
+      color: var(--dark);
+    }
+
     #t2_raw_text:focus {
       outline: none;
     }
@@ -245,6 +249,14 @@
       justify-content: center;
       z-index: 2;
     }
+    
+    #t1_results {
+      flex: 100%;
+      background: white;
+      /* border: solid 3mm var(--light); */
+      padding-right: 2px;
+      height: 100%;
+    }
 
     #t1_results_text {
       /* padding: 5px;
@@ -252,9 +264,13 @@
       /* font-size: smaller; */
       height: inherit;
     }
-    #t1_results {
-      height: 100%;
+    
+    #t1_results_legend {
+      color: var(--dark);
     }
+    /* #t1_results {
+      height: 100%;
+    } */
 
 
     /* ## wide-screen version ############################################## */
@@ -379,12 +395,12 @@
       margin: 3px;
     }
 
-    fieldset:only-child {
+    /* fieldset:only-child {
       flex: 100%;
       background: white;
       border: solid 3mm var(--light);
       padding-right: 2px;
-    }
+    } */
 
     div[id$="inputs"] {
       display: flex;
@@ -10619,24 +10635,31 @@
       for (entry of dB) {
         const word = entry[LEMMA].toLowerCase();
         let safeWord = word.replace(/-/g, "##").replace(/ /g, "@@");
-        if (word.includes(" ")) {
-          let tmp = word.split(" ");
-          compounds[word] = safeWord;
-          compounds[`${tmp[0]}${tmp[1]}`] = safeWord;
-          compounds[`${tmp[0]}-${tmp[1]}`] = safeWord;
-          tmp = word.replace(/-/g, '').split(" ");
-          compounds[`${tmp[0]}${tmp[1]}`] = safeWord;
-        }
-        if (word.includes("-")) {
-          let tmp = word.split("-");
-          compounds[word] = safeWord;
-          compounds[`${tmp[0]}${tmp[1]}`] = safeWord;
-          compounds[`${tmp[0]} ${tmp[1]}`] = safeWord;
-          tmp = word.replace(/ /g, '').split("-");
-          compounds[`${tmp[0]}${tmp[1]}`] = safeWord;
+        dealWithCompounds(" ", word, safeWord, compounds);
+        dealWithCompounds("-", word, safeWord, compounds);
+        if (word.includes("'")) {
+          const noApostrophe = word.replace(/\'/g,"");
+          dealWithCompounds(" ", noApostrophe, safeWord, compounds);
+          dealWithCompounds("-", noApostrophe, safeWord, compounds);
         }
       }
       return compounds;
+    }
+
+    function dealWithCompounds(separator, word, safeWord, compounds) {
+      if (word.includes(separator)) {
+        let tmp = word.split(separator);
+        compounds[word] = safeWord;
+        if (tmp[2]) {
+          compounds[`${tmp[0]}${tmp[1]}${tmp[2]}`] = safeWord;
+          compounds[`${tmp[0]}-${tmp[1]}-${tmp[2]}`] = safeWord;
+          compounds[`${tmp[0]} ${tmp[1]} ${tmp[2]}`] = safeWord;
+        } else {
+          compounds[`${tmp[0]}${tmp[1]}`] = safeWord;
+          compounds[`${tmp[0]}-${tmp[1]}`] = safeWord;
+          compounds[`${tmp[0]} ${tmp[1]}`] = safeWord;
+        }
+      }
     }
 
 
@@ -10956,8 +10979,8 @@
         }
         level = `<em>${tmp.join()}</em>`;
       }
-      const pos = entry[POS];
-      const notes = (entry[NOTE]) ? `[${entry[NOTE]}]` : "";
+      const pos = `[${entry[POS]}]`;
+      const notes = (entry[NOTE]) ? ` ${entry[NOTE]}` : "";
       // html = `${level}<span>${lemma}${pos}${notes} *${id}</span>`;
       html = `${level}<span>${lemma}${pos}${notes}</span>`;
       return html;
@@ -10986,7 +11009,9 @@
       finalTextDiv.removeEventListener("mouseout", hoverEffects);
       if (raw.innerText.trim()) {
         const textArr = splitTextIntoWords(raw.innerText);
+        // console.log("textArr", textArr, currentDb.compounds)
         const [processedTextArr, wordCount, wordStats] = addLookUp(textArr);
+        // console.log("processed text arr", processedTextArr)
         const htmlString = convertToHTML(processedTextArr,wordStats);
         const listOfRepeats = buildRepeatList(wordCount,wordStats);
         displayCheckedText(htmlString, listOfRepeats, wordCount)
@@ -11062,7 +11087,9 @@
       for (const wordArr of textArr) {
         const word = wordArr[0];
         const matchedIDs = [];
-        if (word !== "*EOL") {
+        if (word === "*EOL") {
+          processedTextArr.push([word]);
+        } else {
           matches = lookUpWord(wordArr);
           if (word) wordCount++;
           let i = 0;
