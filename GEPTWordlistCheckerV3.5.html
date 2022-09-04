@@ -696,7 +696,11 @@
       overflow: hidden;
     }
 
-    #backup, #finalBackup {
+    #backup-btn {
+      display: none;
+    }
+
+    #backup_0, #backup_1 {
       background-color: white;
       border: none;
       width: 40%;
@@ -704,11 +708,11 @@
       /* height: inherit; */
       /* height: 10em; */
       font-size: x-small;
-      overflow: hidden;
+      overflow-y: auto;
       text-overflow: ellipsis;
     }
     
-    #backup:hover, #finalBackup:hover {
+    #backup_0:hover, #backup_1:hover {
       /* font-weight: bold; */
       background-color: var(--light);
     }
@@ -741,7 +745,7 @@
         <!-- <div class="dropdown" style="float:right;"> -->
         <div class="dropdown">
           <button class="dropbtn" type="button">Settings</button>
-          <div class="dropdown-content">
+          <div class="dropdown-content" id="settings-content">
             <select name="set-font" id="set-font">
               <option value="8">font 8pt</option>
               <option value="9">font 9pt</option>
@@ -767,21 +771,23 @@
               <option id="set-refresh-manual" value="1">manual refresh</option>
             </select>
 
-            <!-- <button id="backup_btn" onclick="showBackups();">Backups</button> -->
-            <button id="backup_btn">Backups</button>
+            <!-- <button id="backup-btn" onclick="showBackups();">Backups</button> -->
+            <button id="backup-btn">Backups</button>
             <!-- <div>
               Backup
             </div> -->
           </div>
         </div>
-        <dialog id="backup_dlg">
+        <dialog id="backup-dlg">
           <div>
-            <div>Click on the text you want to recover or X to close.</div><div><a href="#" onclick="closeDialog('backup_dlg')">X</a></div> </div>
+            <!-- <div>Click on the text you want to recover or X to close.</div><div><a href="#" onclick="closeDialog('backup-dlg')">X</a></div> </div> -->
+            <div>Click on the text you want to recover.</div>
+          </div>
           <!-- <div id="backup"></div>
           <div id="finalBackup"></div> -->
           <div>
-            <button id="backup" onclick="loadBackup('backup')"></button>
-            <button id="finalBackup" onclick="loadBackup('finalBackup')"></button>
+            <button id="backup_0" onclick="loadBackup('backup_0')"></button>
+            <button id="backup_1" onclick="loadBackup('backup_1')"></button>
           </div>
         </dialog>
         <div class="spacer">&nbsp;</div>
@@ -1090,6 +1096,10 @@
     const finalTextDiv = document.getElementById("t2_final_text");
     const finalLegend = document.getElementById("t2_final_legend");
     const finalInfoDiv = document.getElementById("t2_final_info");
+
+    const backupButton = document.getElementById("backup-btn");
+    const backupDialog = document.getElementById("backup-dlg");
+    let mostRecentBackup = "";
 
     const NBSP = String.fromCharCode(160);
 
@@ -10781,7 +10791,10 @@
       document.getElementById("set-font").addEventListener("change", changeFont);
       document.getElementById("set-refresh").addEventListener("change", changeRefresh);
       refreshButton.addEventListener("click", processText);
-      document.getElementById("backup_btn").addEventListener("click", showBackups);
+      // const backupButton = document.getElementById("backup-btn");
+      // const backupDialog = document.getElementById("backup-dlg");
+      backupButton.addEventListener("click", showBackups);
+      backupDialog.addEventListener("mouseleave", closeDialog);
 
       // ## for text input box
       rawDiv.addEventListener("input", processText);
@@ -10800,30 +10813,60 @@
 
     function showBackups(e) {
       /* TODO: 
-      1) on refresh, swap backup to finalBackup
+      1) on refresh, swap backup_0 to backup_1
       2) close backup dialog on mouseout
       3) close settings dialog when backup opens
       4) hide backup setting on tab 1
       5) ? rationalize dialogs so there is a coherent, extenable system
       */
-      const dialog = document.getElementById("backup_dlg");
-      const backup = document.getElementById("backup")
-      const finalBackup = document.getElementById("finalBackup")
-      let finalBackupText = localStorage.getItem("finalBackup");
-      let backupText = localStorage.getItem("backup");
-      finalBackup.innerHTML = (finalBackupText) ? finalBackupText : "[empty]"
-      backup.innerHTML = (backupText) ? backupText : "[empty]"
-      dialog.style.setProperty("display", "flex");
+      // const dialog = document.getElementById("backup-dlg");
+      const backup_0 = document.getElementById("backup_0")
+      const backup_1 = document.getElementById("backup_1")
+      let content_0 = localStorage.getItem("backup_0");
+      let content_1 = localStorage.getItem("backup_1");
+      if (content_0) content_0 = content_0.trim();
+      if (content_1) content_1 = content_1.trim();
+      backup_0.innerHTML = (content_0) ? content_0 : "[empty]"
+      backup_1.innerHTML = (content_1) ? content_1 : "[empty]"
+      backupDialog.style.setProperty("display", "flex");
     }
 
     function loadBackup(id){
       const swap = JSON.parse(JSON.stringify(rawDiv.innerText));
       rawDiv.innerText = localStorage.getItem(id);
-      localStorage.setItem(id, swap)
-      closeDialog("backup_dlg");
+      localStorage.setItem("backup_0", swap)
+      mostRecentBackup = "backup_0";
+      // localStorage.setItem(id, swap)
+      closeDialog("backup-dlg");
+    }
+    
+    function updateBackup(id){
+      if (window.localStorage.getItem(id)) {
+        if (window.localStorage.getItem(id).length < rawDiv.innerHTML.length) window.localStorage.setItem(id, rawDiv.innerHTML)
+        mostRecentBackup = id;
+      } else { window.localStorage.setItem(id, " ") }
+      // console.log("localStorage",window.localStorage.getItem("backup"), window.localStorage.getItem("backup")?.length < rawDiv.innerHTML?.length)
+
     }
 
+    function resetBackup() {
+      localStorage.setItem("backup_1", window.localStorage.getItem("backup_0"));
+      localStorage.setItem("backup_0","");
+      mostRecentBackup = "backup_1";
+    }
+
+    // function closeBackupDialog() {
+    //   closeDialog("backup-dlg")
+    // }
+
     function closeDialog(id) {
+      if (id.target) {
+      id = "backup-dlg";
+        // id.preventDefault;
+        // id = id.target.id;
+      }
+      // if (id.target) id = "backup-dlg";
+      // console.log("closedialog", id)
       document.getElementById(id).style.display = "none";
     }
 
@@ -11131,9 +11174,10 @@
       finalTextDiv.addEventListener("mouseover", hoverEffects);
       finalTextDiv.addEventListener("mouseout", hoverEffects);
 
-      if (window.localStorage.getItem("backup")) {
-        if (window.localStorage.getItem("backup").length < rawDiv.innerHTML.length) window.localStorage.setItem("backup", rawDiv.innerHTML)
-      } else { window.localStorage.setItem("backup", " ") }
+      updateBackup("backup_0");
+      // if (window.localStorage.getItem("backup_0")) {
+      //   if (window.localStorage.getItem("backup_0").length < rawDiv.innerHTML.length) window.localStorage.setItem("backup_0", rawDiv.innerHTML)
+      // } else { window.localStorage.setItem("backup_0", " ") }
       // console.log("localStorage",window.localStorage.getItem("backup"), window.localStorage.getItem("backup")?.length < rawDiv.innerHTML?.length)
     }
 
@@ -11555,8 +11599,7 @@
       finalLegend.innerHTML = displayDbName();
       finalInfoDiv.innerText = "";
       finalInfoDiv.style.display = "none";
-      window.localStorage.setItem("finalBackup", window.localStorage.getItem("backup"));
-      window.localStorage.clear();
+      resetBackup();
     }
 
     // function isNumeric(n) {
@@ -11680,7 +11723,15 @@
         }
         i++;
       }
-      document.getElementById("set-refresh").style.display = (isTab1()) ? "none" : "block";
+      if (isTab1()) {
+        document.getElementById("set-refresh").style.display = "none";
+        document.getElementById("backup-btn").style.display = "none";
+      } else {
+        document.getElementById("set-refresh").style.display = "block";
+        document.getElementById("backup-btn").style.display = "block";
+
+      }
+      // document.getElementById("set-refresh").style.display = (isTab1()) ? "none" : "block";
     }
 
     function isTab1() {
