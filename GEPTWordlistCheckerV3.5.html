@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<!-- TODO: 
-1) tidy up tooltip text -- DONE
-2) fix problem with some repeats not displaying (e.g. bear, lead) -- DONE
-3) why is gept kids broken?
+<!-- 
+TODO - check layout and logic of backups
+TODO - show marker in 'texts' when there is a text
+TODO - add 'most recent' to backups + keep track of this
+TODO - allow ADVs to add '-er' (e.g. sooner)
+TODO - Provide single word alternatives for compounds, e.g ‘we know how to’ -> know-how (should show ‘know’ + ‘how’ too)
+DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
 -->
 <html lang="en">
 
@@ -219,9 +222,9 @@
       white-space: pre-wrap;
     }
 
-    #t2_raw_text::placeholder {
+    /* #t2_raw_text::placeholder {
       color: var(--dark);
-    }
+    } */
 
     #t2_raw_text:focus {
       outline: none;
@@ -592,13 +595,12 @@
 
     /* ## FOR PLACEHOLDER TEXT #################################### */
 
-    [contenteditable="true"]:empty:before {
+    /* [contenteditable="true"]:empty:before {
       content: attr(placeholder);
       pointer-events: none;
       display: block;
-      /* For Firefox */
       color: gray;
-    }
+    } */
 
     /* ## FOR TOOLTIP ############################################# */
     .tooltip {
@@ -915,9 +917,7 @@
       <div class="tab-content" style="display: none;">
         <div id="container">
           <div id="left-top">
-            <div id="t2_raw_text" contenteditable="true"
-              placeholder="Paste or type text here. (If you're typing text in directly, you might want to go to settings and choose 'manual refresh' as auto refresh gets slow if you have a lot of text.)">
-            </div>
+            <div id="t2_raw_text" contenteditable="true" placeholder="Paste or type text here. (Choose Settings/manual-refresh if you have a lot of text.)"></div>
           </div>
           <div id="separator">&nbsp;</div>
           <div id="right-bot">
@@ -10798,7 +10798,8 @@
 
       // ## for text input box
       rawDiv.addEventListener("input", processText);
-      rawDiv.addEventListener("paste", normalizePastedText);
+      // rawDiv.addEventListener("input", processText);
+      // rawDiv.addEventListener("paste", normalizePastedText);
 
     }
 
@@ -10812,7 +10813,7 @@
     // *****  FUNCTIONS
 
     function showBackups(e) {
-      /* TODO: 
+      /* 
       1) on refresh, swap backup_0 to backup_1
       2) close backup dialog on mouseout
       3) close settings dialog when backup opens
@@ -10833,7 +10834,9 @@
 
     function loadBackup(id){
       const swap = JSON.parse(JSON.stringify(rawDiv.innerText));
-      rawDiv.innerText = localStorage.getItem(id);
+      const restoredContent = localStorage.getItem(id);
+      rawDiv.innerText = restoredContent;
+      processText(restoredContent);
       localStorage.setItem("backup_0", swap)
       mostRecentBackup = "backup_0";
       // localStorage.setItem(id, swap)
@@ -10842,7 +10845,9 @@
     
     function updateBackup(id){
       if (window.localStorage.getItem(id)) {
-        if (window.localStorage.getItem(id).length < rawDiv.innerHTML.length) window.localStorage.setItem(id, rawDiv.innerHTML)
+        // let newContent = rawDiv.innerText
+        // if (window.localStorage.getItem(id).length < rawDiv.innerHTML.length) window.localStorage.setItem(id, rawDiv.innerHTML)
+        if (window.localStorage.getItem(id).length < rawDiv.innerText.length) window.localStorage.setItem(id, rawDiv.innerText)
         mostRecentBackup = id;
       } else { window.localStorage.setItem(id, " ") }
       // console.log("localStorage",window.localStorage.getItem("backup"), window.localStorage.getItem("backup")?.length < rawDiv.innerHTML?.length)
@@ -11140,14 +11145,14 @@
     }
 
     // ## if text is pasted in, this is where processing starts
-    function normalizePastedText(e) {
-      event.preventDefault();
-      let paste = (event.clipboardData || window.clipboardData).getData('text');
-      // ## If you need to manipulate the pasted before look-up, do it here
-      rawDiv.innerText = paste;
-      processText(e);
-      // console.log("debug *normalize*", paste)
-    }
+    // function normalizePastedText(e) {
+    //   event.preventDefault();
+    //   let paste = (event.clipboardData || window.clipboardData).getData('text');
+    //   // ## If you need to manipulate the pasted before look-up, do it here
+    //   rawDiv.innerText = paste;
+    //   processText(e);
+    //   // console.log("debug *normalize*", paste)
+    // }
 
     // ## if text is typed in, this is where processing starts
     function processText(raw) {
@@ -11160,9 +11165,11 @@
       } else return;
       finalTextDiv.removeEventListener("mouseover", hoverEffects);
       finalTextDiv.removeEventListener("mouseout", hoverEffects);
+      // raw.innerHTML = raw.innerText;
       if (raw.innerText.trim()) {
+        raw.innerHTML = raw.innerText.replace(/[\n\r]+/g, "\n\n");
         const textArr = splitTextIntoWords(raw.innerText);
-        // console.log("textArr", textArr, currentDb.compounds)
+        console.log("textArr", textArr, currentDb.compounds)
         const [processedTextArr, wordCount, wordStats] = addLookUp(textArr);
         // console.log("processed text arr", processedTextArr)
         const htmlString = convertToHTML(processedTextArr, wordStats);
