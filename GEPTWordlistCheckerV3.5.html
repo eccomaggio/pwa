@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <!-- 
-TODO - check layout and logic of backups
-TODO - show marker in 'texts' when there is a text
-TODO - add 'most recent' to backups + keep track of this
-TODO - allow ADVs to add '-er' (e.g. sooner)
-TODO - Provide single word alternatives for compounds, e.g ‘we know how to’ -> know-how (should show ‘know’ + ‘how’ too)
+DONE - check layout and logic of backups
+DONE - stop cursor always returning to beginning of rawDiv :S
+TODO - show marker in 'texts' when there is a text (not really necessary)
+DONE - add 'most recent' to backups + keep track of this
+DONE - allow ADVs to add '-er' (e.g. sooner)
+DONE - Provide single word alternatives for compounds, e.g ‘we know how to’ -> know-how (should show ‘know’ + ‘how’ too)
 DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
 -->
 <html lang="en">
@@ -208,10 +209,10 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
       border-width: 0;
       border-radius: 5px;
       padding: 6px;
-      background-color: white;
+      /* background-color: #be2f2f; */
       /* box-shadow: inset 2px 2px 5px var(--medium);
       border: 0.5px solid var(--light); */
-      /*text-indent: 5px;*/
+      /* text-indent: 5px; */
       flex-grow: 1;
     }
 
@@ -225,6 +226,16 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
     /* #t2_raw_text::placeholder {
       color: var(--dark);
     } */
+
+    [placeholder]:empty::before {
+      content: attr(placeholder);
+      /* color: #555;  */
+      color: var(--dark);
+    }
+
+    [placeholder]:empty:focus::before {
+        content: "";
+    }
 
     #t2_raw_text:focus {
       outline: none;
@@ -702,6 +713,10 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
       display: none;
     }
 
+    #backup-msg {
+      height: fit-content;
+    }
+
     #backup_0, #backup_1 {
       background-color: white;
       border: none;
@@ -714,7 +729,7 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
       text-overflow: ellipsis;
     }
     
-    #backup_0:hover, #backup_1:hover {
+    #backup_0:enabled:hover, #backup_1:enabled:hover {
       /* font-weight: bold; */
       background-color: var(--light);
     }
@@ -781,10 +796,10 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
           </div>
         </div>
         <dialog id="backup-dlg">
-          <div>
+          <!-- <div> -->
             <!-- <div>Click on the text you want to recover or X to close.</div><div><a href="#" onclick="closeDialog('backup-dlg')">X</a></div> </div> -->
-            <div>Click on the text you want to recover.</div>
-          </div>
+          <div id="backup-msg">Click on the text you want to recover.</div>
+          <!-- </div> -->
           <!-- <div id="backup"></div>
           <div id="finalBackup"></div> -->
           <div>
@@ -806,6 +821,7 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
             <fieldset id="t1_term">
               <legend id="t1_term_legend">Search <span id="db_name1" class="dbColor">GEPT</span> wordlist for:</legend>
               <div id="t1_term_inputs">
+                <!-- <input type="text" id="t1_term_i" name="term" autocapitalize="none" spellcheck="false" placeholder="Enter word here..."> -->
                 <input type="text" id="t1_term_i" name="term" autocapitalize="none" spellcheck="false">
               </div>
             </fieldset>
@@ -1097,9 +1113,12 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
     const finalLegend = document.getElementById("t2_final_legend");
     const finalInfoDiv = document.getElementById("t2_final_info");
 
+    const backupIDs = ["backup_0", "backup_1"];
+
     const backupButton = document.getElementById("backup-btn");
     const backupDialog = document.getElementById("backup-dlg");
-    let mostRecentBackup = "";
+    // let mostRecentBackup = (localStorage.getItem("recent")) ? localStorage.getItem("recent") : "";
+    if (!localStorage.getItem("mostRecent")) localStorage.setItem("mostRecent", "backup_0");
 
     const NBSP = String.fromCharCode(160);
 
@@ -10799,7 +10818,7 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
       // ## for text input box
       rawDiv.addEventListener("input", processText);
       // rawDiv.addEventListener("input", processText);
-      // rawDiv.addEventListener("paste", normalizePastedText);
+      rawDiv.addEventListener("paste", normalizePastedText);
 
     }
 
@@ -10821,43 +10840,68 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
       5) ? rationalize dialogs so there is a coherent, extenable system
       */
       // const dialog = document.getElementById("backup-dlg");
-      const backup_0 = document.getElementById("backup_0")
-      const backup_1 = document.getElementById("backup_1")
-      let content_0 = localStorage.getItem("backup_0");
-      let content_1 = localStorage.getItem("backup_1");
-      if (content_0) content_0 = content_0.trim();
-      if (content_1) content_1 = content_1.trim();
-      backup_0.innerHTML = (content_0) ? content_0 : "[empty]"
-      backup_1.innerHTML = (content_1) ? content_1 : "[empty]"
+      // for (const id of ["backup_0", "backup_1"]){
+      for (const id of backupIDs){
+        // console.log(">>",id)
+        const backup = document.getElementById(id)
+        let content = localStorage.getItem(id).trim();
+        if (content) {
+          // content = content.trim();
+          if (localStorage.getItem("mostRecent") == id) content = "<span class='level-o'>Most Recent: </span>" + content;
+          // backup.innerHTML = (content) ? content : "[empty]"
+          // backup.disabled = (content) ? false : true;
+          backup.innerHTML = content; 
+          backup.disabled = false;
+        } else {
+          backup.innerHTML = "[empty]";
+          backup.disabled = true;
+        }
+      }
       backupDialog.style.setProperty("display", "flex");
     }
 
     function loadBackup(id){
       const swap = JSON.parse(JSON.stringify(rawDiv.innerText));
       const restoredContent = localStorage.getItem(id);
+      if (!restoredContent) return;
       rawDiv.innerText = restoredContent;
       processText(restoredContent);
-      localStorage.setItem("backup_0", swap)
-      mostRecentBackup = "backup_0";
-      // localStorage.setItem(id, swap)
+      // localStorage.setItem("backup_0", swap)
+      localStorage.setItem(id, swap);
+      // if () localStorage.setItem("mostRecent",id);
+      localStorage.setItem(id, swap)
       closeDialog("backup-dlg");
     }
     
     function updateBackup(id){
+      // ## current logic: 0=from last refresh, 1=regularly updated (if longer than prev)
       if (window.localStorage.getItem(id)) {
-        // let newContent = rawDiv.innerText
+        let newContent = rawDiv.innerText.trim();
+        if (!newContent) return;
         // if (window.localStorage.getItem(id).length < rawDiv.innerHTML.length) window.localStorage.setItem(id, rawDiv.innerHTML)
-        if (window.localStorage.getItem(id).length < rawDiv.innerText.length) window.localStorage.setItem(id, rawDiv.innerText)
-        mostRecentBackup = id;
-      } else { window.localStorage.setItem(id, " ") }
+        for (other of backupIDs) {
+          // ## don't hold duplicate backups
+          if (id != other && newContent == localStorage.getItem(other)) return;
+        }
+        // if (window.localStorage.getItem(id).length < rawDiv.innerText.length) window.localStorage.setItem(id, rawDiv.innerText)
+        if (window.localStorage.getItem(id).length < newContent.length) window.localStorage.setItem(id, newContent)
+        localStorage.setItem("mostRecent", id);
+      } else { 
+        window.localStorage.setItem(id, " ") 
+      }
       // console.log("localStorage",window.localStorage.getItem("backup"), window.localStorage.getItem("backup")?.length < rawDiv.innerHTML?.length)
-
     }
 
     function resetBackup() {
-      localStorage.setItem("backup_1", window.localStorage.getItem("backup_0"));
-      localStorage.setItem("backup_0","");
-      mostRecentBackup = "backup_1";
+      // ## logic: put current OR most recent change in first backup (2nd backup is constantly updated) 
+      let mostRecent = rawDiv.innerText.trim();
+      if (!mostRecent) mostRecent = localStorage.getItem(localStorage.getItem("mostRecent"));
+      if (!mostRecent || !mostRecent.trim().length) return;
+      // if (!localStorage.getItem(backupIDs[1]).trim().length) return;
+      // localStorage.setItem("backup_0", window.localStorage.getItem("backup_0"));
+      localStorage.setItem(backupIDs[0], mostRecent);
+      localStorage.setItem("mostRecent",backupIDs[0]);
+      localStorage.setItem(backupIDs[1],"");
     }
 
     // function closeBackupDialog() {
@@ -11150,9 +11194,22 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
     //   let paste = (event.clipboardData || window.clipboardData).getData('text');
     //   // ## If you need to manipulate the pasted before look-up, do it here
     //   rawDiv.innerText = paste;
+        // raw.innerHTML = raw.innerText.replace(/[\n\r]+/g, "\n\n");
     //   processText(e);
     //   // console.log("debug *normalize*", paste)
     // }
+
+    // ## if text is pasted in, this is where processing starts
+    function normalizePastedText(e) {
+      // ## this is needed to prevent cursor resetting to start with every paste
+      event.preventDefault();
+      let paste = (event.clipboardData || window.clipboardData).getData('text');
+      const selection = window.getSelection();
+      paste = paste.replace(/[\n\r]+/g, "\n\n");
+      selection.getRangeAt(0).insertNode(document.createTextNode(paste));
+      processText(e);
+      // console.log("debug *normalize*", paste)
+    }
 
     // ## if text is typed in, this is where processing starts
     function processText(raw) {
@@ -11167,9 +11224,9 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
       finalTextDiv.removeEventListener("mouseout", hoverEffects);
       // raw.innerHTML = raw.innerText;
       if (raw.innerText.trim()) {
-        raw.innerHTML = raw.innerText.replace(/[\n\r]+/g, "\n\n");
+        // raw.innerHTML = raw.innerText.replace(/[\n\r]+/g, "\n\n");
         const textArr = splitTextIntoWords(raw.innerText);
-        console.log("textArr", textArr, currentDb.compounds)
+        // console.log("textArr", textArr, currentDb.compounds)
         const [processedTextArr, wordCount, wordStats] = addLookUp(textArr);
         // console.log("processed text arr", processedTextArr)
         const htmlString = convertToHTML(processedTextArr, wordStats);
@@ -11181,11 +11238,7 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
       finalTextDiv.addEventListener("mouseover", hoverEffects);
       finalTextDiv.addEventListener("mouseout", hoverEffects);
 
-      updateBackup("backup_0");
-      // if (window.localStorage.getItem("backup_0")) {
-      //   if (window.localStorage.getItem("backup_0").length < rawDiv.innerHTML.length) window.localStorage.setItem("backup_0", rawDiv.innerHTML)
-      // } else { window.localStorage.setItem("backup_0", " ") }
-      // console.log("localStorage",window.localStorage.getItem("backup"), window.localStorage.getItem("backup")?.length < rawDiv.innerHTML?.length)
+      updateBackup(backupIDs[1]);
     }
 
     function splitTextIntoWords(raw_text) {
@@ -11204,6 +11257,7 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
         // .replace(/(\w)\/(\w)/g, `${$1} / ${$2}`)
         .replace(/(\w)\/(\w)/g, "$1 / $2")
       raw_text = findCompounds(raw_text);
+      console.log("splitIntoWords: after find compounds",raw_text)
       let textArr = [];
       for (let word of raw_text.split(/\s+/)) {
         if (word.includes('*EOL')) {
@@ -11233,7 +11287,12 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
       for (entry in currentDb.compounds) {
         const sub = entry.replace(/\-/g, '##').replace(/ /g, '@@');
         const re = new RegExp(entry, 'gi');
-        const compound = "*CMP*" + currentDb.compounds[entry] + "::" + sub;
+        let compound = "*CMP*" + currentDb.compounds[entry] + "::" + sub;
+        if (entry.includes(" ")) {
+          // ## if the compound contains a space, treat it as separate words, too.
+          // console.log("++",sub,sub.replace(/@@/g, ' '))
+          compound += " / " + entry;
+        }
         text = text.replace(re, compound);
       }
       return text;
@@ -11370,21 +11429,23 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
             }
           }
           else if (word.slice(-2) == "st") {
-            /* ## check for superlative adjs
-            test = "longest hottest prettiest closest"
+            /* ## check for superlative adjs and advs
+            test = "longest hottest prettiest closest soonest"
             */
             for (const id of findBaseForm(word, est_subs)) {
               const match = getDbEntry(id);
-              if (match[POS].includes("adj")) matches.push(id);
+              // if (match[POS].includes("adj")) matches.push(id);
+              if (match[POS].includes("ad")) matches.push(id);
             }
           }
           else if (word.slice(-1) == "r") {
-            /* ## check for comparative adjs (filters out agent nouns)
-            test = "longer hotter prettier closer"
+            /* ## check for comparative adjs & advs (e.g. sooner) (filters out agent nouns)
+            test = "longer hotter prettier closer sooner"
             */
             for (const id of findBaseForm(word, er_subs)) {
               const match = getDbEntry(id);
-              if (match[POS].includes("adj")) matches.push(id);
+              // if (match[POS].includes("adj")) matches.push(id);
+              if (match[POS].includes("ad")) matches.push(id);
             }
           } else if (word.slice(-1) == "s") {
             /* ## check for plurals or 3rd pers pres verbs
@@ -11396,6 +11457,7 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
               const candidate = getDbEntry(id);
               // if (candidate.length > 0 && !candidate[POS].includes("adj")) {
               if (candidate.length > 0 && !candidate[POS] !== "adj.") {
+              // if (candidate.length > 0 && candidate[POS] === "adj.") {
                 matches.push(id);
               }
             }
@@ -11438,6 +11500,7 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
       for each word, repeat the raw-word for each match, but with different interpretations
       */
       let htmlString = "";
+      let isFirstWord = true;
       for (wordArr of textArr) {
         const word = wordArr[0];
         if (word === "*EOL") {
@@ -11445,6 +11508,13 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
           continue;
         }
         const rawWord = wordArr[1];
+        let conjoin = " ";
+        if (getDbEntry(wordArr[2][0][0])[2] == "contraction" || isFirstWord) {
+          conjoin = "";
+        }
+        isFirstWord = false;
+        // console.log(">>>",wordArr)
+        // if (getDbEntry(wordArr[2][0][0])[2] == "contraction") console.log("Yatttta!")
         // ## duplicateCount = running total; totalRepeats = total
         const matches = wordArr[2];
         let matchCount = 0;
@@ -11468,7 +11538,7 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
             anchor = ` id='all_${id}_${duplicateCount}'`;
           }
           // displayWord = `<span data-entry="${id}" data-word="${word}" class="${levelClass}${relatedWordsClass}${duplicateClass}"${anchor}>${ rawWord + showDuplicateCount}</span> `;
-          displayWord = `<span data-entry="${id}:${word}" class="${levelClass}${relatedWordsClass}${duplicateClass}"${anchor}>${rawWord + showDuplicateCount}</span> `;
+          displayWord = `${conjoin}<span data-entry="${id}:${word}" class="${levelClass}${relatedWordsClass}${duplicateClass}"${anchor}>${rawWord + showDuplicateCount}</span>`;
           if (matchCount < matches.length - 1) displayWord += "/ ";
           htmlString += displayWord;
           matchCount++;
