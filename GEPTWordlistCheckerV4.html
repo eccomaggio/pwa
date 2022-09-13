@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <!-- 
+TODO - changing from GEPT to Kids on tab2 throws error
+TODO - (possibly related to above) tab2 #db_name2 disappears
 DONE - check layout and logic of backups
 DONE - stop cursor always returning to beginning of rawDiv :S
-TODO - show marker in 'texts' when there is a text (not really necessary)
+STAY - show marker in 'texts' when there is a text (not really necessary)
 DONE - add 'most recent' to backups + keep track of this
 DONE - allow ADVs to add '-er' (e.g. sooner)
 DONE - Provide single word alternatives for compounds, e.g ‘we know how to’ -> know-how (should show ‘know’ + ‘how’ too)
@@ -10755,7 +10757,7 @@ TODO - (not crucial) integrate compound + single word search into same loop
         // let safeWord = word.replace(/-/g, "##").replace(/ /g, "@@");
         // let safeWord = id;
         // ## add extra isCOMPOUND entry to db; || ensures no overwriting 
-        entry.pop(false);
+        // entry.pop(false);
         entry[isCOMPOUND] = dealWithCompounds(" ", word, id, compounds);
         entry[isCOMPOUND] = dealWithCompounds("-", word, id, compounds) || entry[isCOMPOUND];
         if (word.includes("'")) {
@@ -10763,6 +10765,7 @@ TODO - (not crucial) integrate compound + single word search into same loop
           dealWithCompounds(" ", noApostrophe, id, compounds);
           dealWithCompounds("-", noApostrophe, id, compounds);
         }
+        // console.log("> >", entry)
       }
       return compounds;
     }
@@ -11089,7 +11092,7 @@ TODO - (not crucial) integrate compound + single word search into same loop
     }
 
     function format_results(results) {
-      // console.log("debug *formatresults*",results)
+      // console.log("debug *formatresults*", results)
       let output = "";
       let i = 0;
       for (const entry of results) {
@@ -11238,18 +11241,15 @@ TODO - (not crucial) integrate compound + single word search into same loop
       finalTextDiv.removeEventListener("mouseout", hoverEffects);
       // raw.innerHTML = raw.innerText;
       if (raw.innerText.trim()) {
-        // raw.innerHTML = raw.innerText.replace(/[\n\r]+/g, "\n\n");
-        // const textArr = splitTextIntoWords(raw.innerText);
         const textArr = splitText(raw.innerText);
-        console.log("textArr", textArr, currentDb.compounds)
-        // return;
+        // console.log("textArr", textArr, currentDb.compounds)
         const [processedTextArr, wordCount, wordStats] = addLookUp(textArr);
         // console.log("processed text arr", processedTextArr)
         const htmlString = convertToHTML(processedTextArr, wordStats);
         const listOfRepeats = buildRepeatList(wordCount, wordStats);
         displayCheckedText(htmlString, listOfRepeats, wordCount)
         finalInfoDiv.style.display = "flex";
-        console.log("text processed:", processedTextArr,offlistDb)
+        // console.log("text processed:", processedTextArr,offlistDb)
       }
       finalTextDiv.addEventListener("mouseover", hoverEffects);
       finalTextDiv.addEventListener("mouseout", hoverEffects);
@@ -11297,7 +11297,7 @@ TODO - (not crucial) integrate compound + single word search into same loop
         chunks.push(chunkArr);
       }
       // return chunks;
-      console.log("chunks:",chunks)
+      // console.log("chunks:",chunks)
       return findCompounds(chunks);
     }
 
@@ -11739,7 +11739,9 @@ TODO - (not crucial) integrate compound + single word search into same loop
 
     function changeDb_text() {
       rawDiv.dispatchEvent(new Event("input"));
-      document.getElementById('db_name2').textContent = currentDb.name;
+      const dbNameText = document.getElementById('db_name2');
+      // document.getElementById('db_name2').textContent = currentDb.name;
+      if (dbNameText) dbNameText.textContent = currentDb.name;
     }
 
     // ## SLIDER code ############################################
