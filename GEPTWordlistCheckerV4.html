@@ -7,6 +7,7 @@ DONE - add 'most recent' to backups + keep track of this
 DONE - allow ADVs to add '-er' (e.g. sooner)
 DONE - Provide single word alternatives for compounds, e.g ‘we know how to’ -> know-how (should show ‘know’ + ‘how’ too)
 DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
+TODO - (not crucial) integrate compound + single word search into same loop
 -->
 <html lang="en">
 
@@ -1094,8 +1095,9 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
     const POS = 2;
     const LEVEL = 3;
     const NOTE = 4;
-    const DUPLICATE = 5;
-    const DISPLAY = 6;
+    const isCOMPOUND = 5;
+    // const DUPLICATE = 5;
+    // const DISPLAY = 6;
 
     const form = document.getElementById("t1_form");
     const results_legend = document.getElementById("t1_results_legend");
@@ -10733,42 +10735,53 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
       "willie",
       "zachary"]);
 
+    let wordStats = {};
+
     function buildListOfCompoundWords(dB) {
-      /* ## goes through currentDb and checks for compounds (words containing spaces / hyphens)
+      /* ## 
+      A) goes through currentDb and checks for compounds (words containing spaces / hyphens)
       These are a problem as spaces are used to divide words;
       This function creates a table of items (compounds) to be checked against the text
       before it is divided into words. All compounds are converted into 3 forms:
       1) compoundword, 2) compound word, 3) compound-word
+
+      B) updates database to include isCOMPOUND marker to avoid searching for words twice
+      (as compounds and single words)
       */
       let compounds = {};
       for (entry of dB) {
         const word = entry[LEMMA].toLowerCase();
-        let safeWord = word.replace(/-/g, "##").replace(/ /g, "@@");
-        dealWithCompounds(" ", word, safeWord, compounds);
-        dealWithCompounds("-", word, safeWord, compounds);
+        const id = entry[ID];
+        // let safeWord = word.replace(/-/g, "##").replace(/ /g, "@@");
+        // let safeWord = id;
+        // ## add extra isCOMPOUND entry to db; || ensures no overwriting 
+        entry.pop(false);
+        entry[isCOMPOUND] = dealWithCompounds(" ", word, id, compounds);
+        entry[isCOMPOUND] = dealWithCompounds("-", word, id, compounds) || entry[isCOMPOUND];
         if (word.includes("'")) {
           const noApostrophe = word.replace(/\'/g, "");
-          dealWithCompounds(" ", noApostrophe, safeWord, compounds);
-          dealWithCompounds("-", noApostrophe, safeWord, compounds);
+          dealWithCompounds(" ", noApostrophe, id, compounds);
+          dealWithCompounds("-", noApostrophe, id, compounds);
         }
       }
       return compounds;
     }
 
-    function dealWithCompounds(separator, word, safeWord, compounds) {
+    function dealWithCompounds(separator, word, id, compounds) {
       if (word.includes(separator)) {
         let tmp = word.split(separator);
-        compounds[word] = safeWord;
+        compounds[word] = id;
         if (tmp[2]) {
-          compounds[`${tmp[0]}${tmp[1]}${tmp[2]}`] = safeWord;
-          compounds[`${tmp[0]}-${tmp[1]}-${tmp[2]}`] = safeWord;
-          compounds[`${tmp[0]} ${tmp[1]} ${tmp[2]}`] = safeWord;
+          compounds[`${tmp[0]}${tmp[1]}${tmp[2]}`] = id;
+          compounds[`${tmp[0]}-${tmp[1]}-${tmp[2]}`] = id;
+          compounds[`${tmp[0]} ${tmp[1]} ${tmp[2]}`] = id;
         } else {
-          compounds[`${tmp[0]}${tmp[1]}`] = safeWord;
-          compounds[`${tmp[0]}-${tmp[1]}`] = safeWord;
-          compounds[`${tmp[0]} ${tmp[1]}`] = safeWord;
+          compounds[`${tmp[0]}${tmp[1]}`] = id;
+          compounds[`${tmp[0]}-${tmp[1]}`] = id;
+          compounds[`${tmp[0]} ${tmp[1]}`] = id;
         }
-      }
+        return true;
+      } else return false;
     }
 
 
@@ -11226,15 +11239,17 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
       // raw.innerHTML = raw.innerText;
       if (raw.innerText.trim()) {
         // raw.innerHTML = raw.innerText.replace(/[\n\r]+/g, "\n\n");
-        const textArr = splitTextIntoWords(raw.innerText);
-        // console.log("textArr", textArr, currentDb.compounds)
+        // const textArr = splitTextIntoWords(raw.innerText);
+        const textArr = splitText(raw.innerText);
+        console.log("textArr", textArr, currentDb.compounds)
+        // return;
         const [processedTextArr, wordCount, wordStats] = addLookUp(textArr);
         // console.log("processed text arr", processedTextArr)
         const htmlString = convertToHTML(processedTextArr, wordStats);
         const listOfRepeats = buildRepeatList(wordCount, wordStats);
         displayCheckedText(htmlString, listOfRepeats, wordCount)
         finalInfoDiv.style.display = "flex";
-        // console.log("text processed:", processedTextArr,offlistDb,currentDb.compounds)
+        console.log("text processed:", processedTextArr,offlistDb)
       }
       finalTextDiv.addEventListener("mouseover", hoverEffects);
       finalTextDiv.addEventListener("mouseout", hoverEffects);
@@ -11242,61 +11257,81 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
       updateBackup(backupIDs[1]);
     }
 
-    function splitTextIntoWords(raw_text) {
+    function splitText(raw_text) {
       /* Divides text on spaces. Creates an array of words.
-         Each word is a sub array: 
-         1) normalized word
-         2) word with caps + punctuation for display
+          Each word is a sub array: 
+          1) normalized word
+          2) word with caps + punctuation for display
       */
       let EOLcount = 0;
       // ## text = [processed word for lookup + tagging, raw word for display]
       raw_text = raw_text
-        .replace(/[\u2018\u2019']/g, " '")
+        .replace(/[\u2018\u2019']/g, " '") // ## replace curly single quotes
+        .replace(/[\u201C\u201D]/g, '"')   // ## replace curly double  quotes
         .replace(/…/g, "...")
         .replace(/[\n\r]+/g, " *EOL ") // encode EOLs
         .replace(/—/g, " - ")
         // .replace(/(\w)\/(\w)/g, `${$1} / ${$2}`)
-        .replace(/(\w)\/(\w)/g, "$1 / $2")
-      raw_text = findCompounds(raw_text);
-      let textArr = [];
-      for (let word of raw_text.split(/\s+/)) {
-        if (word.includes('*EOL')) {
-          textArr.push(["*EOL", "<br>"]);
-          // console.log("debug: you pressed enter!", EOLcount)
-        } else {
-          let normalizedWord = word;
-          /* ## Deal with compound words */
-          if (word.startsWith('*CMP*')) {
-            word = word
-              .replace(/##/g, '-')
-              .replace(/@@/g, ' ');
-            [normalizedWord, word] = word.slice(5).split('::');
+        .replace(/(\w)\/(\w)/g, "$1 / $2");
+      const raw_chunks = raw_text
+        .trim()
+        // .replace(/([\.,;\:\?\!]\s+)/gi, "$1@@")
+        .replace(/([\.,;\:\?\!])\s+/gi, "$1@@")
+        .split("@@");
+
+      let chunks = [];
+      // console.log("chunks:", raw_chunks)
+      for (chunk of raw_chunks) {
+        let chunkArr = [];
+        for (let word of chunk.split(/\s+/)) {
+          if (word.includes("*EOL")) {
+            chunkArr.push(["*EOL", "<br>"]);
+            // console.log("debug: you pressed enter!", EOLcount)
+          } else {
+            let normalizedWord = word
+              .replace(punctuation, "")
+              .toLowerCase();
+            chunkArr.push([normalizedWord, word]);
           }
-          normalizedWord = normalizedWord
-            .replace(/[\u2018\u2019']/g, "") // ## replace curly single quotes 
-            .replace(/[\u201C\u201D]/g, '"')  // ## replace curly double  quotes
-            .replace(punctuation, "")
-            .toLowerCase();
-          textArr.push([normalizedWord, word]);
         }
+        chunks.push(chunkArr);
       }
-      return textArr;
+      // return chunks;
+      console.log("chunks:",chunks)
+      return findCompounds(chunks);
     }
 
-    function findCompounds(text) {
-      for (entry in currentDb.compounds) {
-        const sub = entry.replace(/\-/g, '##').replace(/ /g, '@@');
-        const re = new RegExp(entry, 'gi');
-        let compound = "*CMP*" + currentDb.compounds[entry] + "::" + sub;
-        if (entry.includes(" ")) {
-          // ## if the compound contains a space, treat it as separate words, too.
-          // console.log("++",sub,sub.replace(/@@/g, ' '))
-          compound += " / " + entry;
+    function findCompounds(chunks) {
+        let tmp = [];
+        for (chunk of chunks) {
+          /* for each word, checks normalized words to end of chunk in search of compound match
+          */
+          // for (let word_i = 0; word_i < chunk.length - 1; word_i++) {
+          for (let word_i = 0; word_i < chunk.length; word_i++) {
+            let tail = [];
+            for (let j = word_i; j < chunk.length; j++) {
+              tail.push(chunk[j][0])
+            }
+            tail = tail.join(" ");
+            // console.log("...",chunk[word_i],tail)
+            let matches = [];
+            for (compound in currentDb.compounds) {
+              if (currentDb.compounds.hasOwnProperty(compound)) {
+                const [c_lemma, c_id] = [compound, currentDb.compounds[compound]];
+                // console.log("@@",c_lemma,c_id,tail)
+                // if (tail.startsWith(c_lemma)) matches.push(c_id);
+                if (tail.startsWith(c_lemma)) matches.push([c_id,updateWordStats(c_id)]);
+              }
+            }
+            chunk[word_i].push(matches);
+            // console.log(">>>",chunk[word_i],tail,matches)
+          }
+          // ## required so that all wordArrs have matches ready for the next stage
+          chunk[chunk.length - 1].push([]);
+          tmp.push(...chunk);
         }
-        text = text.replace(re, compound);
+        return tmp;
       }
-      return text;
-    }
 
     function addLookUp(textArr) {
       /* textArr = array of [normalized, raw]
@@ -11305,7 +11340,7 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
         Normalized word sent to be checked against wordlist 
         WordStats records the number of times a word is repeated: {word-id: count}
       */
-      let wordStats = {};
+      // let wordStats = {};
       let processedTextArr = [];
       let outputText = "";
       let wordCount = 0;
@@ -11313,31 +11348,43 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
       // ## capture EOL and insert <br>
       for (const wordArr of textArr) {
         const word = wordArr[0];
+        // if (currentDb.compounds[word]) continue;
+        // if (currentDb.compounds[word]) console.log("???", word, wordArr)
+        let preMatchArr = wordArr[2];
         const matchedIDs = [];
         if (word === "*EOL") {
           processedTextArr.push([word]);
         } else {
           matches = lookUpWord(wordArr);
           if (word) wordCount++;
-          let i = 0;
+          // let i = 0;
           for (id of matches) {
+            // ## do not check compounds (already checked)
             if (!id) continue;
+            if (currentDb.db[id] && currentDb.db[id][isCOMPOUND]) continue;
             const match = getDbEntry(id);
             const baseForm = match[LEMMA];
             // ## don't count contractions as separate words
             if (["contraction"].includes(match[POS])) { wordCount-- };
-            if (!wordStats[id]) {
-              wordStats[id] = 1;
-            } else if (!["contraction", "unknown", "digit"].includes(getDbEntry(id)[POS])) {
-              wordStats[id]++;
-            }
-            matchedIDs.push([id, wordStats[id]]);
-            i++;
+            if (!currentDb.compounds[word]) matchedIDs.push([id, updateWordStats(id)]);
+            // i++;
           }
-          processedTextArr.push([word, wordArr[1], matchedIDs]);
+          // console.log("<>",wordArr,matches[0],currentDb.compounds[word])
+          // ## filter out matched compounds without spaces
+          preMatchArr.push(...matchedIDs);
+          processedTextArr.push([word, wordArr[1], preMatchArr]);
         }
       }
       return [processedTextArr, wordCount, wordStats];
+    }
+
+    function updateWordStats(id){
+      if (!wordStats[id]) {
+        wordStats[id] = 1;
+      } else if (!["contraction", "unknown", "digit"].includes(getDbEntry(id)[POS])) {
+        wordStats[id]++;
+      }
+      return wordStats[id];
     }
 
     function markOfflist(word, type) {
@@ -11385,6 +11432,7 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
       // console.log("debug *lookup* ",word,typeof word, raw_word)
       */
       let matches = [];
+      // if (currentDb.db[word]) return matches;
       if (word.match(/\d/i)) {
         matches.push(markOfflist(word, "digit"));
         return matches;
@@ -11501,20 +11549,22 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
       */
       let htmlString = "";
       let isFirstWord = true;
+      let wasEOL = false;
       for (wordArr of textArr) {
-        const word = wordArr[0];
+        // const word = wordArr[0];
+        let word = wordArr[0];
         if (word === "*EOL") {
           htmlString += "<br><br>";
+          wasEOL = true;
           continue;
         }
         const rawWord = wordArr[1];
-        let conjoin = " ";
-        if (getDbEntry(wordArr[2][0][0])[2] == "contraction" || isFirstWord) {
-          conjoin = "";
+        let leaveSpace = " ";
+        if (getDbEntry(wordArr[2][0][0])[2] == "contraction" || isFirstWord || wasEOL) {
+          leaveSpace = "";
         }
         isFirstWord = false;
         // console.log(">>>",wordArr)
-        // if (getDbEntry(wordArr[2][0][0])[2] == "contraction") console.log("Yatttta!")
         // ## duplicateCount = running total; totalRepeats = total
         const matches = wordArr[2];
         let matchCount = 0;
@@ -11523,7 +11573,6 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
           const match = getDbEntry(id);
           let displayWord = "";
           const ignoreRepeats = repeatableWords.includes(match[LEMMA]);
-          // console.log("repeats",match[LEMMA],ignoreRepeats)
           const level_num = match[LEVEL][0];
           const levelClass = "level-" + getLevelPrefix(level_num);
           const totalRepeats = wordStats[id];
@@ -11538,10 +11587,15 @@ DONE - ** allow pasting into rawDiv (currently, this wipes the whole div)
             anchor = ` id='all_${id}_${duplicateCount}'`;
           }
           // displayWord = `<span data-entry="${id}" data-word="${word}" class="${levelClass}${relatedWordsClass}${duplicateClass}"${anchor}>${ rawWord + showDuplicateCount}</span> `;
-          displayWord = `${conjoin}<span data-entry="${id}:${word}" class="${levelClass}${relatedWordsClass}${duplicateClass}"${anchor}>${rawWord + showDuplicateCount}</span>`;
-          if (matchCount < matches.length - 1) displayWord += "/ ";
+          let localWord = rawWord;
+          const origLemma = (currentDb.db[id]) ? currentDb.db[id][LEMMA] : word;
+          // console.log("**", word, id,origLemma, origLemma.includes("-"))
+          if (origLemma.includes(" ") || origLemma.includes("-")) localWord = origLemma;
+          displayWord = `${leaveSpace}<span data-entry="${id}:${word}" class="${levelClass}${relatedWordsClass}${duplicateClass}"${anchor}>${localWord + showDuplicateCount}</span>`;
+          if (matchCount < matches.length - 1) displayWord += " /" + (leaveSpace ? "" : " ");
           htmlString += displayWord;
           matchCount++;
+          wasEOL = false;
         }
       }
       // console.log("convertto html", htmlString)

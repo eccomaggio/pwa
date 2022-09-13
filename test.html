@@ -4,20 +4,95 @@
     <meta charset="UTF-8">
     <title></title>
 <script>
-function TestObj(x) {
-       this.x = 6;
-       this.afunc = function () { return x + 1}
-    // this.prototype.cfunc = function(x) {return x * x}
-   }
+    /*
+    Test to integrate compound words more naturally but still manageably
+    by dividing the text first into segments that restrict that could contain compounds
+    */
+   const text =
+        "In most of the UK, students take their first public / national exams at age 16: These are the so called GCSEs.  They require know how. \nOriginally, the system used to use letter grades from A-G, but now numbers are used in most parts of the UK. The highest grade is 9 and the lowest is 1; There is also a U for fail. The tests are taken in summer. \nThey include a mixture of a final test and course work. Is this always true? Well, in 2020 and 2021, because of COVID, no tests were given; instead, teacher assigned grades based on students' in-class performance. No wonder students did better than usual! Things still haven't returned to normal. ";
+    //const re = /([\.,;\:\?\!] )/gi
+    //const chunks = text.trim().replace(re,"$1@@").split("@@");
 
-    a = new TestObj(42);
-    b = new TestObj(1);
+    const punctuation = /[!"#$%&'()*+,./:;<=>?@[\]^_`{}~]/g;
 
-    TestObj.prototype.bfunc = function (x) {return x - 1}
-    TestObj.prototype.staticVar = 3.142;
-    
-    console.log(b.bfunc(3), a.staticVar ,a,b)
-    
+    const compounds = ["know how", "know-how", "so called", "so-called"];
+
+    function splitText(raw_text) {
+        /* Divides text on spaces. Creates an array of words.
+               Each word is a sub array: 
+               1) normalized word
+               2) word with caps + punctuation for display
+            */
+        let EOLcount = 0;
+        // ## text = [processed word for lookup + tagging, raw word for display]
+        raw_text = raw_text
+            .replace(/[\u2018\u2019']/g, " '") // ## replace curly single quotes
+            .replace(/[\u201C\u201D]/g, '"')   // ## replace curly double  quotes
+            .replace(/…/g, "...")
+            .replace(/[\n\r]+/g, " *EOL ") // encode EOLs
+            .replace(/—/g, " - ")
+            // .replace(/(\w)\/(\w)/g, `${$1} / ${$2}`)
+            .replace(/(\w)\/(\w)/g, "$1 / $2");
+        const raw_chunks = raw_text
+            .trim()
+            // .replace(/([\.,;\:\?\!]\s+)/gi, "$1@@")
+            .replace(/([\.,;\:\?\!])\s+/gi, "$1@@")
+            .split("@@");
+
+        let chunks = [];
+        // console.log("chunks:", raw_chunks)
+        for (chunk of raw_chunks) {
+            let chunkArr = [];
+            for (let word of chunk.split(/\s+/)) {
+                if (word.includes("*EOL")) {
+                    chunkArr.push(["*EOL", "<br>"]);
+                    // console.log("debug: you pressed enter!", EOLcount)
+                } else {
+                    let normalizedWord = word
+                        .replace(punctuation, "")
+                        .toLowerCase();
+                    chunkArr.push([normalizedWord, word]);
+                }
+            }
+            chunks.push(chunkArr);
+        }
+        return chunks;
+    }
+
+    function findCompounds(chunks) {
+        let tmp = [];
+        for (chunk of chunks) {
+            /* for each word, checks normalized words to end of chunk in search of compound match
+            */ 
+            for (let i = 0; i < chunk.length - 1; i++ ) {
+                let tail = [];
+                for (let j = i; j < chunk.length; j++) {
+                    tail.push(chunk[j][0]) 
+                }
+                tail = tail.join(" ");
+                let matches = [];
+                for (id in compounds){
+                    if (tail.startsWith(compounds[id])) matches.push(id);
+                }
+                chunk[i].push(matches);
+                // console.log(">>>",chunk[i],tail)
+            }
+            // ## required so that all wordArrs have matches ready for the next stage
+            chunk[chunk.length - 1].push([]);
+            tmp.push(...chunk);
+        }
+        // chunks = [...chunks];
+        // return chunks;
+        return tmp;
+    }
+
+    // let chunks = splitText(text);
+    // chunks = findCompounds(chunks);
+    let textArr = findCompounds(splitText(text));
+    console.log("final:",textArr)
+
+
+ 
 </script>
 </head>
 <body>
