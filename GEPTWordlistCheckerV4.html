@@ -10861,7 +10861,9 @@ TODO - (not crucial) integrate compound + single word search into same loop
       for (const id of backupIDs){
         // console.log(">>",id)
         const backup = document.getElementById(id)
-        let content = localStorage.getItem(id).trim();
+        const lsContent = localStorage.getItem(id);
+        let content = (lsContent) ? lsContent.trim() : "";
+        // let content = localStorage.getItem(id).trim();
         if (content) {
           // content = content.trim();
           if (localStorage.getItem("mostRecent") == id) content = "<span class='level-o'>Most Recent: </span>" + content;
@@ -10882,11 +10884,8 @@ TODO - (not crucial) integrate compound + single word search into same loop
       const restoredContent = localStorage.getItem(id);
       if (!restoredContent) return;
       rawDiv.innerText = restoredContent;
-      processText(restoredContent);
-      // localStorage.setItem("backup_0", swap)
-      localStorage.setItem(id, swap);
-      // if () localStorage.setItem("mostRecent",id);
-      localStorage.setItem(id, swap)
+      processText(rawDiv);
+      if (swap) localStorage.setItem(id, swap);
       closeDialog("backup-dlg");
     }
     
@@ -11238,9 +11237,10 @@ TODO - (not crucial) integrate compound + single word search into same loop
       wordStats = {};
       // ## need to distinguish between typed / button / pasted input 
       // ## and interact with auto-refresh toggle
+      // console.log({raw})
       const isTyped = (raw.type === 'input' || raw.type === 'paste');
       const isClick = (raw.type === 'click');
-      if ((isTyped && isAutoRefresh) || isClick) {
+      if ((isTyped && isAutoRefresh) || isClick || !raw.type) {
         raw = rawDiv;
       } else return;
       finalTextDiv.removeEventListener("mouseover", hoverEffects);
