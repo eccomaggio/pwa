@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!-- 
-TODO - changing from GEPT to Kids on tab2 throws error
-TODO - (possibly related to above) tab2 #db_name2 disappears
+DONE - changing from GEPT to Kids on tab2 throws error
+DONE - (possibly related to above) tab2 #db_name2 disappears
 DONE - check layout and logic of backups
 DONE - stop cursor always returning to beginning of rawDiv :S
 STAY - show marker in 'texts' when there is a text (not really necessary)
@@ -11092,20 +11092,24 @@ TODO - (not crucial) integrate compound + single word search into same loop
     }
 
     function format_results(results) {
-      // console.log("debug *formatresults*", results)
+      // console.log("debug *formatresults*", results, !results)
       let output = "";
       let i = 0;
-      for (const entry of results) {
-        const col1 = `<td>${i + 1}: </td>`;
-        const lemma = `<strong>${entry[LEMMA]}</strong>`;
-        const pos = `[${entry[POS].trim()}]`;
-        let level = level_subs[entry[LEVEL][0]];
-        if (!level) continue;
-        let note = entry[NOTE].trim();
-        note = note ? `, ${note}` : "";
-        const col2 = `<td class='level-${level[0]}'>${lemma} <span class="pos">${pos}</span> ${level}${note}</td>`;
-        output += `<tr>${col1}${col2}</tr>`;
-        i++;
+      if (!results.length){
+        output = "<tr><td></td><td class='error'>No matching words found.</td></tr>";
+      } else {
+        for (const entry of results) {
+          const col1 = `<td>${i + 1}: </td>`;
+          const lemma = `<strong>${entry[LEMMA]}</strong>`;
+          const pos = `[${entry[POS].trim()}]`;
+          let level = level_subs[entry[LEVEL][0]];
+          if (!level) continue;
+          let note = entry[NOTE].trim();
+          note = note ? `, ${note}` : "";
+          const col2 = `<td class='level-${level[0]}'>${lemma} <span class="pos">${pos}</span> ${level}${note}</td>`;
+          output += `<tr>${col1}${col2}</tr>`;
+          i++;
+        }
       }
       return "<table>" + output + "</table>";
     }
@@ -11230,6 +11234,8 @@ TODO - (not crucial) integrate compound + single word search into same loop
 
     // ## if text is typed in, this is where processing starts
     function processText(raw) {
+      // ## reset wordStats
+      wordStats = {};
       // ## need to distinguish between typed / button / pasted input 
       // ## and interact with auto-refresh toggle
       const isTyped = (raw.type === 'input' || raw.type === 'paste');
@@ -11239,22 +11245,27 @@ TODO - (not crucial) integrate compound + single word search into same loop
       } else return;
       finalTextDiv.removeEventListener("mouseover", hoverEffects);
       finalTextDiv.removeEventListener("mouseout", hoverEffects);
-      // raw.innerHTML = raw.innerText;
       if (raw.innerText.trim()) {
         const textArr = splitText(raw.innerText);
-        // console.log("textArr", textArr, currentDb.compounds)
-        const [processedTextArr, wordCount, wordStats] = addLookUp(textArr);
+        let processedTextArr;
+        let wordCount = 0;
+        [processedTextArr, wordCount, wordStats] = addLookUp(textArr);
+        // console.log("textArr", {textArr}, {wordCount},{wordStats})
         // console.log("processed text arr", processedTextArr)
         const htmlString = convertToHTML(processedTextArr, wordStats);
         const listOfRepeats = buildRepeatList(wordCount, wordStats);
         displayCheckedText(htmlString, listOfRepeats, wordCount)
-        finalInfoDiv.style.display = "flex";
+        // finalInfoDiv.style.display = "flex";
         // console.log("text processed:", processedTextArr,offlistDb)
-      }
-      finalTextDiv.addEventListener("mouseover", hoverEffects);
-      finalTextDiv.addEventListener("mouseout", hoverEffects);
+        finalTextDiv.addEventListener("mouseover", hoverEffects);
+        finalTextDiv.addEventListener("mouseout", hoverEffects);
 
-      updateBackup(backupIDs[1]);
+        updateBackup(backupIDs[1]);
+      } else {
+        // console.log("nowt doin'!!!")
+        displayCheckedText();
+      }
+
     }
 
     function splitText(raw_text) {
@@ -11547,6 +11558,8 @@ TODO - (not crucial) integrate compound + single word search into same loop
       /* ## textArr = array of [normalized-word, raw-word, [[matched-id, occurence]...]]
       for each word, repeat the raw-word for each match, but with different interpretations
       */
+      if (!textArr.length) console.log("nowt doin'!")
+      // console.log("textArr",textArr, textArr.length)
       let htmlString = "";
       let isFirstWord = true;
       let wasEOL = false;
@@ -11612,30 +11625,35 @@ TODO - (not crucial) integrate compound + single word search into same loop
     function buildRepeatList(wordCount, wordStats) {
       let countReps = 0;
       let listOfRepeats = "";
-      for (const key of Object.keys(wordStats).sort(compareByLemma)) {
-        // console.log(">>" , key)
-        const entry = getDbEntry(key);
-        const word = entry[LEMMA];
-        if (wordStats[key] > 1 && !repeatableWords.includes(word)) {
-          countReps++;
-          // let anchors = "<span class='anchors'>";
-          let anchors = "";
-          for (let x = 1; x <= wordStats[key]; x++) {
-            // const display = (x === 1) ? word : x;
-            let display = x;
-            let displayClass = 'class="anchors" ';
-            if (x === 1) {
-              display = word;
-              displayClass = `class="level-${getLevelPrefix(entry[LEVEL][0])}" `;
+      if (!wordCount) {
+        wordStats = {};
+        listOfRepeats = "";
+      } else {
+        for (const key of Object.keys(wordStats).sort(compareByLemma)) {
+          // console.log(">>" , key)
+          const entry = getDbEntry(key);
+          const word = entry[LEMMA];
+          if (wordStats[key] > 1 && !repeatableWords.includes(word)) {
+            countReps++;
+            // let anchors = "<span class='anchors'>";
+            let anchors = "";
+            for (let x = 1; x <= wordStats[key]; x++) {
+              // const display = (x === 1) ? word : x;
+              let display = x;
+              let displayClass = 'class="anchors" ';
+              if (x === 1) {
+                display = word;
+                displayClass = `class="level-${getLevelPrefix(entry[LEVEL][0])}" `;
+              }
+              anchors += ` <a href="#" ${displayClass}onclick="jumpToDuplicate('all_${key}_${x}'); return false;">${display}</a>`;
             }
-            anchors += ` <a href="#" ${displayClass}onclick="jumpToDuplicate('all_${key}_${x}'); return false;">${display}</a>`;
+            // anchors += "</span>";
+            listOfRepeats += `<p data-entry="${key}" class='duplicate all_${key} level-${getLevelPrefix(entry[LEVEL][0])}'>${anchors}</p>`;
           }
-          // anchors += "</span>";
-          listOfRepeats += `<p data-entry="${key}" class='duplicate all_${key} level-${getLevelPrefix(entry[LEVEL][0])}'>${anchors}</p>`;
         }
+        listOfRepeats = `<p id='all_repeats'><strong>${countReps} repeated word${(countReps === 1) ? "" : "s"}:</strong><br><em>Click on a number to jump to the word.</em></p><div id='repeats'>` + listOfRepeats;
+        listOfRepeats += "</div>";
       }
-      listOfRepeats = `<p id='all_repeats'><strong>${countReps} repeated word${(countReps === 1) ? "" : "s"}:</strong><br><em>Click on a number to jump to the word.</em></p><div id='repeats'>` + listOfRepeats;
-      listOfRepeats += "</div>";
       return listOfRepeats
     }
 
@@ -11654,19 +11672,28 @@ TODO - (not crucial) integrate compound + single word search into same loop
     }
 
     function displayCheckedText(htmlText, listOfRepeats, wordCount) {
-      if (listOfRepeats) {
-        htmlText += listOfRepeats;
+      if (!htmlText) {
+        htmlText = "<span class='error'>Please input some text.</span>"
+        finalInfoDiv.style.display = "none";
       } else {
-        htmlText += "<h1>There are no significant repeated words.</h1>"
+        if (listOfRepeats) {
+          htmlText += listOfRepeats;
+        } else {
+          htmlText += "<h1>There are no significant repeated words.</h1>"
+        }
+        const numOfWords = (wordCount > 0) ? `<span class="text-right dark">(c.${wordCount} word${(wordCount > 1 ? "s" : "")}) <a href='#all_repeats' class='medium'>&#x25BC;</a></span>` : "";
+        // finalLegend.innerHTML = numOfWords;
+        finalLegend.innerHTML = displayDbName(numOfWords);
+        finalInfoDiv.style.display = "flex";
       }
-      const numOfWords = (wordCount > 0) ? `<span class="text-right dark">(c. ${wordCount} word${(wordCount > 1 ? "s" : "")}) <a href='#all_repeats' class='medium'>&#x25BC;</a></span>` : displayDbName();
-      // finalLegend.innerHTML = (wordCount > 0) ? numOfWords : "Checked text:";
-      finalLegend.innerHTML = numOfWords;
       finalTextDiv.innerHTML = htmlText;
+      finalInfoDiv.innerHTML = "";
     }
 
-    function displayDbName() {
-      return "Text checked against <span id='db_name2' class='dbColor'>" + currentDb.name + "</span>";
+    function displayDbName(msg) {
+      if (!msg) msg = "";
+      // return "Text checked against <span id='db_name2' class='dbColor'>" + currentDb.name + "</span>";
+      return `Checked against <span id='db_name2' class='dbColor'>${currentDb.name}</span>${msg}`;
     }
 
     function dbLookup(word, pos) {
