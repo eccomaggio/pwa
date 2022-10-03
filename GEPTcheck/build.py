@@ -78,9 +78,13 @@ def build_files(file_name):
   global isInStyle
   global isInScript
   global isSplitMode
-  out_file_name = "out.htm"
+  # out_file_name = "out.htm"
   with open(file_name, "r", encoding="utf-8") as input:
     set_mode(input)
+    if isSplitMode:
+      out_file_name = "out.min.html"
+    else:
+      out_file_name = "out.html"
     print("isSplitMode:",isSplitMode)
     # file in write mode
     with open(out_file_name, "w") as html_out:
