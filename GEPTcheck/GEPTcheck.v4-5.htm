@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEPT Wordlist Checker</title>
+    <link rel="icon" type="image/x-icon" href="./geptIcon.png" onerror="this.onerror=null;this.href='./geptIcon.png;'">
 
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GEPT Wordlist Checker</title>
-  <link rel="icon" type="image/x-icon" href="./geptIcon.png" onerror="this.onerror=null;this.href='./geptIcon.png;'">
-
-  <style data-title="root.css">
+    <style data-title="root.css">
     :root {
       --light: #cfe0e8;
       --medium: #87bdd8;
@@ -26,8 +25,8 @@
       --high: DarkGoldenRod;
       --offlist: FireBrick;
     }
-  </style>
-  <style data-title="main.css">
+    </style>
+    <style data-title="main.css">
     body {
       background-color: var(--dark);
       height: 100vh;
@@ -225,7 +224,7 @@
     }
 
     [placeholder]:empty:focus::before {
-      content: "";
+        content: "";
     }
 
     #t2_raw_text:focus {
@@ -574,7 +573,7 @@
     .dark {
       color: var(--dark);
     }
-
+    
     .black {
       color: black !important;
       font-weight: bold;
@@ -638,8 +637,8 @@
       color: var(--light);
       background-color: var(--dark);
     }
-  </style>
-  <style data-title="dialogs.css">
+    </style>
+    <style data-title="dialogs.css">
     /* from https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_dropdown_right */
 
     .dropbtn {
@@ -687,8 +686,7 @@
       color: var(--dark);
     }
 
-    .dropdown div select:hover,
-    .dropdown div button:hover {
+    .dropdown div select:hover, .dropdown div button:hover {
       background-color: var(--medium);
     }
 
@@ -720,19 +718,18 @@
     dialog div:nth-child(2) {
       display: flex;
       /* justify-content: space-between;*/
-      overflow: inherit;
+      overflow: inherit; 
       padding: 3px;
     }
 
     #backup-msg {
       /* font-size: smaller; */
-      height: fit-content;
+      height:fit-content;
       flex-grow: 1;
       /*overflow-y: visible;*/
     }
-
-    #backup_0,
-    #backup_1 {
+    
+    #backup_0, #backup_1 {
       background-color: white;
       border: none;
       width: 40%;
@@ -741,9 +738,8 @@
       overflow-x: hidden;
       text-overflow: ellipsis;
     }
-
-    #backup_0:enabled:hover,
-    #backup_1:enabled:hover {
+    
+    #backup_0:enabled:hover, #backup_1:enabled:hover {
       /* font-weight: bold; */
       background-color: var(--light);
     }
@@ -751,201 +747,200 @@
     dialog div * {
       flex-grow: 1;
     }
-  </style>
-</head>
+    </style>
+  </head>
 
-<body>
-  <div id="tab-group">
-    <div id="tab-head">
-      <div class="tab tab-off">Words</div>
-      <div class="tab tab-on">Texts</div>
-      <div class="tab-tools">
-        <button class="dropbtn" id="reset_button" type="button">Clear</button>
-        <div class="spacer">&nbsp;</div>
-        <!-- adapted from https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_dropdown_right -->
-        <div class="dropdown">
-          <button class="dropbtn" type="button">Settings</button>
-          <div class="dropdown-content" id="settings-content">
-            <select name="set-font" id="set-font">
-              <option value="8">font 8pt</option>
-              <option value="9">font 9pt</option>
-              <option value="10">font 10pt</option>
-              <option value="11">font 11pt</option>
-              <option value="12">font 12pt</option>
-              <option value="13">font 13pt</option>
-              <option value="14" selected="">font 14pt</option>
-              <option value="16">font 16pt</option>
-              <option value="18">font 18pt</option>
-              <option value="22">font 22pt</option>
-              <option value="24">font 24pt</option>
-            </select>
+  <body>
+    <div id="tab-group">
+      <div id="tab-head">
+        <div class="tab tab-off">Words</div>
+        <div class="tab tab-on">Texts</div>
+        <div class="tab-tools">
+          <button class="dropbtn" id="reset_button" type="button">Clear</button>
+          <div class="spacer">&nbsp;</div>
+          <!-- adapted from https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_dropdown_right -->
+          <div class="dropdown">
+            <button class="dropbtn" type="button">Settings</button>
+            <div class="dropdown-content" id="settings-content">
+              <select name="set-font" id="set-font">
+                <option value="8">font 8pt</option>
+                <option value="9">font 9pt</option>
+                <option value="10">font 10pt</option>
+                <option value="11">font 11pt</option>
+                <option value="12">font 12pt</option>
+                <option value="13">font 13pt</option>
+                <option value="14" selected="">font 14pt</option>
+                <option value="16">font 16pt</option>
+                <option value="18">font 18pt</option>
+                <option value="22">font 22pt</option>
+                <option value="24">font 24pt</option>
+              </select>
 
-            <select name="set-db" id="set-db">
-              <option value="0">database: GEPT</option>
-              <option value="1">database: GEPTKids</option>
-              <option value="2" disabled="">database: MOE</option>
-            </select>
+              <select name="set-db" id="set-db">
+                <option value="0">database: GEPT</option>
+                <option value="1">database: GEPTKids</option>
+                <option value="2" disabled="">database: MOE</option>
+              </select>
 
-            <select name="set-refresh" id="set-refresh" style="display: block;">
-              <option value="0">auto refresh</option>
-              <option id="set-refresh-manual" value="1">manual refresh</option>
-            </select>
+              <select name="set-refresh" id="set-refresh" style="display: block;">
+                <option value="0">auto refresh</option>
+                <option id="set-refresh-manual" value="1">manual refresh</option>
+              </select>
 
-            <button id="backup-btn" style="display: block;">backups</button>
-            <button id="backup-save" style="display: block;">save backup</button>
+              <button id="backup-btn" style="display: block;">backups</button>
+              <button id="backup-save" style="display: block;">save backup</button>
+            </div>
+          </div>
+          <dialog id="backup-dlg">
+            <div class="dark" id="backup-msg">Click on the text you want to recover.</div>
+            <div>
+              <button id="backup_0" onclick="loadBackup('backup_0')"></button>
+              <button id="backup_1" onclick="loadBackup('backup_1')"></button>
+            </div>
+          </dialog>
+          <div class="spacer">&nbsp;</div>
+          <button class="dropbtn" id="refresh_button" type="button" style="display: none">Refresh</button>
+
+          <div class="spacer">&nbsp;</div>
+        </div>
+      </div>
+      <div id="tab-body">
+        <div class="tab-content" style="display: none;">
+          <div class="t1_form_in">
+            <form id="t1_form" onkeydown="return event.key != 'Enter';">
+              <!-- the onkeydown prevents the form resetting when 'enter' is pressed  -->
+              <fieldset id="t1_term">
+                <legend id="t1_term_legend">Search <span id="db_name1" class="dbColor">GEPT</span> wordlist for:</legend>
+                <div id="t1_term_inputs">
+                  <!-- <input type="text" id="t1_term_i" name="term" autocapitalize="none" spellcheck="false" placeholder="Enter word here..."> -->
+                  <input type="text" id="t1_term_i" name="term" autocapitalize="none" spellcheck="false">
+                </div>
+              </fieldset>
+              <fieldset id="t1_match">
+                <legend id="t1_match_legend">Match:</legend>
+                <div id="t1_match_inputs" class="line-el line">
+                  <label for="t1_match_x">exact
+                    <input type="radio" name="match" id="t1_match_x" value="^:$">
+                  </label>
+                  <label for="t1_match_c" class="selected_txt default">contains
+                    <input type="radio" name="match" id="t1_match_c" value=":" checked="">
+                  </label>
+                  <label for="t1_match_s">starts
+                    <input type="radio" name="match" id="t1_match_s" value="^:.*">
+                  </label>
+                  <label for="t1_match_e">ends
+                    <input type="radio" name="match" id="t1_match_e" value=".*:$">
+                  </label>
+                </div>
+              </fieldset>
+              <fieldset id="t1_level" style="display: block;">
+                <legend id="t1_level_legend">Level:</legend>
+                <div id="t1_level_inputs" class="line-el line">
+                  <label for="t1_level_a" class="selected_txt default">any
+                    <input type="radio" name="level" id="t1_level_a" value="" checked="">
+                  </label>
+                  <label for="t1_level_e">elem.
+                    <input type="checkbox" name="level" id="t1_level_e" value="0">
+                  </label>
+                  <label for="t1_level_i">int.
+                    <input type="checkbox" name="level" id="t1_level_i" value="1">
+                  </label>
+                  <label for="t1_level_h">hi-Int.
+                    <input type="checkbox" name="level" id="t1_level_h" value="2">
+                  </label>
+                </div>
+              </fieldset>
+              <fieldset id="t1_theme" style="display: none;">
+                <legend id="t1_theme_legend">Theme:</legend>
+                <div id="t1_theme_values">
+                  <select name="theme" id="t1_theme_select" onchange="this.dataset.chosen=this.value;" data-chosen="-1">
+                    <option value="-1" selected="" class="default">any</option>
+                    <option value="3">Animals &amp; insects</option>
+                    <option value="4">Clothing &amp; accessories</option>
+                    <option value="5">Colors</option>
+                    <option value="6">Family</option>
+                    <option value="7">Food &amp; drink</option>
+                    <option value="8">Forms of address</option>
+                    <option value="9">Geographical terms</option>
+                    <option value="10">Health</option>
+                    <option value="11">Holidays &amp; festivals</option>
+                    <option value="12">Houses &amp; apartments</option>
+                    <option value="13">Money</option>
+                    <option value="14">Numbers</option>
+                    <option value="15">Occupations</option>
+                    <option value="16">Other</option>
+                    <option value="17">Parts of body</option>
+                    <option value="18">People</option>
+                    <option value="19">Personal characteristics</option>
+                    <option value="20">Places &amp; directions</option>
+                    <option value="21">School</option>
+                    <option value="22">Sizes &amp; measurements</option>
+                    <option value="23">Sports, interest &amp; hobbies</option>
+                    <option value="24">Syntax</option>
+                    <option value="25">Tableware</option>
+                    <option value="26">Time</option>
+                    <option value="27">Transportation</option>
+                    <option value="28">Weather &amp; nature</option>
+                    <option value="29">Wh-words</option>
+                    <option value="30">nouns</option>
+                    <option value="31">verbs</option>
+                  </select>
+                </div>
+              </fieldset>
+              <fieldset id="t1_pos">
+                <legend id="t1_pos_legend">Part of Speech:</legend>
+                <div id="t1_pos_inputs" class="line-el line">
+                  <label for="t1_pos_a" class="selected_txt default">any
+                    <input type="radio" name="pos" id="t1_pos_a" value=" " checked="">
+                  </label>
+                  <label for="t1_pos_n">noun
+                    <input type="checkbox" name="pos" id="t1_pos_n" value="noun">
+                  </label>
+                  <label for="t1_pos_v">verb
+                    <input type="checkbox" name="pos" id="t1_pos_v" value="verb">
+                  </label>
+                  <label for="t1_pos_j">adj.
+                    <input type="checkbox" name="pos" id="t1_pos_j" value="adj">
+                  </label>
+                  <label for="t1_pos_d">adv.
+                    <input type="checkbox" name="pos" id="t1_pos_d" value="adv">
+                  </label>
+                  <label for="t1_pos_o">other
+                    <input type="checkbox" name="pos" id="t1_pos_o" value="prep|conj|inf|det|terj|pron|aux|art">
+                  </label>
+                </div>
+              </fieldset>
+            </form>
+          </div>
+          <div class="t1_form_out">
+            <fieldset id="t1_results">
+              <legend id="t1_results_legend">Results</legend>
+              <div id="t1_results_text"></div>
+            </fieldset>
           </div>
         </div>
-        <dialog id="backup-dlg">
-          <div class="dark" id="backup-msg">Click on the text you want to recover.</div>
-          <div>
-            <button id="backup_0" onclick="loadBackup('backup_0')"></button>
-            <button id="backup_1" onclick="loadBackup('backup_1')"></button>
+        <div class="tab-content" style="display: flex;">
+          <div id="container">
+            <div id="left-top">
+              <div id="t2_raw_text" contenteditable="true" placeholder="Paste or type text here. (Choose Settings/manual-refresh if you have a lot of text.)"></div>
+            </div>
+            <div id="separator">&nbsp;</div>
+            <div id="right-bot">
+              <!-- <div id="t2_final_legend">Text checked against <span class="dbColor" id="db_name2">GEPT</span>:</div> -->
+              <div id="t2_final_legend">Checked against <span id="db_name2" class="dbColor">GEPT</span></div>
+              <div id="t2_final_info" style="display: none;"></div>
+              <div id="t2_final_text"><span class="error">Please input some text.</span></div>
+            </div>
           </div>
-        </dialog>
-        <div class="spacer">&nbsp;</div>
-        <button class="dropbtn" id="refresh_button" type="button" style="display: none">Refresh</button>
-
-        <div class="spacer">&nbsp;</div>
+        </div>
       </div>
     </div>
-    <div id="tab-body">
-      <div class="tab-content" style="display: none;">
-        <div class="t1_form_in">
-          <form id="t1_form" onkeydown="return event.key != 'Enter';">
-            <!-- the onkeydown prevents the form resetting when 'enter' is pressed  -->
-            <fieldset id="t1_term">
-              <legend id="t1_term_legend">Search <span id="db_name1" class="dbColor">GEPT</span> wordlist for:</legend>
-              <div id="t1_term_inputs">
-                <!-- <input type="text" id="t1_term_i" name="term" autocapitalize="none" spellcheck="false" placeholder="Enter word here..."> -->
-                <input type="text" id="t1_term_i" name="term" autocapitalize="none" spellcheck="false">
-              </div>
-            </fieldset>
-            <fieldset id="t1_match">
-              <legend id="t1_match_legend">Match:</legend>
-              <div id="t1_match_inputs" class="line-el line">
-                <label for="t1_match_x">exact
-                  <input type="radio" name="match" id="t1_match_x" value="^:$">
-                </label>
-                <label for="t1_match_c" class="selected_txt default">contains
-                  <input type="radio" name="match" id="t1_match_c" value=":" checked="">
-                </label>
-                <label for="t1_match_s">starts
-                  <input type="radio" name="match" id="t1_match_s" value="^:.*">
-                </label>
-                <label for="t1_match_e">ends
-                  <input type="radio" name="match" id="t1_match_e" value=".*:$">
-                </label>
-              </div>
-            </fieldset>
-            <fieldset id="t1_level" style="display: block;">
-              <legend id="t1_level_legend">Level:</legend>
-              <div id="t1_level_inputs" class="line-el line">
-                <label for="t1_level_a" class="selected_txt default">any
-                  <input type="radio" name="level" id="t1_level_a" value="" checked="">
-                </label>
-                <label for="t1_level_e">elem.
-                  <input type="checkbox" name="level" id="t1_level_e" value="0">
-                </label>
-                <label for="t1_level_i">int.
-                  <input type="checkbox" name="level" id="t1_level_i" value="1">
-                </label>
-                <label for="t1_level_h">hi-Int.
-                  <input type="checkbox" name="level" id="t1_level_h" value="2">
-                </label>
-              </div>
-            </fieldset>
-            <fieldset id="t1_theme" style="display: none;">
-              <legend id="t1_theme_legend">Theme:</legend>
-              <div id="t1_theme_values">
-                <select name="theme" id="t1_theme_select" onchange="this.dataset.chosen=this.value;" data-chosen="-1">
-                  <option value="-1" selected="" class="default">any</option>
-                  <option value="3">Animals &amp; insects</option>
-                  <option value="4">Clothing &amp; accessories</option>
-                  <option value="5">Colors</option>
-                  <option value="6">Family</option>
-                  <option value="7">Food &amp; drink</option>
-                  <option value="8">Forms of address</option>
-                  <option value="9">Geographical terms</option>
-                  <option value="10">Health</option>
-                  <option value="11">Holidays &amp; festivals</option>
-                  <option value="12">Houses &amp; apartments</option>
-                  <option value="13">Money</option>
-                  <option value="14">Numbers</option>
-                  <option value="15">Occupations</option>
-                  <option value="16">Other</option>
-                  <option value="17">Parts of body</option>
-                  <option value="18">People</option>
-                  <option value="19">Personal characteristics</option>
-                  <option value="20">Places &amp; directions</option>
-                  <option value="21">School</option>
-                  <option value="22">Sizes &amp; measurements</option>
-                  <option value="23">Sports, interest &amp; hobbies</option>
-                  <option value="24">Syntax</option>
-                  <option value="25">Tableware</option>
-                  <option value="26">Time</option>
-                  <option value="27">Transportation</option>
-                  <option value="28">Weather &amp; nature</option>
-                  <option value="29">Wh-words</option>
-                  <option value="30">nouns</option>
-                  <option value="31">verbs</option>
-                </select>
-              </div>
-            </fieldset>
-            <fieldset id="t1_pos">
-              <legend id="t1_pos_legend">Part of Speech:</legend>
-              <div id="t1_pos_inputs" class="line-el line">
-                <label for="t1_pos_a" class="selected_txt default">any
-                  <input type="radio" name="pos" id="t1_pos_a" value=" " checked="">
-                </label>
-                <label for="t1_pos_n">noun
-                  <input type="checkbox" name="pos" id="t1_pos_n" value="noun">
-                </label>
-                <label for="t1_pos_v">verb
-                  <input type="checkbox" name="pos" id="t1_pos_v" value="verb">
-                </label>
-                <label for="t1_pos_j">adj.
-                  <input type="checkbox" name="pos" id="t1_pos_j" value="adj">
-                </label>
-                <label for="t1_pos_d">adv.
-                  <input type="checkbox" name="pos" id="t1_pos_d" value="adv">
-                </label>
-                <label for="t1_pos_o">other
-                  <input type="checkbox" name="pos" id="t1_pos_o" value="prep|conj|inf|det|terj|pron|aux|art">
-                </label>
-              </div>
-            </fieldset>
-          </form>
-        </div>
-        <div class="t1_form_out">
-          <fieldset id="t1_results">
-            <legend id="t1_results_legend">Results</legend>
-            <div id="t1_results_text"></div>
-          </fieldset>
-        </div>
-      </div>
-      <div class="tab-content" style="display: flex;">
-        <div id="container">
-          <div id="left-top">
-            <div id="t2_raw_text" contenteditable="true"
-              placeholder="Paste or type text here. (Choose Settings/manual-refresh if you have a lot of text.)"></div>
-          </div>
-          <div id="separator">&nbsp;</div>
-          <div id="right-bot">
-            <!-- <div id="t2_final_legend">Text checked against <span class="dbColor" id="db_name2">GEPT</span>:</div> -->
-            <div id="t2_final_legend">Checked against <span id="db_name2" class="dbColor">GEPT</span></div>
-            <div id="t2_final_info" style="display: none;"></div>
-            <div id="t2_final_text"><span class="error">Please input some text.</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <script data-title="admin.js">
+    <script data-title="admin.js">
     console.clear();
-  </script>
+    </script>
 
-  <script data-title="touch.js">
+    <script data-title="touch.js">
 
     const isIpadOS = () => {
       return navigator.maxTouchPoints &&
@@ -1068,9 +1063,9 @@
         document.onmousemove = null;
       }
     }
-  </script>
+    </script>
 
-  <script data-title="dbs.js">
+    <script data-title="dbs.js">
     function makeGEPTdb() {
       return [
         ["", "", [0], "dummy entry: 0 easily confused with undefined :S"],
@@ -9980,9 +9975,9 @@
       ];
     }
 
-  </script>
+    </script>
 
-  <script data-title="globals.js">
+    <script data-title="globals.js">
     let currentDb = {};
     const G_level = document.getElementById("t1_level");
     const K_theme = document.getElementById("t1_theme");
@@ -10223,6 +10218,8 @@
       ["es", "is"],
       ["ices", "ex"],
       ["ices", "ix"],
+      ["ives", "ife"],
+      ["ooves", "oof"],
       ["men", "man"]
     ];
 
@@ -10726,9 +10723,9 @@
 
     let wordStats = {};
 
-  </script>
+    </script>
 
-  <script data-title="main.js">
+    <script data-title="main.js">
     function buildListOfCompoundWords(dB) {
       /* ## 
       A) goes through currentDb and checks for compounds (words containing spaces / hyphens)
@@ -10816,15 +10813,12 @@
       document.getElementById("set-font").addEventListener("change", changeFont);
       document.getElementById("set-refresh").addEventListener("change", changeRefresh);
       refreshButton.addEventListener("click", processText);
-      // const backupButton = document.getElementById("backup-btn");
-      // const backupDialog = document.getElementById("backup-dlg");
       backupButton.addEventListener("click", showBackups);
       backupDialog.addEventListener("mouseleave", closeDialog);
       backupSave.addEventListener("click", saveBackup);
 
       // ## for text input box
       rawDiv.addEventListener("input", processText);
-      // rawDiv.addEventListener("input", processText);
       rawDiv.addEventListener("paste", normalizePastedText);
 
     }
@@ -10846,20 +10840,13 @@
       4) hide backup setting on tab 1
       5) ? rationalize dialogs so there is a coherent, extenable system
       */
-      // const dialog = document.getElementById("backup-dlg");
-      // for (const id of ["backup_0", "backup_1"]){
-      for (const id of backupIDs) {
-        // console.log(">>",id)
+      for (const id of backupIDs){
         const backup = document.getElementById(id)
         const lsContent = localStorage.getItem(id);
         let content = (lsContent) ? lsContent.trim() : "";
-        // let content = localStorage.getItem(id).trim();
         if (content) {
-          // content = content.trim();
           if (localStorage.getItem("mostRecent") == id) content = "<span class='level-o'>Most Recent: </span>" + content;
-          // backup.innerHTML = (content) ? content : "[empty]"
-          // backup.disabled = (content) ? false : true;
-          backup.innerHTML = content;
+          backup.innerHTML = content; 
           backup.disabled = false;
         } else {
           backup.innerHTML = "[empty]";
@@ -10869,7 +10856,7 @@
       backupDialog.style.setProperty("display", "flex");
     }
 
-    function loadBackup(id) {
+    function loadBackup(id){
       const swap = JSON.parse(JSON.stringify(rawDiv.innerText));
       const restoredContent = localStorage.getItem(id);
       if (!restoredContent) return;
@@ -10878,24 +10865,21 @@
       if (swap) localStorage.setItem(id, swap);
       closeDialog("backup-dlg");
     }
-
-    function updateBackup(id) {
+    
+    function updateBackup(id){
       // ## current logic: 0=from last refresh, 1=regularly updated (if longer than prev)
       if (window.localStorage.getItem(id)) {
         let newContent = rawDiv.innerText.trim();
         if (!newContent) return;
-        // if (window.localStorage.getItem(id).length < rawDiv.innerHTML.length) window.localStorage.setItem(id, rawDiv.innerHTML)
         for (other of backupIDs) {
           // ## don't hold duplicate backups
           if (id != other && newContent == localStorage.getItem(other)) return;
         }
-        // if (window.localStorage.getItem(id).length < rawDiv.innerText.length) window.localStorage.setItem(id, rawDiv.innerText)
         if (window.localStorage.getItem(id).length < newContent.length) window.localStorage.setItem(id, newContent)
         localStorage.setItem("mostRecent", id);
-      } else {
-        window.localStorage.setItem(id, " ")
+      } else { 
+        window.localStorage.setItem(id, " ") 
       }
-      // console.log("localStorage",window.localStorage.getItem("backup"), window.localStorage.getItem("backup")?.length < rawDiv.innerHTML?.length)
     }
 
     function resetBackup() {
@@ -10903,18 +10887,16 @@
       let mostRecent = rawDiv.innerText.trim();
       if (!mostRecent) mostRecent = localStorage.getItem(localStorage.getItem("mostRecent"));
       if (!mostRecent || !mostRecent.trim().length) return;
-      // if (!localStorage.getItem(backupIDs[1]).trim().length) return;
-      // localStorage.setItem("backup_0", window.localStorage.getItem("backup_0"));
       localStorage.setItem(backupIDs[0], mostRecent);
-      localStorage.setItem("mostRecent", backupIDs[0]);
-      localStorage.setItem(backupIDs[1], "");
+      localStorage.setItem("mostRecent",backupIDs[0]);
+      localStorage.setItem(backupIDs[1],"");
     }
 
     function saveBackup() {
       const currentText = rawDiv.innerText;
-      if (currentText && currentText.trim() !== localStorage.getItem(backupIDs[1])) {
-        localStorage.setItem(backupIDs[1], currentText.trim());
-        localStorage.setItem("mostRecent", backupIDs[1]);
+      if (currentText && currentText.trim() !== localStorage.getItem(backupIDs[1]) ) {
+        localStorage.setItem(backupIDs[1],currentText.trim());
+        localStorage.setItem("mostRecent",backupIDs[1]);
         backupSave.innerText = "text saved";
         backupSave.classList.add("error");
       } else {
@@ -10927,18 +10909,8 @@
       }, 1000);
     }
 
-    // function closeBackupDialog() {
-    //   closeDialog("backup-dlg")
-    // }
-
     function closeDialog(id) {
-      if (id.target) {
-        id = "backup-dlg";
-        // id.preventDefault;
-        // id = id.target.id;
-      }
-      // if (id.target) id = "backup-dlg";
-      // console.log("closedialog", id)
+      if (id.target) id = "backup-dlg";
       document.getElementById(id).style.display = "none";
     }
 
@@ -11103,23 +11075,14 @@
       let previousInitial = "";
       let currentInitial = "";
       let i = 0;
-      if (!results.length) {
+      if (!results.length){
         output = "<tr><td></td><td class='error'>No matching words found.</td></tr>";
       } else {
         for (const entry of results.sort(compareByLemma)) {
-          // const col1 = `<td>${i + 1}: </td>`;
-          // const lemma = `<strong>${entry[LEMMA]}</strong>`;
-          // const pos = `[${entry[POS].trim()}]`;
-          // let level = level_subs[entry[LEVEL][0]];
-          // if (!level) continue;
-          // let note = entry[NOTE].trim();
-          // note = note ? `, ${note}` : "";
-          // const col2 = `<td class='level-${level[0]}'>${lemma} <span class="pos">${pos}</span> ${level}${note}</td>`;
           currentInitial = entry[LEMMA][0].toLowerCase();
-          if (currentInitial !== previousInitial) {
-            output += format_results_table(currentInitial.toLocaleUpperCase(), "", "black", "");
+          if (currentInitial !== previousInitial){
+            output += format_results_table(currentInitial.toLocaleUpperCase(),"","black","");
           }
-          // const col1 = `<td>${i + 1}: </td>`;
           const lemma = `<strong>${entry[LEMMA]}</strong>`;
           const pos = `[${entry[POS].trim()}]`;
           let level = level_subs[entry[LEVEL][0]];
@@ -11128,15 +11091,15 @@
           note = note ? `, ${note}` : "";
           const col2 = `${lemma} <span class="pos">${pos}</span> ${level}${note}`;
           const class2 = `level-${level[0]}`;
-          output += format_results_table(i + 1, col2, "", class2);
+          output += format_results_table(i + 1,col2,"",class2);
           previousInitial = currentInitial;
           i++;
         }
       }
       return "<table>" + output + "</table>";
     }
-
-    function format_results_table(col1, col2, class1, class2, row) {
+    
+    function format_results_table(col1,col2,class1,class2,row) {
       class1 = (class1) ? ` class="${class1}"` : "";
       class2 = (class2) ? ` class="${class2}"` : "";
       row = (row) ? ` class="${row}"` : "";
@@ -11332,36 +11295,36 @@
     }
 
     function findCompounds(chunks) {
-      let tmp = [];
-      for (chunk of chunks) {
-        /* for each word, checks normalized words to end of chunk in search of compound match
-        */
-        // for (let word_i = 0; word_i < chunk.length - 1; word_i++) {
-        for (let word_i = 0; word_i < chunk.length; word_i++) {
-          let tail = [];
-          for (let j = word_i; j < chunk.length; j++) {
-            tail.push(chunk[j][0])
-          }
-          tail = tail.join(" ");
-          // console.log("...",chunk[word_i],tail)
-          let matches = [];
-          for (compound in currentDb.compounds) {
-            if (currentDb.compounds.hasOwnProperty(compound)) {
-              const [c_lemma, c_id] = [compound, currentDb.compounds[compound]];
-              // console.log("@@",c_lemma,c_id,tail)
-              // if (tail.startsWith(c_lemma)) matches.push(c_id);
-              if (tail.startsWith(c_lemma)) matches.push([c_id, updateWordStats(c_id)]);
+        let tmp = [];
+        for (chunk of chunks) {
+          /* for each word, checks normalized words to end of chunk in search of compound match
+          */
+          // for (let word_i = 0; word_i < chunk.length - 1; word_i++) {
+          for (let word_i = 0; word_i < chunk.length; word_i++) {
+            let tail = [];
+            for (let j = word_i; j < chunk.length; j++) {
+              tail.push(chunk[j][0])
             }
+            tail = tail.join(" ");
+            // console.log("...",chunk[word_i],tail)
+            let matches = [];
+            for (compound in currentDb.compounds) {
+              if (currentDb.compounds.hasOwnProperty(compound)) {
+                const [c_lemma, c_id] = [compound, currentDb.compounds[compound]];
+                // console.log("@@",c_lemma,c_id,tail)
+                // if (tail.startsWith(c_lemma)) matches.push(c_id);
+                if (tail.startsWith(c_lemma)) matches.push([c_id,updateWordStats(c_id)]);
+              }
+            }
+            chunk[word_i].push(matches);
+            // console.log(">>>",chunk[word_i],tail,matches)
           }
-          chunk[word_i].push(matches);
-          // console.log(">>>",chunk[word_i],tail,matches)
+          // ## required so that all wordArrs have matches ready for the next stage
+          chunk[chunk.length - 1].push([]);
+          tmp.push(...chunk);
         }
-        // ## required so that all wordArrs have matches ready for the next stage
-        chunk[chunk.length - 1].push([]);
-        tmp.push(...chunk);
+        return tmp;
       }
-      return tmp;
-    }
 
     function addLookUp(textArr) {
       /* textArr = array of [normalized, raw]
@@ -11408,7 +11371,7 @@
       return [processedTextArr, wordCount, wordStats];
     }
 
-    function updateWordStats(id) {
+    function updateWordStats(id){
       if (!wordStats[id]) {
         wordStats[id] = 1;
       } else if (!["contraction", "unknown", "digit"].includes(getDbEntry(id)[POS])) {
@@ -11420,9 +11383,6 @@
     function markOfflist(word, type) {
       // ## adds entry to offlistDb & returns ID (always negative number)
       // ## This creates a dummy dB entry for offlist words
-      // WiP: currently returns entry as before
-      // if (!word) return;
-      // TODO: find out why this is being called with an empty word??
       let tmp = "";
       let isUnique = true;
       for (const i in offlistDb) {
@@ -11432,37 +11392,28 @@
           break;
         }
       }
-      // if (isUnique && word.length > 0) {
-      // if (isUnique && word) {
       if (isUnique) {
         tmp = [-(offlistIndex), word, type, [offlist_subs.indexOf(type) + level_headings.length], ""];
         offlistDb.push(tmp);
         offlistIndex++
       }
-      // console.log("debug *markofflist* ", word, type, tmp)
-      // return tmp;
       return tmp[0];
-      // return [-1, word, type, [offlist_subs.indexOf(type) + level_headings.length], ""];
     }
 
-    function updateArray(array, pos, value) {
-      /* Beware: this updates the live db array: a future version should probably avoid doing this!
-      */
-      if (typeof array[pos] === "undefined") {
-        array.push(value)
-      } else {
-        array[pos] = value;
-      }
-    }
+    // function updateArray(array, pos, value) {
+    //   if (typeof array[pos] === "undefined") {
+    //     array.push(value)
+    //   } else {
+    //     array[pos] = value;
+    //   }
+    // }
 
     function lookUpWord([word, raw_word]) {
       /* 
       returns => array of matched ids
       NB. always returns a match, even if it is just "offlist"
-      // console.log("debug *lookup* ",word,typeof word, raw_word)
       */
       let matches = [];
-      // if (currentDb.db[word]) return matches;
       if (word.match(/\d/i)) {
         matches.push(markOfflist(word, "digit"));
         return matches;
@@ -11472,7 +11423,6 @@
         return matches;
       }
       else if (contractions.includes(word)) {
-        // ## check for common stop words
         matches.push(markOfflist(word, "contraction"));
       }
       else if (raw_word[0] === raw_word[0].toUpperCase() && setOfCommonNames.has(word)) {
@@ -11480,74 +11430,41 @@
       }
       else {
         matches = dbLookup(word);
+        if (irregVerbLookUp[word]) {
+          /* ## test = hidden written stole lain */
+          const candidate = dbLookup(irregVerbLookUp[word])[0];
+          matches.push(candidate);
+        }
         if (word.slice(-3) == "ing") {
-          /* ## check for Ving
-          test = "bobbing begging swimming buzzing picnicking hoping dying going flying"
-          */
-          for (const id of findBaseForm(word, g_subs)) {
-            const match = getDbEntry(id);
-            if (match[POS].includes("verb")) matches.push(id);
-          }
+          /* ## test = "bobbing begging swimming buzzing picnicking hoping dying going flying" */
+          addToMatches(word,matches,g_subs,"verb");
+        }
+        if (word.slice(-2) == "ed") {
+          /* ## test = robbed gagged passed busied played visited */
+          addToMatches(word,matches,d_subs,"verb");
         }
         if (!matches.length) {
-          if (irregVerbLookUp[word]) {
-            /* ## check for irregular past tenses
-            test = hidden written stole lain
-            */
-            const candidate = dbLookup(irregVerbLookUp[word])[0];
-            matches.push(candidate);
-          }
-          else if (word.slice(-2) == "ed") {
-            /* ## check for regular past tenses
-            test = robbed gagged passed busied played visited
-            */
-            for (const id of findBaseForm(word, d_subs)) {
-              const match = getDbEntry(id);
-              if (match[POS].includes("verb")) matches.push(id);
-            }
-          }
-          else if (word.slice(-2) == "st") {
-            /* ## check for superlative adjs and advs
-            test = "longest hottest prettiest closest soonest"
-            */
-            for (const id of findBaseForm(word, est_subs)) {
-              const match = getDbEntry(id);
-              // if (match[POS].includes("adj")) matches.push(id);
-              if (match[POS].includes("ad")) matches.push(id);
-            }
+          if (word.slice(-2) == "st") {
+            /* ## test = "longest hottest prettiest closest soonest" */
+            addToMatches(word,matches,est_subs,"ad");
           }
           else if (word.slice(-1) == "r") {
-            /* ## check for comparative adjs & advs (e.g. sooner) (filters out agent nouns)
-            test = "longer hotter prettier closer sooner"
-            */
-            for (const id of findBaseForm(word, er_subs)) {
-              const match = getDbEntry(id);
-              // if (match[POS].includes("adj")) matches.push(id);
-              if (match[POS].includes("ad")) matches.push(id);
-            }
-          } else if (word.slice(-1) == "s") {
-            /* ## check for plurals or 3rd pers pres verbs
-            test: families tries potatoes scarves crises boxes dogs
-            ## Filter out adjs (can't take '-s')
-            */
+            /* ## test = "longer hotter prettier closer sooner" */
+            addToMatches(word,matches,er_subs,"ad");
+          } 
+          else if (word.slice(-1) == "s") {
+            /* ## test: families tries potatoes scarves crises boxes dogs ## Filter out adjs (can't take '-s') */
             const candidates = findBaseForm(word, s_subs);
             for (const id of candidates) {
               const candidate = getDbEntry(id);
-              // if (candidate.length > 0 && !candidate[POS].includes("adj")) {
               if (candidate.length > 0 && !candidate[POS] !== "adj.") {
-                // if (candidate.length > 0 && candidate[POS] === "adj.") {
                 matches.push(id);
               }
             }
           }
           else if (word.slice(-2) == "ly") {
-            /* ## check for adverbs
-            test: happily clumsily annually finely sensibly sadly automatically
-            */
-            for (const id of findBaseForm(word, y_subs)) {
-              const match = getDbEntry(id);
-              if (match[POS].includes("adj")) matches.push(id);
-            }
+            /* ## test: happily clumsily annually finely sensibly sadly automatically */
+            addToMatches(word,matches,y_subs,"adj");
           }
           else if (irregPluralLookUp[word]) {
             /* ## test: indices, cacti, criteria, phenomena, radii, formulae, bases, children, crisis */
@@ -11559,8 +11476,14 @@
           if (!matches.length) matches.push(markOfflist(word, "offlist"));
         }
       }
-      // console.log("debug lookupword", matches)
       return matches;
+    }
+
+    function addToMatches(word, matches, lookup, pos) {
+      for (const id of findBaseForm(word, lookup)) {
+        const match = getDbEntry(id);
+        if (match[POS].includes(pos)) matches.push(id);
+      }
     }
 
     function getDbEntry(id) {
@@ -11596,7 +11519,6 @@
           leaveSpace = "";
         }
         isFirstWord = false;
-        // console.log(">>>",wordArr)
         // ## duplicateCount = running total; totalRepeats = total
         const matches = wordArr[2];
         let matchCount = 0;
@@ -11618,10 +11540,8 @@
             showDuplicateCount = "<sup>" + totalRepeats + "</sup>";
             anchor = ` id='all_${id}_${duplicateCount}'`;
           }
-          // displayWord = `<span data-entry="${id}" data-word="${word}" class="${levelClass}${relatedWordsClass}${duplicateClass}"${anchor}>${ rawWord + showDuplicateCount}</span> `;
           let localWord = rawWord;
           const origLemma = (currentDb.db[id]) ? currentDb.db[id][LEMMA] : word;
-          // console.log("**", word, id,origLemma, origLemma.includes("-"))
           if (origLemma.includes(" ") || origLemma.includes("-")) localWord = origLemma;
           displayWord = `${leaveSpace}<span data-entry="${id}:${word}" class="${levelClass}${relatedWordsClass}${duplicateClass}"${anchor}>${localWord + showDuplicateCount}</span>`;
           if (matchCount < matches.length - 1) displayWord += " /" + (leaveSpace ? "" : " ");
@@ -11630,13 +11550,11 @@
           wasEOL = false;
         }
       }
-      // console.log("convertto html", htmlString)
       return htmlString;
     }
 
     function getLevelPrefix(level_num) {
       let level = level_subs[level_num];
-      // if (currentDb.isKids && level_num !== OFFLIST) level = "k";
       if (currentDb.isKids && level_num < OFFLIST) level = "k";
       return level[0];
     }
@@ -11649,15 +11567,12 @@
         listOfRepeats = "";
       } else {
         for (const key of Object.keys(wordStats).sort(compareByLemma)) {
-          // console.log(">>" , key)
           const entry = getDbEntry(key);
           const word = entry[LEMMA];
           if (wordStats[key] > 1 && !repeatableWords.includes(word)) {
             countReps++;
-            // let anchors = "<span class='anchors'>";
             let anchors = "";
             for (let x = 1; x <= wordStats[key]; x++) {
-              // const display = (x === 1) ? word : x;
               let display = x;
               let displayClass = 'class="anchors" ';
               if (x === 1) {
@@ -11666,7 +11581,6 @@
               }
               anchors += ` <a href="#" ${displayClass}onclick="jumpToDuplicate('all_${key}_${x}'); return false;">${display}</a>`;
             }
-            // anchors += "</span>";
             listOfRepeats += `<p data-entry="${key}" class='duplicate all_${key} level-${getLevelPrefix(entry[LEVEL][0])}'>${anchors}</p>`;
           }
         }
@@ -11699,7 +11613,6 @@
           htmlText += "<h1>There are no significant repeated words.</h1>"
         }
         const numOfWords = (wordCount > 0) ? `<span class="text-right dark">(c.${wordCount} word${(wordCount > 1 ? "s" : "")}) <a href='#all_repeats' class='medium'>&#x25BC;</a></span>` : "";
-        // finalLegend.innerHTML = numOfWords;
         finalLegend.innerHTML = displayDbName(numOfWords);
         finalInfoDiv.style.display = "flex";
       }
@@ -11709,13 +11622,11 @@
 
     function displayDbName(msg) {
       if (!msg) msg = "";
-      // return "Text checked against <span id='db_name2' class='dbColor'>" + currentDb.name + "</span>";
       return `Checked against <span id='db_name2' class='dbColor'>${currentDb.name}</span>${msg}`;
     }
 
     function dbLookup(word, pos) {
       // ## returns list of matched IDs
-      // let matches = currentDb.db.filter(el => el[0].toLowerCase() == word);
       const search = {
         term: `^${word.toLowerCase()}$`,
         level: "",
@@ -11918,9 +11829,8 @@
       return currentTab === 0;
     }
 
-  </script>
+    </script>
 
 
-</body>
-
+  </body>
 </html>
