@@ -696,7 +696,7 @@
     dialog {
       display: none;
       flex-direction: column;
-      /* justify-content: space-between; */
+      /* justify-content: flex-start; */
       width: 60%;
       height: 50%;
       position: fixed;
@@ -717,9 +717,11 @@
 
     dialog div:nth-child(2) {
       display: flex;
-      /* justify-content: space-between;*/
+      justify-content: flex-start;
+      align-items: flex-start;
       overflow: inherit; 
       padding: 3px;
+      /* background-color: red; */
     }
 
     #backup-msg {
@@ -9994,7 +9996,7 @@
       form: document.getElementById("t1_form"),
       resultsLegend: document.getElementById("t1_results_legend"),
       resultsText: document.getElementById("t1_results_text"),
-      title: document.getElementById("t1_term_legend"),
+      t1_title: document.getElementById("t1_term_legend"),
       root_css: document.documentElement,
       refreshButton: document.getElementById("refresh_button"),
       rawDiv: document.getElementById("t2_raw_text"),
@@ -10011,6 +10013,7 @@
 
     const lookup = {
 
+      // ## These are used in the tab 1 GUI
       legends: {
         term: "Search",
         match: "Match",
@@ -10028,6 +10031,8 @@
       //   c: ""
       // }
 
+
+      // ## These correlate with the numbers in the dBs
       level_headings: [
         "elementary",
         "intermediate",
@@ -10064,6 +10069,7 @@
       ],
 
 
+      // ## Computed levels
       offlist_subs: [
         "offlist",
         "contraction",
@@ -10071,9 +10077,8 @@
         "name"
       ],
 
-      // const level_offset = level_headings.length;
 
-
+      // ## THE FOLLOWING ALL TRY TO INTERPRET WORD INFLECTIONS TO MATCH TO dB
       // ## plural nouns, 3rd person present verbs
       s_subs: {
         // _: [-3, -2],
@@ -10196,10 +10201,11 @@
         ["ices", "ix"],
         ["ives", "ife"],
         ["ooves", "oof"],
+        ["arves", "arf"],
+        ["lves", "lf"],
         ["men", "man"]
       ],
 
-      // ## contractions
       contractions: [
         "m",
         "re",
@@ -10222,7 +10228,6 @@
         an: "a"
       },
 
-      // const pastVerbLookUp = {
       irregVerb: {
         aren: "be",
         couldn: "could",
@@ -10242,6 +10247,7 @@
         weren: "be",
         won: "will",
         wouldn: "would",
+        cannot: "can",
         am: "be",
         is: "be",
         are: "be",
@@ -10335,6 +10341,8 @@
         made: "make",
         meant: "mean",
         met: "meet",
+        outdid: "outdo",
+        outdone: "outdo",
         paid: "pay",
         ran: "run",
         rang: "ring",
@@ -10701,6 +10709,7 @@
     }
 
     
+    // ## Global constants
     const C = {
       ID: 0,
       LEMMA: 1,
@@ -10715,6 +10724,7 @@
       backupIDs: ["backup_0", "backup_1"]
     }
 
+    // ## Global variables
     let V = {
       // ## offlist db uses negative ids (translate to positive index) so no 0
       offlistDb: [["unused"]],
@@ -10735,7 +10745,7 @@
       A) goes through currentDb and checks for compounds (words containing spaces / hyphens)
       These are a problem as spaces are used to divide words;
       This function creates a table of items (compounds) to be checked against the text
-      before it is divided into words. All compounds are converted into 3 HTM.forms:
+      before it is divided into words. All compounds are converted into 3 forms:
       1) compoundword, 2) compound word, 3) compound-word
 
       B) updates database to include isCOMPOUND marker to avoid searching for words twice
@@ -10832,7 +10842,7 @@
     function finalInit() {
       changeDb_shared(0);
       // changeDb_words();
-      refreshLabels("t1_HTM.form");
+      refreshLabels("t1_form");
       resetTab1();
     }
 
@@ -11029,18 +11039,15 @@
       const pos = data.pos.join("|");
       const searchTerms = term + level + pos;
       if (!searchTerms) {
-        // console.log("oops, nowt to look for...")
         errorMsg = "Please enter at least one search term to restrict the number of results.";
       }
       else if (term.search(/[^a-zA-Z\s\-]/g) > -1) {
-        // console.log("oops, dunno what that is...")
         errorMsg = "The only non-alphabetic character you can search for is the hyphen (-).";
       }
       else {
         const checkTerm = term.split(" ");
         // console.log("debug *submitForm*2",checkTerm,checkTerm.length)
         if (checkTerm.length > 1) {
-          // console.log("oops, more than one word!!!")
           errorMsg = "You can only search for one word at a time.<br>";
           term = checkTerm[0];
         }
@@ -11059,7 +11066,6 @@
     }
 
     function get_results(find) {
-      // let results = currentDb.db.filter(el => el[LEMMA].search(find.term) != -1);
       const regex = new RegExp(find.term, 'i');
       let results = V.currentDb.db.filter(el => el[C.LEMMA].search(regex) != -1);
       if (find.level.length) {
@@ -11124,7 +11130,7 @@
     function resetTab1() {
       HTM.form.reset();
       display_results([]);
-      refreshLabels("t1_HTM.form");
+      refreshLabels("t1_form");
       HTM.resultsText.innerHTML = "";
     }
 
@@ -11208,13 +11214,15 @@
 
     // ## if text is pasted in, this is where processing starts
     function normalizePastedText(e) {
-      // ## this is needed to prevent cursor resetting to start with every paste
+      // ## preventDefault needed to prevent cursor resetting to start with every paste
       event.preventDefault();
       let paste = (event.clipboardData || window.clipboardData).getData('text');
       const selection = window.getSelection();
       paste = paste.replace(/[\n\r]+/g, "\n\n");
       selection.getRangeAt(0).insertNode(document.createTextNode(paste));
       processText(e);
+      // resetBackup();
+      saveBackup();
       // console.log("debug *normalize*", paste)
     }
 
