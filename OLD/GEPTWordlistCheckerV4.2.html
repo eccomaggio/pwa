@@ -10742,7 +10742,6 @@
         // let safeWord = word.replace(/-/g, "##").replace(/ /g, "@@");
         // let safeWord = id;
         // ## add extra isCOMPOUND entry to db; || ensures no overwriting 
-        // entry.pop(false);
         entry[isCOMPOUND] = dealWithCompounds(" ", word, id, compounds);
         entry[isCOMPOUND] = dealWithCompounds("-", word, id, compounds) || entry[isCOMPOUND];
         if (word.includes("'")) {
@@ -11090,7 +11089,7 @@
       if (find.pos) {
         results = results.filter(el => el[POS].search(find.pos) != -1);
       }
-      return results.sort();
+      return results;
     }
 
     function format_results(results) {
@@ -11100,7 +11099,8 @@
       if (!results.length){
         output = "<tr><td></td><td class='error'>No matching words found.</td></tr>";
       } else {
-        for (const entry of results) {
+        for (const entry of results.sort(compareByLemma)) {
+        // for (const entry of results) {
           const col1 = `<td>${i + 1}: </td>`;
           const lemma = `<strong>${entry[LEMMA]}</strong>`;
           const pos = `[${entry[POS].trim()}]`;
@@ -11650,16 +11650,14 @@
     }
 
     function compareByLemma(a, b) {
-      const lemmaA = getDbEntry(a)[LEMMA];
-      const lemmaB = getDbEntry(b)[LEMMA];
+      const lemmaA = getDbEntry(a)[LEMMA].toLowerCase();
+      const lemmaB = getDbEntry(b)[LEMMA].toLowerCase();
       if (lemmaA < lemmaB) {
         return -1;
       }
       if (lemmaA > lemmaB) {
         return 1;
       }
-
-      // names must be equal
       return 0;
     }
 
