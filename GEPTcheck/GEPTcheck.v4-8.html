@@ -10738,7 +10738,23 @@
       level_subs: lookup.level_headings.concat(lookup.offlist_subs)
     }
 
-    if (!localStorage.getItem("mostRecent")) localStorage.setItem("mostRecent",C.backupIDs[0]);    </script>
+    // const debounceProcessText = debounce(() => processText(HTM.rawDiv))
+
+    // const debounce = (func, delay) => {
+    //   let debounceTimer;
+    //   return function () {
+    //     const context = this;
+    //     const args = arguments;
+    //     console.log("in debounce 2:",args);
+    //     console.log("in debounce 1:", context);
+    //     clearTimeout(debounceTimer);
+    //     debounceTimer = setTimeout(() => func.apply(context, args), delay);
+    //   }
+    // } 
+
+    if (!localStorage.getItem("mostRecent")) localStorage.setItem("mostRecent",C.backupIDs[0]);   
+    
+    </script>
 
     <script data-title="main.js">
     function buildListOfCompoundWords(dB) {
@@ -10833,7 +10849,8 @@
       HTM.backupSave.addEventListener("click", saveBackup);
 
       // ## for text input box
-      HTM.rawDiv.addEventListener("input", processText);
+      // HTM.rawDiv.addEventListener("input", processText);
+      HTM.rawDiv.addEventListener("input", debounce(processText, 500));
       HTM.rawDiv.addEventListener("paste", normalizePastedText);
 
       HTM.finalTextDiv.addEventListener("mouseover", hoverEffects);
@@ -11225,6 +11242,16 @@
       // resetBackup();
       saveBackup();
       // console.log("debug *normalize*", paste)
+    }
+
+    function debounce(callback, delay) {
+      let timeout;
+      return function () {
+        let originalArguments = arguments;
+
+        clearTimeout(timeout);
+        timeout = setTimeout(() => callback.apply(this, originalArguments), delay);
+      }
     }
 
     // ## if text is typed in, this is where processing starts
